@@ -1,3 +1,165 @@
+<!--
+  ~ Copyright 2016 Bas van den Boom 'Z3r0byte'
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <resources>
     <string name="app_name">Magistify</string>
+
+    <string name="button_do_nothing">Niks doen (%1$d)</string>
+    <string name="button_do_nothing_active">Niks doen</string>
+    <string name="button_donate">Doneren</string>
+    <string name="button_watch_ad">Advertentie</string>
+
+    <string name="customactivityoncrash_error_activity_close_app">App sluiten</string>
+    <string name="customactivityoncrash_error_activity_error_details_clipboard_label">Fouten-informatie</string>
+    <string name="customactivityoncrash_error_activity_error_details_close">Sluiten</string>
+    <string name="customactivityoncrash_error_activity_error_details_copied">Gekopiëerd naar klembord</string>
+    <string name="customactivityoncrash_error_activity_error_details_copy">Kopiëren naar klembord</string>
+    <string name="customactivityoncrash_error_activity_error_details_title">Details fouten</string>
+    <string name="customactivityoncrash_error_activity_error_details">Fouten details</string>
+    <string name="customactivityoncrash_error_activity_error_occurred_explanation">Er is een onverwachte fout opgetreden.\nVerstuur a.u.b. de foutgegevens naar de ontwikkelaar. z3r0byte.apps@gmail.com</string>
+    <string name="customactivityoncrash_error_activity_restart_app">App opnieuw starten</string>
+    <string name="customactivityoncrash_error_activity_unknown_exception">Onbekende fout</string>
+
+    <string name="dialog_logout_desc">Als je uitlogt zul je opnieuw moeten inloggen en alle data wordt gewist.</string>
+    <string name="dialog_logout_title">Uitloggen?</string>
+    <string name="dialog_skip_login_desc">Als je het inloggen overslaat, kun je alleen de offline data gebruiken totdat je de
+        sessie ververst.</string>
+    <string name="dialog_skip_login_title">Inloggen overslaan?</string>
+    <string name="dialog_status_title">Magister 6 status</string>
+    <string name="dialog_status_desc">Hiermee kun je zien of Magister 6 een storing heeft. Groen betekent alles OK, oranje
+        betekent langzaam, en rood betekent offline. \nDe gegevens worden van http://status.magis-app.nl/ gehaald, een
+        sub-projectje van mij. De API kun je zelf ook gebruiken, mocht je dat willen.</string>
+    <string name="dialog_manual_school_title">Handmatig invoeren</string>
+    <string name="dialog_manual_school_desc">Voer de url van de school handmatig in. Voer alleen het gedeelte voor .magister.net
+        in.\nVb: Als de url van je school https://commanderij.magister.net is, voer je alleen commanderij in.</string>
+    <string name="dialog_confirm_school_title">URL bevestigen</string>
+    <string name="dialog_confirm_school_desc">Je hebt %1$s ingevoerd, is https://%2$s.magister.net de URL van jouw school? Let op:
+        Als je de verkeerde URL hebt ingevoerd, kun je niet inloggen!</string>
+    <string name="dialog_bug_title">Bug melden</string>
+    <string name="dialog_bug_desc">Als je een fout wilt melden, kun je gewoon je telefoon op en neer schudden. De app maakt dan
+        automatisch een screenshot en opent een mail venster. Hier kun je dan een korte beschrijving van de fout invullen.</string>
+    <string name="dialog_do_nothin_title">Niks doen?</string>
+    <string name="dialog_do_nothing_desc">Als je niks doet zul je dit bericht vandaag nog elke keer krijgen als je de app opstart. Als je toch een advertentie
+    kijkt, zul je dit bericht voorlopig niet meer zien, en als je doneert krijg je dit bericht nooit meer te zien.</string>
+
+
+    <string name="drawer_logout">Log uit</string>
+    <string name="drawer_refresh_session">Sessie verversen</string>
+    <string name="report_bug">Bug melden</string>
+    <string name="drawer_settings">Instellingen</string>
+    <string name="drawer_status">Status</string>
+    <string name="drawer_tools">Tools</string>
+
+    <string name="err_set_date_first">Stel eerst een datum in.</string>
+    <string name="err_fill_in_everything">Fout: Vul eerst alle velden in!</string>
+    <string name="err_invalid_session">Ongeldige sessie…</string>
+    <string name="err_no_connection">Er is iets misgegaan in de verbinding, controleer je internetverbinding.</string>
+    <string name="err_no_lessons">Er zijn geen lessen gevonden</string>
+    <string name="err_not_logged_in">Fout: je bent niet ingelogd.</string>
+    <string name="err_set_start_first">Stel eerst een begintijd in.</string>
+    <string name="err_terrible_wrong_on_login">Er is iets vreselijk misgegaan met het inloggen, log aub helemaal opnieuw in. :(</string>
+    <string name="err_unknown">Er is een onbekende fout opgetreden, probeer het opnieuw.</string>
+    <string name="err_wrong_username_or_password">Verkeerde gebruikersnaam of wachtwoord</string>
+
+    <string name="hint_description">Beschrijving</string>
+    <string name="hint_location">Locatie</string>
+    <string name="hint_password">Wachtwoord</string>
+    <string name="hint_search_school">Een deel van de naam/url van de school</string>
+    <string name="hint_title">Titel</string>
+    <string name="hint_username">Gebruikersnaam</string>
+
+    <string name="menu_add_appointment">Afspraak toevoegen</string>
+    <string name="menu_delete">Verwijderen</string>
+    <string name="menu_choose_date">Datum kiezen</string>
+    <string name="menu_to_today">Naar vandaag</string>
+
+    <string name="msg_amount_found_part_1">Er zijn </string>
+    <string name="msg_amount_found_part_2"> resultaten gevonden.</string>
+    <string name="msg_annotation">Aantekening</string>
+    <string name="msg_appointment_created_successfully">Afspraak aangemaakt.</string>
+    <string name="msg_create_appointment">Aanmaken</string>
+    <string name="msg_date">Datum</string>
+    <string name="msg_deleted">Verwijderd</string>
+    <string name="msg_description">Beschrijving</string>
+    <string name="msg_details">Details</string>
+    <string name="msg_duration">Duur</string>
+    <string name="msg_end">einde</string>
+    <string name="msg_entire_day">Hele dag</string>
+    <string name="msg_exam">Examen</string>
+    <string name="msg_final_preparations">Laatste voorbereidingen...</string>
+    <string name="msg_finish">Afronden</string>
+    <string name="msg_finished">Afgerond</string>
+    <string name="msg_get_user_data">Gebruikersdata opvragen...</string>
+    <string name="msg_homework">Huiswerk</string>
+    <string name="msg_info">Informatie</string>
+    <string name="msg_location">Lokatie</string>
+    <string name="msg_logged_in">Ingelogd</string>
+    <string name="msg_logging_in">Inloggen…</string>
+    <string name="msg_login_on_Magister">Log in op Magister</string>
+    <string name="msg_login_progress_1">Stap 1/2: oude sessie verwijderen...</string>
+    <string name="msg_login_progress_2">Stap 2/2: opnieuw inloggen...</string>
+    <string name="msg_login">Log in</string>
+    <string name="msg_no_subject">Dit is geen vak!</string>
+    <string name="msg_no_results">Er zijn (nog) geen resultaten, tik om handmatig in te voeren.</string>
+    <string name="msg_old_version">De data-structuur van Magistify is veranderd, we laten je daarom de login-stappen opnieuw doorlopen.</string>
+    <string name="msg_oral">Mondeling</string>
+    <string name="msg_patience">Even geduld aub</string>
+    <string name="msg_period">Lesuur</string>
+    <string name="msg_preparing_databases">Databases voorbereiden...</string>
+    <string name="msg_quiz">SO</string>
+    <string name="msg_refresh_session_short">Opn proberen</string>
+    <string name="msg_restart_to_apply">Herstart de app om de wijzigingen door te voeren.</string>
+    <string name="msg_school_selected">Naam van geselcteerde school: </string>
+    <string name="msg_search_school">School zoeken</string>
+    <string name="msg_search">Zoek</string>
+    <string name="msg_searching">Zoeken…</string>
+    <string name="msg_sponsor_title">Beste gebruiker,</string>
+    <string name="msg_sponsor_content">Het ontwikkelen van apps zoals Magistify kost geld. Zoals je weet is Magistify gratis en bevat deze geen advertenties, ik heb dus alleen
+        maar kosten, ongeveer 70 euro per jaar. Hierbij vraag ik je dan ook mij te steunen. Als elke gebruiker 1 keer op de advertentie zou klikken (en zou wachten tot de
+        pagina geladen is), zou dit bericht maar één keer per jaar weergegeven te hoeven worden. En als iedereen €0,50 zou doneren, zou dit bericht nooit meer hoeven komen.
+         \n \nAlvast bedankt, \nBas van den Boom - Ontwikkelaar Magistify</string>
+    <string name="msg_start">start</string>
+    <string name="msg_teacher">Docent</string>
+    <string name="msg_test">Proefwerk</string>
+    <string name="msg_today">Vandaag</string>
+    <string name="msg_undo">Ongedaan maken</string>
+    <string name="msg_using_cache">Cache wordt gebruikt.</string>
+
+    <string name="setup_desc_1">Let op: Ouder-accounts zijn op dit moment nog niet ondersteund.</string>
+    <string name="setup_desc_2">Magistify heeft toegang nodig tot de sdkaart om logbestanden en dergelijken op te slaan.</string>
+    <string name="setup_title_1">Welkom bij Magistify</string>
+    <string name="setup_title_2">Permissies</string>
+    <string name="setup_title_3"></string>
+    <string name="setup_title_4"></string>
+    <string name="setup_title_5"></string>
+
+    <string name="snackbar_login_error">De vorige keer is het inloggen mislukt.</string>
+    <string name="snackbar_no_permissions">Geef Magistify aub de benodigde permissies</string>
+    <string name="snackbar_no_school_selected">Selecteer eerst een school</string>
+    <string name="snackbar_not_logged_in">Log eerst in</string>
+
+    <string name="title_calendar">Agenda</string>
+    <string name="title_grades">Cijfers</string>
+    <string name="title_new_appointment">Nieuwe afspraak</string>
+    <string name="title_homework">Huiswerk</string>
+    <string name="title_presence">Aanwezigheid</string>
+    <string name="title_ad">Steun mij</string>
+
+    <string name="aboutLibraries_description_showIcon">true</string>
+    <string name="aboutLibraries_description_showVersion">true</string>
+    <string name="aboutLibraries_description_text">De eerste open-source Magister app. Magistify maakt gebruik van de volgende libraries (De magister.java library is aangepast):</string>
+
 </resources>
