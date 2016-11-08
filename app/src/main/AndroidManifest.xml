@@ -13,7 +13,6 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.z3r0byte.magistify">
 
@@ -39,7 +38,12 @@
             android:name=".SetupActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/Theme.Intro" />
-        <activity android:name=".DashboardActivity"></activity>
+        <activity android:name=".DashboardActivity" />
+
+        <service
+            android:name=".Services.SessionService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

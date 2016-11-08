@@ -223,7 +223,6 @@ public class LoginFragment extends SlideFragment {
                         editor.apply();
 
                         mSuccessfulLogin = true;
-                        mAllowForward = true;
                     } else {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
@@ -254,7 +253,18 @@ public class LoginFragment extends SlideFragment {
                         });
                     }
                 }
-                ResetButton();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        mAllowForward = true;
+                        ResetButton();
+                    }
+                }).start();
             }
         }).start();
     }

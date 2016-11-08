@@ -17,6 +17,8 @@
 <resources>
     <string name="app_name">Magistify</string>
 
+    <string name="title_dashboard">Dashboard</string>
+
 
     <string name="customactivityoncrash_error_activity_close_app">App sluiten</string>
     <string name="customactivityoncrash_error_activity_error_details_clipboard_label">Fouten-informatie</string>
@@ -89,5 +91,4 @@
     <string name="aboutLibraries_description_showIcon">true</string>
     <string name="aboutLibraries_description_showVersion">true</string>
     <string name="aboutLibraries_description_text">Magistify: alle tools voor Magister.<br /> Magistify maakt gebruik van de volgende libraries (De magister.java library is aangepast):</string>
-
 </resources>

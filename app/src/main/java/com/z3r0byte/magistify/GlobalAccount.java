@@ -16,15 +16,18 @@
 
 package com.z3r0byte.magistify;
 
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import net.ilexiconn.magister.Magister;
+import net.ilexiconn.magister.container.Profile;
+import net.ilexiconn.magister.container.User;
 
-public class DashboardActivity extends AppCompatActivity {
+/**
+ * Created by bas on 8-11-16.
+ */
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dashboard);
+public class GlobalAccount {
 
-    }
+    public static Magister MAGISTER;
+    public static User USER;
+    public static Profile PROFILE;
+
 }

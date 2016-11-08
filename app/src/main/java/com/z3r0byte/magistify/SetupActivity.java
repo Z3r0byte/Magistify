@@ -47,7 +47,7 @@ public class SetupActivity extends IntroActivity {
         addSlide(new SimpleSlide.Builder()
                 .title(R.string.setup_title_1)
                 .description(R.string.setup_desc_1)
-                //.image(R.drawable.magis512)
+                .image(R.drawable.magistify_512)
                 .background(R.color.setup_color_1)
                 .backgroundDark(R.color.setup_color_1)
                 .build());
