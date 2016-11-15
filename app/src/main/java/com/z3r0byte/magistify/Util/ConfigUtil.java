@@ -52,4 +52,11 @@ public class ConfigUtil {
         SharedPreferences sharedPreferences = context.getSharedPreferences("data", Context.MODE_PRIVATE);
         return sharedPreferences.getString(name, "");
     }
+
+    public void setInteger(String name, Integer integer) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("data", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(name, integer);
+        editor.apply();
+    }
 }
