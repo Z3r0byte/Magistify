@@ -52,7 +52,32 @@
         <service
             android:name=".Services.AutoSilentService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+        <service
+            android:name=".Services.WatchdogService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <receiver android:name=".Services.BootListener">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name=".AutoSilentActivity"
+            android:label="@string/title_activity_auto_silent"
+            android:theme="@style/AppTheme" />
+
+        <service
+            android:name=".Services.AppointmentService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity
+            android:name=".NewGradeActivity"
+            android:label="@string/title_activity_new_grade"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

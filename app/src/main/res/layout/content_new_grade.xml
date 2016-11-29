@@ -14,21 +14,19 @@
   ~ limitations under the License.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/activity_dashboard"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.z3r0byte.magistify.DashboardActivity">
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.z3r0byte.magistify.NewGradeActivity"
+    tools:showIn="@layout/activity_new_grade">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/Toolbar"
-        android:minHeight="?attr/actionBarSize"
-        android:background="@color/colorPrimary"
-        android:layout_width="match_parent"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:elevation="4dp"
-        app:theme="@style/ToolBarStyle" />
+        android:layout_margin="@dimen/text_margin"
+        android:text="@string/large_text" />
 
-</RelativeLayout>
+</android.support.v4.widget.NestedScrollView>

@@ -26,6 +26,7 @@ import com.z3r0byte.magistify.GlobalAccount;
 import com.z3r0byte.magistify.Util.ConfigUtil;
 
 import net.ilexiconn.magister.Magister;
+import net.ilexiconn.magister.container.Profile;
 import net.ilexiconn.magister.container.School;
 import net.ilexiconn.magister.container.User;
 
@@ -48,6 +49,9 @@ public class SessionService extends Service {
         ConfigUtil configUtil = new ConfigUtil(getApplicationContext());
         User user = new Gson().fromJson(configUtil.getString("User"), User.class);
         School school = new Gson().fromJson(configUtil.getString("School"), School.class);
+        Profile profile = new Gson().fromJson(configUtil.getString("Profile"), Profile.class);
+        GlobalAccount.USER = user;
+        GlobalAccount.PROFILE = profile;
         sessionReloader(user, school);
         return START_STICKY;
     }

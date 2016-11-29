@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
+import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -37,6 +38,7 @@ import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
+import com.z3r0byte.magistify.AutoSilentActivity;
 import com.z3r0byte.magistify.DashboardActivity;
 import com.z3r0byte.magistify.Networking.GetRequest;
 import com.z3r0byte.magistify.R;
@@ -73,6 +75,8 @@ public class NavigationDrawer {
 
     static PrimaryDrawerItem dashboardItem = new PrimaryDrawerItem().withName(R.string.title_dashboard)
             .withIcon(GoogleMaterial.Icon.gmd_dashboard);
+    static PrimaryDrawerItem autoSilentItem = new PrimaryDrawerItem().withName(R.string.title_auto_silent)
+            .withIcon(GoogleMaterial.Icon.gmd_do_not_disturb_on);
     static PrimaryDrawerItem statusItem = new SecondaryDrawerItem().withName(R.string.drawer_status)
             .withIcon(GoogleMaterial.Icon.gmd_dns).withSelectable(false).withBadgeStyle(new BadgeStyle(Color.GRAY, Color.GRAY).withTextColor(Color.WHITE)).withBadge("?").withIdentifier(123);
 
@@ -80,11 +84,15 @@ public class NavigationDrawer {
     public void SetupNavigationDrawer() {
         getStatus();
 
+        IconicsDrawable profilePic = new IconicsDrawable(activity, GoogleMaterial.Icon.gmd_account_circle)
+                .color(activity.getResources().getColor(R.color.primary));
+
         final AccountHeader accountHeader = new AccountHeaderBuilder()
                 .withActivity(activity)
                 .withHeaderBackground(R.drawable.header_bg)
                 .addProfiles(
-                        new ProfileDrawerItem().withName(profile.nickname).withEmail(user.username).withIcon(R.mipmap.ic_launcher)
+                        new ProfileDrawerItem().withName(profile.nickname).withEmail(user.username)
+                                .withIcon(profilePic)
                 )
                 .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
                     @Override
@@ -103,6 +111,7 @@ public class NavigationDrawer {
                 .withToolbar(toolbar)
                 .addDrawerItems(
                         dashboardItem,
+                        autoSilentItem,
                         new SectionDrawerItem().withName(R.string.drawer_tools),
                         statusItem
                 )
@@ -111,6 +120,10 @@ public class NavigationDrawer {
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         if (drawerItem == dashboardItem && selection != "Dashboard") {
                             activity.startActivity(new Intent(activity, DashboardActivity.class));
+                            closeActivity();
+                            drawer.closeDrawer();
+                        } else if (drawerItem == autoSilentItem && selection != "Auto-stil") {
+                            activity.startActivity(new Intent(activity, AutoSilentActivity.class));
                             closeActivity();
                             drawer.closeDrawer();
                         }
@@ -127,6 +140,8 @@ public class NavigationDrawer {
             case "Dashboard":
                 drawer.setSelection(dashboardItem);
                 break;
+            case "Auto-silent":
+                drawer.setSelection(autoSilentItem);
             case "":
                 drawer.setSelection(-1);
                 break;
@@ -144,6 +159,8 @@ public class NavigationDrawer {
     private void closeActivity() {
         if (selection != "Dashboard") {
             activity.finish();
+        } else {
+            drawer.setSelection(dashboardItem);
         }
     }
 

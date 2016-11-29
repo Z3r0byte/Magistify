@@ -46,7 +46,6 @@ public class AutoSilentService extends Service {
 
     ConfigUtil configUtil;
     CalendarDB calendarDB;
-    Boolean silentByApp;
     Boolean autoSilent;
     Appointment[] appointments;
     Timer timer = new Timer();
@@ -123,6 +122,7 @@ public class AutoSilentService extends Service {
                         AppointmentHandler appointmentHandler = new AppointmentHandler(magister);
                         try {
                             Appointment[] appointments = appointmentHandler.getAppointments(start, end);
+                            calendarDB.removeAll();
                             calendarDB.addItems(appointments);
                             Log.d(TAG, "run: New items added");
                         } catch (IOException e) {
@@ -135,7 +135,7 @@ public class AutoSilentService extends Service {
                     }
                 }
             };
-            timer.schedule(notificationTask, 6000, 20 * 1000); //short refresh time, because of errors that happen sometimes and crash the refresh function.
+            timer.schedule(notificationTask, 6000, 120 * 1000); //short refresh time, because of errors that happen sometimes and crash the refresh function.
         }
     }
 
@@ -147,7 +147,7 @@ public class AutoSilentService extends Service {
         for (Appointment appointment :
                 appointments) {
             try {
-                if (appointment.type.getID() != AppointmentType.PERSONAL.getID() || configUtil.getBoolean("silent_own_appointments") || true) {
+                if (appointment.type.getID() != AppointmentType.PERSONAL.getID() || configUtil.getBoolean("silent_own_appointments")) {
                     Log.d(TAG, "doSilent: valid appointment");
                     return true;
                 } else {
@@ -161,7 +161,6 @@ public class AutoSilentService extends Service {
     }
 
     private void silenced(Boolean silenced) {
-        silentByApp = true;
         SharedPreferences prefs = getSharedPreferences("data", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean("silent", silenced);
@@ -174,16 +173,16 @@ public class AutoSilentService extends Service {
     }
 
     private Integer getMargin() {
-        String margin = configUtil.getString("silent_margin");
-        if (margin.contains("1")) {
+        Integer margin = configUtil.getInteger("silent_margin");
+        if (margin == 1) {
             return 1;
-        } else if (margin.contains("2")) {
+        } else if (margin == 2) {
             return 2;
-        } else if (margin.contains("3")) {
+        } else if (margin == 3) {
             return 3;
-        } else if (margin.contains("4")) {
+        } else if (margin == 4) {
             return 4;
-        } else if (margin.contains("5")) {
+        } else if (margin == 5) {
             return 5;
         } else {
             return 1;

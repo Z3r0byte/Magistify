@@ -17,26 +17,28 @@
 package com.z3r0byte.magistify;
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 
-import com.z3r0byte.magistify.GUI.NavigationDrawer;
-
-public class DashboardActivity extends AppCompatActivity {
-
-    Toolbar mToolbar;
+public class NewGradeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dashboard);
+        setContentView(R.layout.activity_new_grade);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        mToolbar = (Toolbar) findViewById(R.id.Toolbar);
-        mToolbar.setTitle(R.string.title_dashboard);
-        setSupportActionBar(mToolbar);
-
-        NavigationDrawer navigationDrawer = new NavigationDrawer(this, mToolbar,
-                GlobalAccount.PROFILE, GlobalAccount.USER, "Dashboard");
-        navigationDrawer.SetupNavigationDrawer();
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
     }
 }

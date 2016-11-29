@@ -59,4 +59,11 @@ public class ConfigUtil {
         editor.putInt(name, integer);
         editor.apply();
     }
+
+    public void setBoolean(String name, Boolean bol) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("data", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(name, bol);
+        editor.apply();
+    }
 }

@@ -235,9 +235,10 @@ public class CalendarDB extends SQLiteOpenHelper {
                 do {
                     Appointment appointment = new Appointment();
                     appointment.id = cursor.getInt(cursor.getColumnIndex(KEY_CALENDAR_ID));
-                    appointment.startDate = DateUtils.parseDate(cursor.getString(cursor.getColumnIndex(KEY_START)), "yyyy-MM-dd'T'HH:mm:ss.0000000'Z'");
+                    appointment.startDate = DateUtils.parseDate(cursor.getString(cursor.getColumnIndex(KEY_FORMATTED_START_2)), "MMddHHmm");
                     appointment.description = cursor.getString(cursor.getColumnIndex(KEY_DESC));
                     appointment.type = AppointmentType.getTypeById(cursor.getInt(cursor.getColumnIndex(KEY_TYPE)));
+                    appointment.location = cursor.getString(cursor.getColumnIndex(KEY_LOCATION));
 
                     results[i] = appointment;
                     i++;
