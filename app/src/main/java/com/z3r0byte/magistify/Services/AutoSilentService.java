@@ -16,13 +16,11 @@
 
 package com.z3r0byte.magistify.Services;
 
-import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
-import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -71,17 +69,11 @@ public class AutoSilentService extends Service {
                 public void run() {
                     appointments = calendarDB.getSilentAppointments(getMargin());
                     if (doSilent(appointments)) {
-                        NotificationManager notificationManager =
+                        /*NotificationManager notificationManager =
                                 (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
                                 && !notificationManager.isNotificationPolicyAccessGranted()) {
                             Log.w(TAG, "run: Not allowed to change state of do not disturb!");
-
-                            Intent intent = new Intent(
-                                    android.provider.Settings
-                                            .ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
-
-                            startActivity(intent);
                         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && notificationManager.isNotificationPolicyAccessGranted()) {
                             Log.d(TAG, "run: Allowed to change state of Do Not Disturb");
                             silenced(true);
@@ -96,6 +88,11 @@ public class AutoSilentService extends Service {
                             if (audiomanager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
                                 audiomanager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
                             }
+                        }*/
+                        silenced(true);
+                        AudioManager audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                        if (audiomanager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
+                            audiomanager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
                         }
                     } else {
                         if (isSilencedByApp()) {

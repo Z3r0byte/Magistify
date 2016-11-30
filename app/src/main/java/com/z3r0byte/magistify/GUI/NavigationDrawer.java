@@ -122,7 +122,7 @@ public class NavigationDrawer {
                             activity.startActivity(new Intent(activity, DashboardActivity.class));
                             closeActivity();
                             drawer.closeDrawer();
-                        } else if (drawerItem == autoSilentItem && selection != "Auto-stil") {
+                        } else if (drawerItem == autoSilentItem && selection != "Auto-silent") {
                             activity.startActivity(new Intent(activity, AutoSilentActivity.class));
                             closeActivity();
                             drawer.closeDrawer();
@@ -142,6 +142,7 @@ public class NavigationDrawer {
                 break;
             case "Auto-silent":
                 drawer.setSelection(autoSilentItem);
+                break;
             case "":
                 drawer.setSelection(-1);
                 break;

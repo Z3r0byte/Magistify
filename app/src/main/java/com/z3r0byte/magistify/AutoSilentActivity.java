@@ -16,10 +16,17 @@
 
 package com.z3r0byte.magistify;
 
+import android.app.NotificationManager;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -29,7 +36,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.z3r0byte.magistify.GUI.NavigationDrawer;
+import com.z3r0byte.magistify.Services.AutoSilentService;
 import com.z3r0byte.magistify.Util.ConfigUtil;
+import com.z3r0byte.magistify.Util.ServiceUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +56,7 @@ public class AutoSilentActivity extends AppCompatActivity implements AdapterView
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auto_silent);
+        final CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_view);
 
         ConfigUtil configutil = new ConfigUtil(this);
 
@@ -55,7 +65,7 @@ public class AutoSilentActivity extends AppCompatActivity implements AdapterView
         setSupportActionBar(mToolbar);
 
         NavigationDrawer navigationDrawer = new NavigationDrawer(this, mToolbar,
-                GlobalAccount.PROFILE, GlobalAccount.USER, "Auto-stil");
+                GlobalAccount.PROFILE, GlobalAccount.USER, "Auto-silent");
         navigationDrawer.SetupNavigationDrawer();
 
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
@@ -66,11 +76,38 @@ public class AutoSilentActivity extends AppCompatActivity implements AdapterView
         enableSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                NotificationManager notificationManager =
+                        (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                        && !notificationManager.isNotificationPolicyAccessGranted()) {
+                    Log.w(TAG, "run: Not allowed to change state of do not disturb!");
+
+                    Snackbar.make(coordinatorLayout, R.string.snackbar_no_perms_for_silent, Snackbar.LENGTH_INDEFINITE).setAction(R.string.snackbar_fix, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(
+                                    android.provider.Settings
+                                            .ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+
+                            startActivity(intent);
+                        }
+                    }).show();
+                    enableSwitch.setChecked(false);
+                    return;
+                }
                 new ConfigUtil(getApplicationContext()).setBoolean("silent_enabled", b);
                 if (b) {
                     enableAll();
+                    if (!ServiceUtil.isServiceRunning(AutoSilentService.class, getApplicationContext())) {
+                        Log.d(TAG, "onCheckedChanged: Starting auto-silent service");
+                        startService(new Intent(getApplicationContext(), AutoSilentService.class));
+                    }
                 } else {
                     disableAll();
+                    if (ServiceUtil.isServiceRunning(AutoSilentService.class, getApplicationContext())) {
+                        Log.d(TAG, "onCheckedChanged: Stopping auto-silent service");
+                        stopService(new Intent(getApplicationContext(), AutoSilentService.class));
+                    }
                 }
             }
         });

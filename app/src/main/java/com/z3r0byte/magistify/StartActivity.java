@@ -21,9 +21,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
-import com.z3r0byte.magistify.Services.AppointmentService;
-import com.z3r0byte.magistify.Services.AutoSilentService;
-import com.z3r0byte.magistify.Services.NewGradeService;
 import com.z3r0byte.magistify.Services.SessionService;
 import com.z3r0byte.magistify.Services.WatchdogService;
 import com.z3r0byte.magistify.Util.ServiceUtil;
@@ -56,15 +53,8 @@ public class StartActivity extends AppCompatActivity {
             if (!ServiceUtil.isServiceRunning(SessionService.class, this)) {
                 startService(new Intent(this, SessionService.class));
             }
-            if (!ServiceUtil.isServiceRunning(NewGradeService.class, this)) {
-                startService(new Intent(this, NewGradeService.class));
-            }
-            if (!ServiceUtil.isServiceRunning(AutoSilentService.class, this)) {
-                startService(new Intent(this, AutoSilentService.class));
-            }
-            if (!ServiceUtil.isServiceRunning(WatchdogService.class, this)) {
-                startService(new Intent(this, AppointmentService.class));
-            }
+
+
             if (!ServiceUtil.isServiceRunning(WatchdogService.class, this)) {
                 startService(new Intent(this, WatchdogService.class));
             }

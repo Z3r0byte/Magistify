@@ -85,7 +85,9 @@
     <string name="setup_title_4"></string>
     <string name="setup_title_5"></string>
 
+    <string name="snackbar_fix">Fix</string>
     <string name="snackbar_no_permissions">Geef Magistify aub de benodigde permissies</string>
+    <string name="snackbar_no_perms_for_silent">Fout: de app heeft geen toegang tot de niet-storen functie</string>
     <string name="snackbar_no_school_selected">Selecteer eerst een school</string>
     <string name="snackbar_not_logged_in">Log eerst in</string>
 

@@ -20,6 +20,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:id="@+id/main_view"
     tools:context="com.z3r0byte.magistify.AutoSilentActivity">
 
     <android.support.design.widget.AppBarLayout

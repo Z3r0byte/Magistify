@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.z3r0byte.magistify.Util.ConfigUtil;
 import com.z3r0byte.magistify.Util.ServiceUtil;
 
 import java.util.Timer;
@@ -41,31 +42,34 @@ public class WatchdogService extends Service {
     }
 
     private void setupWatchdog() {
-        TimerTask refreshSession = new TimerTask() {
+        TimerTask checkServices = new TimerTask() {
             @Override
             public void run() {
+                ConfigUtil configUtil = new ConfigUtil(getApplicationContext());
+
                 if (!ServiceUtil.isServiceRunning(SessionService.class, getApplicationContext())) {
-                    Log.w(TAG, "run: Session service is not running, trying to restart it...");
+                    Log.w(TAG, "run: Session service is not running, trying to (re)start it...");
                     startService(new Intent(getApplicationContext(), SessionService.class));
                 }
 
                 if (!ServiceUtil.isServiceRunning(NewGradeService.class, getApplicationContext())) {
-                    Log.w(TAG, "run: New grades service is not running, trying to restart it...");
+                    Log.w(TAG, "run: New grades service is not running, trying to (re)start it...");
                     startService(new Intent(getApplicationContext(), NewGradeService.class));
                 }
 
-                if (!ServiceUtil.isServiceRunning(AutoSilentService.class, getApplicationContext())) {
-                    Log.w(TAG, "run: Auto-silent service is not running, trying to restart it...");
+                if (configUtil.getBoolean("silent_enabled") &&
+                        !ServiceUtil.isServiceRunning(AutoSilentService.class, getApplicationContext())) {
+                    Log.w(TAG, "run: Auto-silent service is not running, trying to (re)start it...");
                     startService(new Intent(getApplicationContext(), AutoSilentService.class));
                 }
 
                 if (!ServiceUtil.isServiceRunning(AppointmentService.class, getApplicationContext())) {
-                    Log.w(TAG, "run: Appointment service is not running, trying to restart it...");
+                    Log.w(TAG, "run: Appointment service is not running, trying to (re)start it...");
                     startService(new Intent(getApplicationContext(), AppointmentService.class));
                 }
             }
         };
-        timer.schedule(refreshSession, 5000, 60 * 1000);
+        timer.schedule(checkServices, 500, 60 * 1000);
     }
 
     @Override
