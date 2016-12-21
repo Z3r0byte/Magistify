@@ -41,6 +41,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.z3r0byte.magistify.AutoSilentActivity;
 import com.z3r0byte.magistify.DashboardActivity;
 import com.z3r0byte.magistify.Networking.GetRequest;
+import com.z3r0byte.magistify.NewGradeActivity;
 import com.z3r0byte.magistify.R;
 
 import net.ilexiconn.magister.container.Profile;
@@ -77,6 +78,8 @@ public class NavigationDrawer {
             .withIcon(GoogleMaterial.Icon.gmd_dashboard);
     static PrimaryDrawerItem autoSilentItem = new PrimaryDrawerItem().withName(R.string.title_auto_silent)
             .withIcon(GoogleMaterial.Icon.gmd_do_not_disturb_on);
+    static PrimaryDrawerItem newGradesItem = new PrimaryDrawerItem().withName(R.string.title_new_grades)
+            .withIcon(GoogleMaterial.Icon.gmd_inbox);
     static PrimaryDrawerItem statusItem = new SecondaryDrawerItem().withName(R.string.drawer_status)
             .withIcon(GoogleMaterial.Icon.gmd_dns).withSelectable(false).withBadgeStyle(new BadgeStyle(Color.GRAY, Color.GRAY).withTextColor(Color.WHITE)).withBadge("?").withIdentifier(123);
 
@@ -112,6 +115,7 @@ public class NavigationDrawer {
                 .addDrawerItems(
                         dashboardItem,
                         autoSilentItem,
+                        newGradesItem,
                         new SectionDrawerItem().withName(R.string.drawer_tools),
                         statusItem
                 )
@@ -124,6 +128,10 @@ public class NavigationDrawer {
                             drawer.closeDrawer();
                         } else if (drawerItem == autoSilentItem && selection != "Auto-silent") {
                             activity.startActivity(new Intent(activity, AutoSilentActivity.class));
+                            closeActivity();
+                            drawer.closeDrawer();
+                        } else if (drawerItem == newGradesItem && selection != "New-grades") {
+                            activity.startActivity(new Intent(activity, NewGradeActivity.class));
                             closeActivity();
                             drawer.closeDrawer();
                         }
@@ -142,6 +150,9 @@ public class NavigationDrawer {
                 break;
             case "Auto-silent":
                 drawer.setSelection(autoSilentItem);
+                break;
+            case "New-grades":
+                drawer.setSelection(newGradesItem);
                 break;
             case "":
                 drawer.setSelection(-1);

@@ -17,28 +17,113 @@
 package com.z3r0byte.magistify;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 
-public class NewGradeActivity extends AppCompatActivity {
+import com.z3r0byte.magistify.Fragments.NewGradesFragment;
+import com.z3r0byte.magistify.Fragments.NewGradesSettingsFragment;
+import com.z3r0byte.magistify.GUI.NavigationDrawer;
+
+import it.neokree.materialtabs.MaterialTab;
+import it.neokree.materialtabs.MaterialTabHost;
+import it.neokree.materialtabs.MaterialTabListener;
+
+public class NewGradeActivity extends AppCompatActivity implements MaterialTabListener {
+    private static final String TAG = "NewGradeActivity";
+
+    Toolbar mToolbar;
+    MaterialTabHost tabHost;
+    ViewPager viewPager;
+    PagerAdapter pagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_grade);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+
+        mToolbar = (Toolbar) findViewById(R.id.Toolbar);
+        mToolbar.setTitle(R.string.title_new_grades);
+        setSupportActionBar(mToolbar);
+
+        NavigationDrawer navigationDrawer = new NavigationDrawer(this, mToolbar,
+                GlobalAccount.PROFILE, GlobalAccount.USER, "New-grades");
+        navigationDrawer.SetupNavigationDrawer();
+
+        tabHost = (MaterialTabHost) findViewById(R.id.materialTabHost);
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+
+        pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(pagerAdapter);
+        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onPageSelected(int position) {
+                tabHost.setSelectedNavigationItem(position);
+
             }
         });
+
+        for (int i = 0; i < pagerAdapter.getCount(); i++) {
+            tabHost.addTab(
+                    tabHost.newTab()
+                            .setText(pagerAdapter.getPageTitle(i))
+                            .setTabListener(this)
+            );
+
+        }
+    }
+
+    @Override
+    public void onTabSelected(MaterialTab tab) {
+        viewPager.setCurrentItem(tab.getPosition());
+    }
+
+    @Override
+    public void onTabReselected(MaterialTab tab) {
+
+    }
+
+    @Override
+    public void onTabUnselected(MaterialTab tab) {
+
+    }
+
+    private class ViewPagerAdapter extends FragmentStatePagerAdapter {
+
+        public ViewPagerAdapter(FragmentManager fm) {
+            super(fm);
+
+        }
+
+        public Fragment getItem(int num) {
+            if (num == 0) {
+                NewGradesFragment newGradesFragment = new NewGradesFragment();
+                return newGradesFragment;
+            } else {
+                NewGradesSettingsFragment fragment = new NewGradesSettingsFragment();
+                return fragment;
+            }
+
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            if (position == 0) {
+                return "Nieuwste Cijfers";
+            } else {
+                return "Instellingen";
+            }
+        }
+
     }
 }

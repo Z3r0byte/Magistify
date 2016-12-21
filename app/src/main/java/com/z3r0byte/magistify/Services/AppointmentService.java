@@ -85,7 +85,7 @@ public class AppointmentService extends Service {
                     }
                 } else {
                     NotificationManager notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    notifManager.cancelAll();
+                    notifManager.cancel(9991);
                 }
             }
         };

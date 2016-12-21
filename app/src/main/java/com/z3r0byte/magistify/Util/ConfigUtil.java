@@ -66,4 +66,11 @@ public class ConfigUtil {
         editor.putBoolean(name, bol);
         editor.apply();
     }
+
+    public void setString(String name, String value) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("data", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(name, value);
+        editor.apply();
+    }
 }

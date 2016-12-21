@@ -16,6 +16,7 @@
 
 package com.z3r0byte.magistify.Services;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
@@ -24,6 +25,7 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.z3r0byte.magistify.DatabaseHelpers.NewGradesDB;
 import com.z3r0byte.magistify.GlobalAccount;
 import com.z3r0byte.magistify.R;
 import com.z3r0byte.magistify.Util.ConfigUtil;
@@ -33,8 +35,10 @@ import net.ilexiconn.magister.container.Grade;
 import net.ilexiconn.magister.handler.GradeHandler;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -66,32 +70,62 @@ public class NewGradeService extends Service {
                     return;
                 }
 
+                NewGradesDB gradesdb = new NewGradesDB(getApplicationContext());
+
                 GradeHandler gradeHandler = new GradeHandler(magister);
-                Grade[] grades;
+                Grade[] gradeArray;
+                List<Grade> gradeList = new ArrayList<Grade>();
                 try {
-                    grades = gradeHandler.getRecentGrades();
-                    Collections.reverse(Arrays.asList(grades));
+                    gradeArray = gradeHandler.getRecentGrades();
+                    gradesdb.addGrades(gradeArray);
+                    Collections.reverse(Arrays.asList(gradeArray));
+
+                    for (Grade grade : gradeArray) {
+                        if (!gradesdb.hasBeenNotified(grade)) {
+                            gradeList.add(grade);
+                            Log.d(TAG, "run: This grade has not been notified before: " + grade.subject);
+                        } else {
+                            Log.d(TAG, "run: This grade has been notified before: " + grade.subject);
+                        }
+                    }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                     return;
                 }
-                if (grades != null && grades.length > 0) {
-                    Log.d(TAG, "run: Some grades to show: " + grades.length);
-                    if (configUtil.getInteger("last_grade") == grades[grades.length - 1].id + 1) {
-                        return;
-                    }
+                if (gradeList != null && gradeList.size() > 0) {
+
+                    Log.d(TAG, "run: Some grades to show: " + gradeList.size());
+
                     NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
                     mBuilder.setSmallIcon(R.drawable.ic_grade_notification);
 
-                    Grade grade = grades[grades.length - 1];
-                    mBuilder.setContentTitle("Nieuw cijfer voor " + grade.subject.name);
-                    mBuilder.setContentText(grade.grade);
+                    if (gradeList.size() == 1) {
+                        Grade grade = gradeList.get(0);
+                        mBuilder.setContentTitle("Nieuw cijfer voor " + grade.subject.name);
+                        //mBuilder.setStyle(new NotificationCompat.BigTextStyle(mBuilder).bigText())
+                        mBuilder.setContentText(grade.grade);
+                    } else {
+                        String content = "";
+                        for (Grade grade : gradeList) {
+                            String string = grade.subject.name + ", een " + grade.grade;
+                            if (content.length() > 1) {
+                                content = content + "\n" + string;
+                            } else {
+                                content = string;
+                            }
+                        }
+                        mBuilder.setContentTitle("Nieuwe cijfers voor:");
+                        mBuilder.setStyle(new NotificationCompat.BigTextStyle(mBuilder).bigText(content));
+                        mBuilder.setContentText(content);
+                    }
                     mBuilder.setAutoCancel(true);
                     mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+                    mBuilder.setDefaults(Notification.DEFAULT_ALL);
+
 
                     NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                     mNotificationManager.notify(9992, mBuilder.build());
-                    configUtil.setInteger("last_grade", grade.id);
 
                 } else {
                     Log.w(TAG, "run: No grades!");

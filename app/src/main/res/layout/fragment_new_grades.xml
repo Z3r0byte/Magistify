@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<!--
   ~ Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,30 +18,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.z3r0byte.magistify.NewGradeActivity">
+    tools:context="com.z3r0byte.magistify.Fragments.NewGradesFragment">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/Toolbar"
-        android:minHeight="?attr/actionBarSize"
-        android:background="@color/colorPrimary"
-        android:layout_width="match_parent"
+    <tr.xip.errorview.ErrorView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:theme="@style/ToolBarStyle" />
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        android:id="@+id/error_view_new_grades" />
 
-    <it.neokree.materialtabs.MaterialTabHost
-        android:layout_below="@+id/Toolbar"
-        android:id="@+id/materialTabHost"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        app:textColor="#FFFFFF"
-        app:primaryColor="@color/primary"
-        app:accentColor="@color/colorAccent" />
-
-    <android.support.v4.view.ViewPager
+    <android.support.v4.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/materialTabHost"
-        android:id="@+id/viewpager" />
+        android:id="@+id/layout_refresh">
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/list_new_grades" />
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </RelativeLayout>
