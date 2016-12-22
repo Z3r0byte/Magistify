@@ -76,7 +76,7 @@ public class NewGradesAdapter extends ArrayAdapter<Grade> {
         }
 
         ImageView newGrade = (ImageView) rowView.findViewById(R.id.list_imageview_grade_new);
-        if (newGradesDB.hasBeenSeen(grades[position])) {
+        if (newGradesDB.hasBeenSeen(grades[position], true)) {
             newGrade.setImageDrawable(emptyStar);
         } else {
             newGrade.setImageDrawable(fullStar);

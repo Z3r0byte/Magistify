@@ -29,6 +29,7 @@ import com.z3r0byte.magistify.Adapters.NewGradesAdapter;
 import com.z3r0byte.magistify.DatabaseHelpers.NewGradesDB;
 import com.z3r0byte.magistify.GlobalAccount;
 import com.z3r0byte.magistify.R;
+import com.z3r0byte.magistify.Util.ErrorViewConfigs;
 
 import net.ilexiconn.magister.Magister;
 import net.ilexiconn.magister.container.Grade;
@@ -89,13 +90,33 @@ public class NewGradesFragment extends Fragment {
             @Override
             public void run() {
                 Magister magister = GlobalAccount.MAGISTER;
-                if (magister.isExpired()) {
+                if (magister != null && magister.isExpired()) {
                     try {
                         magister.login();
                     } catch (IOException e) {
                         Log.e(TAG, "run: No connection during login", e);
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                listView.setVisibility(View.GONE);
+                                errorView.setVisibility(View.VISIBLE);
+                                errorView.setConfig(ErrorViewConfigs.NoConnectionConfig);
+                                mSwipeRefreshLayout.setRefreshing(false);
+                            }
+                        });
                         return;
                     }
+                } else if (magister == null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            listView.setVisibility(View.GONE);
+                            errorView.setVisibility(View.VISIBLE);
+                            errorView.setConfig(ErrorViewConfigs.NoConnectionConfig);
+                            mSwipeRefreshLayout.setRefreshing(false);
+                        }
+                    });
+                    return;
                 }
                 GradeHandler gradeHandler = new GradeHandler(magister);
                 try {
@@ -112,6 +133,7 @@ public class NewGradesFragment extends Fragment {
                         public void run() {
                             mNewGradesAdapter = new NewGradesAdapter(getActivity(), Grades);
                             listView.setAdapter(mNewGradesAdapter);
+                            listView.setVisibility(View.VISIBLE);
                             errorView.setVisibility(View.GONE);
                             mSwipeRefreshLayout.setRefreshing(false);
                         }
@@ -122,11 +144,20 @@ public class NewGradesFragment extends Fragment {
                         public void run() {
                             listView.setVisibility(View.GONE);
                             errorView.setVisibility(View.VISIBLE);
+                            errorView.setConfig(ErrorViewConfigs.NoNewGradesConfig);
                             mSwipeRefreshLayout.setRefreshing(false);
                         }
                     });
                 } else {
-
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            listView.setVisibility(View.GONE);
+                            errorView.setVisibility(View.VISIBLE);
+                            errorView.setConfig(ErrorViewConfigs.NoConnectionConfig);
+                            mSwipeRefreshLayout.setRefreshing(false);
+                        }
+                    });
                 }
             }
         }).start();

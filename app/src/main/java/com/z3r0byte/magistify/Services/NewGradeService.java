@@ -25,6 +25,7 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.z3r0byte.magistify.DatabaseHelpers.NewGradesDB;
 import com.z3r0byte.magistify.GlobalAccount;
 import com.z3r0byte.magistify.R;
@@ -80,12 +81,27 @@ public class NewGradeService extends Service {
                     gradesdb.addGrades(gradeArray);
                     Collections.reverse(Arrays.asList(gradeArray));
 
+                    //For testing purposes:
+                    /*Grade sampleGrade = new Grade();
+                    sampleGrade.isSufficient = false;
+                    sampleGrade.grade = "2.3";
+                    sampleGrade.subject = new SubSubject();
+                    sampleGrade.subject.name = "Latijn";
+
+                    Grade sampleGrade2 = new Grade();
+                    sampleGrade2.isSufficient = true;
+                    sampleGrade2.grade = "6.5";
+                    sampleGrade2.subject = new SubSubject();
+                    sampleGrade2.subject.name = "Nederlands";
+
+                    gradeArray = new Grade[2];
+                    gradeArray[0] = sampleGrade;
+                    gradeArray[1] = sampleGrade2;*/
+
                     for (Grade grade : gradeArray) {
-                        if (!gradesdb.hasBeenNotified(grade)) {
+                        if (!gradesdb.hasBeenSeen(grade, false)
+                                && (grade.isSufficient || !configUtil.getBoolean("pass_grades_only"))) {
                             gradeList.add(grade);
-                            Log.d(TAG, "run: This grade has not been notified before: " + grade.subject);
-                        } else {
-                            Log.d(TAG, "run: This grade has been notified before: " + grade.subject);
                         }
                     }
 
@@ -93,7 +109,9 @@ public class NewGradeService extends Service {
                     e.printStackTrace();
                     return;
                 }
-                if (gradeList != null && gradeList.size() > 0) {
+                String GradesNotification = new Gson().toJson(gradeList);
+                if (gradeList != null && gradeList.size() > 0
+                        && !configUtil.getString("lastGradesNotification").equals(GradesNotification)) {
 
                     Log.d(TAG, "run: Some grades to show: " + gradeList.size());
 
@@ -104,7 +122,7 @@ public class NewGradeService extends Service {
                         Grade grade = gradeList.get(0);
                         mBuilder.setContentTitle("Nieuw cijfer voor " + grade.subject.name);
                         //mBuilder.setStyle(new NotificationCompat.BigTextStyle(mBuilder).bigText())
-                        mBuilder.setContentText(grade.grade);
+                        mBuilder.setContentText("Een " + grade.grade);
                     } else {
                         String content = "";
                         for (Grade grade : gradeList) {
@@ -127,6 +145,7 @@ public class NewGradeService extends Service {
                     NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                     mNotificationManager.notify(9992, mBuilder.build());
 
+                    configUtil.setString("lastGradesNotification", GradesNotification);
                 } else {
                     Log.w(TAG, "run: No grades!");
                 }

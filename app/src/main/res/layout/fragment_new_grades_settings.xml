@@ -14,16 +14,35 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.z3r0byte.magistify.Fragments.NewGradesSettingsFragment">
+    android:padding="16dp"
+    android:id="@+id/main_view">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <Switch
+        android:textSize="18sp"
+        android:text="@string/switch_toggle_new_grades"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="27dp"
+        android:id="@+id/enable"
+        android:switchPadding="12dp" />
 
-</FrameLayout>
+    <Switch
+        android:enabled="false"
+        android:layout_below="@+id/enable"
+        android:textSize="18sp"
+        android:text="@string/switch_pass_grade_only"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="27dp"
+        android:id="@+id/pass_grades"
+        android:switchPadding="12dp" />
+
+</RelativeLayout>
+
