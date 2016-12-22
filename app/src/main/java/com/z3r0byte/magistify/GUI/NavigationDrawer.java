@@ -38,6 +38,7 @@ import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
+import com.z3r0byte.magistify.AppointmentActivity;
 import com.z3r0byte.magistify.AutoSilentActivity;
 import com.z3r0byte.magistify.DashboardActivity;
 import com.z3r0byte.magistify.Networking.GetRequest;
@@ -78,6 +79,8 @@ public class NavigationDrawer {
             .withIcon(GoogleMaterial.Icon.gmd_dashboard);
     static PrimaryDrawerItem autoSilentItem = new PrimaryDrawerItem().withName(R.string.title_auto_silent)
             .withIcon(GoogleMaterial.Icon.gmd_do_not_disturb_on);
+    static PrimaryDrawerItem appointmentItem = new PrimaryDrawerItem().withName(R.string.title_appointments)
+            .withIcon(GoogleMaterial.Icon.gmd_event);
     static PrimaryDrawerItem newGradesItem = new PrimaryDrawerItem().withName(R.string.title_new_grades)
             .withIcon(GoogleMaterial.Icon.gmd_inbox);
     static PrimaryDrawerItem statusItem = new SecondaryDrawerItem().withName(R.string.drawer_status)
@@ -115,6 +118,7 @@ public class NavigationDrawer {
                 .addDrawerItems(
                         dashboardItem,
                         autoSilentItem,
+                        appointmentItem,
                         newGradesItem,
                         new SectionDrawerItem().withName(R.string.drawer_tools),
                         statusItem
@@ -132,6 +136,10 @@ public class NavigationDrawer {
                             drawer.closeDrawer();
                         } else if (drawerItem == newGradesItem && selection != "New-grades") {
                             activity.startActivity(new Intent(activity, NewGradeActivity.class));
+                            closeActivity();
+                            drawer.closeDrawer();
+                        } else if (drawerItem == appointmentItem && selection != "Appointment") {
+                            activity.startActivity(new Intent(activity, AppointmentActivity.class));
                             closeActivity();
                             drawer.closeDrawer();
                         }
@@ -153,6 +161,9 @@ public class NavigationDrawer {
                 break;
             case "New-grades":
                 drawer.setSelection(newGradesItem);
+                break;
+            case "Appointment":
+                drawer.setSelection(appointmentItem);
                 break;
             case "":
                 drawer.setSelection(-1);

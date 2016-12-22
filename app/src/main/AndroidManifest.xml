@@ -13,6 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.z3r0byte.magistify">
 
@@ -77,6 +78,11 @@
         <activity
             android:name=".NewGradeActivity"
             android:label="@string/title_activity_new_grade"
+            android:theme="@style/AppTheme"></activity>
+
+        <activity
+            android:name=".AppointmentActivity"
+            android:label="@string/title_activity_appointment"
             android:theme="@style/AppTheme"></activity>
     </application>
 
