@@ -132,7 +132,7 @@ public class AutoSilentService extends Service {
                     }
                 }
             };
-            timer.schedule(notificationTask, 6000, 120 * 1000); //short refresh time, because of errors that happen sometimes and crash the refresh function.
+            timer.schedule(notificationTask, 6000, 60 * 1000); //short refresh time, because of errors that happen sometimes and crash the refresh function.
         }
     }
 
