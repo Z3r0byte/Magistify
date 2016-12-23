@@ -52,7 +52,8 @@ public class WatchdogService extends Service {
                     startService(new Intent(getApplicationContext(), SessionService.class));
                 }
 
-                if (!ServiceUtil.isServiceRunning(NewGradeService.class, getApplicationContext())) {
+                if (configUtil.getBoolean("new_grade_enabled") &&
+                        !ServiceUtil.isServiceRunning(NewGradeService.class, getApplicationContext())) {
                     Log.w(TAG, "run: New grades service is not running, trying to (re)start it...");
                     startService(new Intent(getApplicationContext(), NewGradeService.class));
                 }
@@ -63,7 +64,8 @@ public class WatchdogService extends Service {
                     startService(new Intent(getApplicationContext(), AutoSilentService.class));
                 }
 
-                if (!ServiceUtil.isServiceRunning(AppointmentService.class, getApplicationContext())) {
+                if (configUtil.getBoolean("appointment_enabled") &&
+                        !ServiceUtil.isServiceRunning(AppointmentService.class, getApplicationContext())) {
                     Log.w(TAG, "run: Appointment service is not running, trying to (re)start it...");
                     startService(new Intent(getApplicationContext(), AppointmentService.class));
                 }

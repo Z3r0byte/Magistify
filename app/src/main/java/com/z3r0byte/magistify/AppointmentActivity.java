@@ -26,7 +26,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import com.z3r0byte.magistify.Fragments.AppointmentFragment;
-import com.z3r0byte.magistify.Fragments.NewGradesSettingsFragment;
+import com.z3r0byte.magistify.Fragments.AppointmentSettingsFragment;
 import com.z3r0byte.magistify.GUI.NavigationDrawer;
 
 import it.neokree.materialtabs.MaterialTab;
@@ -104,8 +104,7 @@ public class AppointmentActivity extends AppCompatActivity implements MaterialTa
             if (num == 0) {
                 return new AppointmentFragment();
             } else {
-                NewGradesSettingsFragment fragment = new NewGradesSettingsFragment();
-                return fragment;
+                return new AppointmentSettingsFragment();
             }
 
         }

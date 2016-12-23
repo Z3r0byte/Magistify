@@ -64,9 +64,10 @@ public class AppointmentService extends Service {
                 Gson gson = new Gson();
                 Appointment[] appointments = calendarDB.getNotificationAppointments();
                 Log.d(TAG, "run: amount " + appointments.length);
+                previousAppointment = configUtil.getString("previous_appointment");
                 if (appointments.length >= 1) {
                     Appointment appointment = appointments[0];
-                    if (!gson.toJson(appointment).equals(previousAppointment) && isCandidate(appointment) || true) {
+                    if (!gson.toJson(appointment).equals(previousAppointment) && isCandidate(appointment)) {
                         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
                         mBuilder.setSmallIcon(R.drawable.ic_appointment);
 
@@ -82,6 +83,9 @@ public class AppointmentService extends Service {
 
                         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                         mNotificationManager.notify(9991, mBuilder.build());
+
+                        previousAppointment = gson.toJson(appointment);
+                        configUtil.setString("previous_appointment", previousAppointment);
                     }
                 } else {
                     NotificationManager notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -89,7 +93,7 @@ public class AppointmentService extends Service {
                 }
             }
         };
-        timer.schedule(notificationTask, 20000, 60 * 1000);
+        timer.schedule(notificationTask, 20000, 30 * 1000);
     }
 
     private boolean isCandidate(Appointment appointment) {
