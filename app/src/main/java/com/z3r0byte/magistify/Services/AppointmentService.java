@@ -46,7 +46,6 @@ public class AppointmentService extends Service {
     String previousAppointment;
 
     public AppointmentService() {
-        notificationTimer();
     }
 
     @Override
@@ -54,6 +53,7 @@ public class AppointmentService extends Service {
         calendarDB = new CalendarDB(getApplicationContext());
         configUtil = new ConfigUtil(getApplicationContext());
 
+        notificationTimer();
         return START_STICKY;
     }
 
