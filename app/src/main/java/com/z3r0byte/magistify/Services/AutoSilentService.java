@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,17 +25,11 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.z3r0byte.magistify.DatabaseHelpers.CalendarDB;
-import com.z3r0byte.magistify.GlobalAccount;
 import com.z3r0byte.magistify.Util.ConfigUtil;
-import com.z3r0byte.magistify.Util.DateUtils;
 
-import net.ilexiconn.magister.Magister;
 import net.ilexiconn.magister.container.Appointment;
 import net.ilexiconn.magister.container.type.AppointmentType;
-import net.ilexiconn.magister.handler.AppointmentHandler;
 
-import java.io.IOException;
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -55,10 +49,9 @@ public class AutoSilentService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         calendarDB = new CalendarDB(getApplicationContext());
         configUtil = new ConfigUtil(getApplicationContext());
-        //autoSilent = configUtil.getBoolean("auto-silent");
-        autoSilent = true;
+        autoSilent = configUtil.getBoolean("auto-silent");
         setup();
-        getAppointments();
+        //getAppointments();
         return START_STICKY;
     }
 
@@ -104,35 +97,6 @@ public class AutoSilentService extends Service {
                 }
             };
             timer.schedule(notificationTask, 6000, 10 * 1000);
-        }
-    }
-
-    private void getAppointments() {
-        if (autoSilent) {
-            TimerTask notificationTask = new TimerTask() {
-                @Override
-                public void run() {
-                    Magister magister = GlobalAccount.MAGISTER;
-                    if (magister != null && !magister.isExpired()) {
-                        Date start = DateUtils.addDays(DateUtils.getToday(), -2);
-                        Date end = DateUtils.addDays(DateUtils.getToday(), 7);
-                        AppointmentHandler appointmentHandler = new AppointmentHandler(magister);
-                        try {
-                            Appointment[] appointments = appointmentHandler.getAppointments(start, end);
-                            calendarDB.removeAll();
-                            calendarDB.addItems(appointments);
-                            Log.d(TAG, "run: New items added");
-                        } catch (IOException e) {
-                            Log.w(TAG, "run: Failed to get appointments.");
-                        } catch (AssertionError e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        Log.e(TAG, "run: Invalid Magister!");
-                    }
-                }
-            };
-            timer.schedule(notificationTask, 6000, 60 * 1000); //short refresh time, because of errors that happen sometimes and crash the refresh function.
         }
     }
 

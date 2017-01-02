@@ -14,14 +14,11 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#283593</color>
-    <color name="colorAccent">#8BC34A</color>
-
-    <color name="setup_color_1">#3F51B5</color>
-    <color name="setup_color_2">#F44336</color>
-    <color name="setup_color_3">#E91E63</color>
-    <color name="setup_color_4">#00BCD4</color>
-    <color name="setup_color_5">#4CAF50</color>
-</resources>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/accent" />
+    <corners
+        android:topLeftRadius="25dp"
+        android:topRightRadius="25dp"
+        android:bottomLeftRadius="25dp"
+        android:bottomRightRadius="25dp" />
+</shape>

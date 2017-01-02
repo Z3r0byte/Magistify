@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,14 +17,34 @@
 package com.z3r0byte.magistify;
 
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.View;
 
+import com.z3r0byte.magistify.DatabaseHelpers.CalendarDB;
+import com.z3r0byte.magistify.DatabaseHelpers.NewGradesDB;
 import com.z3r0byte.magistify.GUI.NavigationDrawer;
+import com.z3r0byte.magistify.GUI.NewGradeCard;
+import com.z3r0byte.magistify.GUI.NextAppointmentCard;
+
+import net.ilexiconn.magister.container.Appointment;
+import net.ilexiconn.magister.container.Grade;
+
+import java.util.Arrays;
+import java.util.Collections;
+
+import it.gmariotti.cardslib.library.internal.CardHeader;
+import it.gmariotti.cardslib.library.view.CardViewNative;
 
 public class DashboardActivity extends AppCompatActivity {
+    private static final String TAG = "DashboardActivity";
 
     Toolbar mToolbar;
+    CardViewNative appointmentMain;
+    CardViewNative gradeMain;
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,5 +58,76 @@ public class DashboardActivity extends AppCompatActivity {
         NavigationDrawer navigationDrawer = new NavigationDrawer(this, mToolbar,
                 GlobalAccount.PROFILE, GlobalAccount.USER, "Dashboard");
         navigationDrawer.SetupNavigationDrawer();
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.layout_refresh);
+        mSwipeRefreshLayout.setColorSchemeResources(
+                R.color.colorPrimary,
+                R.color.setup_color_3,
+                R.color.setup_color_5);
+        mSwipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        Log.d(TAG, "onRefresh: Refreshing!");
+                        mSwipeRefreshLayout.setVisibility(View.GONE);
+                        mSwipeRefreshLayout.setVisibility(View.VISIBLE);
+                        setupAppointmentCard();
+                        setupGradeCard();
+                    }
+                }
+        );
+
+        setupAppointmentCard();
+        setupGradeCard();
+    }
+
+    private void setupAppointmentCard() {
+        CalendarDB db = new CalendarDB(this);
+
+        Appointment[] appointments = db.getNextAppointments();
+        Appointment appointment = null;
+
+        Log.d(TAG, "setupAppointmentCard: Amount of appointments: " + appointments.length);
+
+        if (appointments != null && appointments.length > 0) {
+            appointment = appointments[0];
+        }
+
+        NextAppointmentCard mainCardContent = new NextAppointmentCard(this, appointment);
+        CardHeader cardHeader = new CardHeader(this);
+        cardHeader.setTitle(getString(R.string.msg_next_appointment));
+
+        mainCardContent.addCardHeader(cardHeader);
+        appointmentMain = (CardViewNative) findViewById(R.id.card_next_appointment);
+        appointmentMain.setCard(mainCardContent);
+    }
+
+    private void setupGradeCard() {
+        NewGradesDB gradesdb = new NewGradesDB(this);
+        Grade[] grades = gradesdb.getNewGrades();
+        Grade grade = null;
+
+        if (grades != null && grades.length > 0) {
+            Collections.reverse(Arrays.asList(grades));
+            Collections.reverse(Arrays.asList(grades));
+            grade = grades[0];
+        }
+        /*
+        Grade sampleGrade = new Grade();
+        sampleGrade.isSufficient = false;
+        sampleGrade.grade = "2.3";
+        sampleGrade.subject = new SubSubject();
+        sampleGrade.subject.name = "Latijn";
+        grade = sampleGrade;*/
+
+        NewGradeCard mainCardContent = new NewGradeCard(this, grade);
+        CardHeader cardHeader = new CardHeader(this);
+        cardHeader.setTitle(getString(R.string.msg_newest_grade));
+
+        mainCardContent.addCardHeader(cardHeader);
+        gradeMain = (CardViewNative) findViewById(R.id.card_new_grade);
+        gradeMain.setCard(mainCardContent);
+
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 }

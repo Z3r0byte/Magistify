@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -105,7 +105,7 @@ public class SearchSchoolFragment extends SlideFragment {
             @Override
             public void afterTextChanged(Editable editable) {
                 Log.d(TAG, "afterTextChanged: Text Changed!");
-                if (mEditTextSchool.getText().length() >= 3 && !mEditTextSchool.getText().toString().endsWith(" ")) {
+                if (mEditTextSchool.getText().length() > 3 && !mEditTextSchool.getText().toString().endsWith(" ")) {
                     SearchSchool(false);
                 } else {
                     Log.e(TAG, "afterTextChanged: String not long enough!");

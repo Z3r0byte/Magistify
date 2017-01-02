@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -33,9 +33,11 @@ import net.ilexiconn.magister.util.DateUtil;
 import java.text.ParseException;
 import java.util.Date;
 
+import static com.z3r0byte.magistify.Util.DateUtils.addHours;
 import static com.z3r0byte.magistify.Util.DateUtils.addMinutes;
 import static com.z3r0byte.magistify.Util.DateUtils.formatDate;
 import static com.z3r0byte.magistify.Util.DateUtils.getToday;
+import static com.z3r0byte.magistify.Util.DateUtils.parseDate;
 import static java.lang.Integer.parseInt;
 
 /**
@@ -226,6 +228,44 @@ public class CalendarDB extends SQLiteOpenHelper {
         String Query = "SELECT * FROM " + TABLE_CALENDAR + " WHERE " + KEY_FORMATTED_START_2 + " <= " + startdateInt + " AND "
                 + KEY_FORMATTED_END_2 + " >= " + startdateInt + " AND " + KEY_FORMATTED_START_2 + " >= " + enddateInt;
         Log.d(TAG, "getNotificationAppointments: Query: " + Query);
+        Cursor cursor = db.rawQuery(Query, null);
+
+        Appointment[] results = new Appointment[cursor.getCount()];
+        int i = 0;
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    Appointment appointment = new Appointment();
+                    appointment.id = cursor.getInt(cursor.getColumnIndex(KEY_CALENDAR_ID));
+                    appointment.startDate = DateUtils.parseDate(cursor.getString(cursor.getColumnIndex(KEY_FORMATTED_START_2)), "MMddHHmm");
+                    appointment.description = cursor.getString(cursor.getColumnIndex(KEY_DESC));
+                    appointment.type = AppointmentType.getTypeById(cursor.getInt(cursor.getColumnIndex(KEY_TYPE)));
+                    appointment.location = cursor.getString(cursor.getColumnIndex(KEY_LOCATION));
+
+                    results[i] = appointment;
+                    i++;
+                } while (cursor.moveToNext());
+            }
+        }
+        cursor.close();
+
+        return results;
+    }
+
+    public Appointment[] getNextAppointments() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Date now = getToday();
+        Date start = now;
+        Date end = parseDate(formatDate(now, "ddMMyyyy"), "ddMMyyyy");
+        end = addHours(end, 23);
+        end = addMinutes(end, 59);
+
+
+        Integer startdateInt = parseInt(formatDate(start, "MMddHHmm"));
+        Integer enddateInt = parseInt(formatDate(end, "MMddHHmm"));
+        String Query = "SELECT * FROM " + TABLE_CALENDAR + " WHERE " + KEY_FORMATTED_START_2 + " <= " + enddateInt + " AND "
+                + KEY_FORMATTED_END_2 + " >= " + startdateInt;
+        Log.d(TAG, "getNextAppointments: Query: " + Query);
         Cursor cursor = db.rawQuery(Query, null);
 
         Appointment[] results = new Appointment[cursor.getCount()];

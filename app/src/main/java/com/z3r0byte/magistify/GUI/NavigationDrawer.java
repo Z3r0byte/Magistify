@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import android.util.Log;
 import android.view.View;
 
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
-import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -90,15 +89,12 @@ public class NavigationDrawer {
     public void SetupNavigationDrawer() {
         getStatus();
 
-        IconicsDrawable profilePic = new IconicsDrawable(activity, GoogleMaterial.Icon.gmd_account_circle)
-                .color(activity.getResources().getColor(R.color.primary));
-
         final AccountHeader accountHeader = new AccountHeaderBuilder()
                 .withActivity(activity)
                 .withHeaderBackground(R.drawable.header_bg)
                 .addProfiles(
                         new ProfileDrawerItem().withName(profile.nickname).withEmail(user.username)
-                                .withIcon(profilePic)
+                                .withIcon(R.drawable.magistify_512_circle)
                 )
                 .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
                     @Override
