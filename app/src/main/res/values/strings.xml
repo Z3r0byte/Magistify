@@ -16,11 +16,14 @@
 
 <resources>
     <string name="app_name">Magistify</string>
+    <string name="app_ad_id">ca-app-pub-6508010163010980~3753590954</string>
 
     <string name="title_dashboard">Dashboard</string>
     <string name="title_auto_silent">Auto-stil</string>
     <string name="title_appointments">Afspraken</string>
     <string name="title_new_grades">Nieuwe cijfers</string>
+
+    <string name="banner_1_ad_unit_id">ca-app-pub-6508010163010980/5230324150</string>
 
 
     <string name="customactivityoncrash_error_activity_close_app">App sluiten</string>

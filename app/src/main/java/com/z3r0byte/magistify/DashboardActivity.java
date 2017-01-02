@@ -23,6 +23,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.z3r0byte.magistify.DatabaseHelpers.CalendarDB;
 import com.z3r0byte.magistify.DatabaseHelpers.NewGradesDB;
 import com.z3r0byte.magistify.GUI.NavigationDrawer;
@@ -79,6 +82,13 @@ public class DashboardActivity extends AppCompatActivity {
 
         setupAppointmentCard();
         setupGradeCard();
+
+        MobileAds.initialize(getApplicationContext(), getString(R.string.app_ad_id));
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("69A66DEE888B0E3042C80F31AA933CC7")
+                .build();
+        mAdView.loadAd(adRequest);
     }
 
     private void setupAppointmentCard() {
