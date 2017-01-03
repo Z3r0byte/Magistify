@@ -55,7 +55,6 @@ dependencies {
 
 
     compile 'com.android.support:appcompat-v7:24.2.1'
-    compile 'cat.ereza:customactivityoncrash:1.5.0'
     compile 'com.mikepenz:iconics-core:2.5.11@aar'
     compile 'com.mikepenz:google-material-typeface:2.2.0.1.original@aar'
     compile 'com.heinrichreimersoftware:material-intro:1.4'
@@ -71,8 +70,10 @@ dependencies {
     compile 'com.google.firebase:firebase-ads:10.0.1'
     compile 'com.google.firebase:firebase-messaging:10.0.1'
     compile 'com.google.firebase:firebase-core:10.0.1'
+    compile 'com.google.firebase:firebase-crash:10.0.1'
     testCompile 'junit:junit:4.12'
 }
+
 
 
 
