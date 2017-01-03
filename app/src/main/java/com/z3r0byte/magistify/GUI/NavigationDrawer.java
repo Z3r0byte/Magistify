@@ -25,6 +25,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
+import com.mikepenz.aboutlibraries.Libs;
+import com.mikepenz.aboutlibraries.LibsBuilder;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -82,8 +84,10 @@ public class NavigationDrawer {
             .withIcon(GoogleMaterial.Icon.gmd_event);
     static PrimaryDrawerItem newGradesItem = new PrimaryDrawerItem().withName(R.string.title_new_grades)
             .withIcon(GoogleMaterial.Icon.gmd_inbox);
-    static PrimaryDrawerItem statusItem = new SecondaryDrawerItem().withName(R.string.drawer_status)
+    static SecondaryDrawerItem statusItem = new SecondaryDrawerItem().withName(R.string.drawer_status)
             .withIcon(GoogleMaterial.Icon.gmd_dns).withSelectable(false).withBadgeStyle(new BadgeStyle(Color.GRAY, Color.GRAY).withTextColor(Color.WHITE)).withBadge("?").withIdentifier(123);
+    static SecondaryDrawerItem aboutItem = new SecondaryDrawerItem().withName(R.string.title_about)
+            .withIcon(GoogleMaterial.Icon.gmd_info).withSelectable(false);
 
 
     public void SetupNavigationDrawer() {
@@ -117,7 +121,8 @@ public class NavigationDrawer {
                         appointmentItem,
                         newGradesItem,
                         new SectionDrawerItem().withName(R.string.drawer_tools),
-                        statusItem
+                        statusItem,
+                        aboutItem
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
@@ -137,6 +142,17 @@ public class NavigationDrawer {
                         } else if (drawerItem == appointmentItem && selection != "Appointment") {
                             activity.startActivity(new Intent(activity, AppointmentActivity.class));
                             closeActivity();
+                            drawer.closeDrawer();
+                        } else if (drawerItem == aboutItem) {
+                            new LibsBuilder()
+                                    .withActivityTitle(activity.getString(R.string.title_about))
+                                    .withAboutDescription("Magistify: alle tools voor Magister.<br/><b>Broncode:</b>" +
+                                            "<br /><a href=\"https://github.com/z3r0byte/magistify\">https://github.com/z3r0byte/magistify</a><br />" +
+                                            "<b>Licentie:</b><br /><a href=\"https://github.com/Z3r0byte/Magistify/blob/master/LICENSE\">Apache 2.0</a>" +
+                                            "<br /><br /> Magistify maakt gebruik van de volgende libraries (De magister.java library is aangepast):")
+                                    .withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
+                                    .withAboutAppName("Magistify")
+                                    .start(activity);
                             drawer.closeDrawer();
                         }
                         return true;
@@ -165,14 +181,6 @@ public class NavigationDrawer {
                 drawer.setSelection(-1);
                 break;
         }
-    }
-
-    public void CloseDrawer() {
-        drawer.closeDrawer();
-    }
-
-    public Boolean isDrawerOpen() {
-        return drawer.isDrawerOpen();
     }
 
     private void closeActivity() {

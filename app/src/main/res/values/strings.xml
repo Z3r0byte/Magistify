@@ -22,6 +22,13 @@
     <string name="title_auto_silent">Auto-stil</string>
     <string name="title_appointments">Afspraken</string>
     <string name="title_new_grades">Nieuwe cijfers</string>
+    <string name="title_about">Over deze app</string>
+
+    <string name="aboutLibraries_description_showIcon">true</string>
+    <string name="aboutLibraries_description_showVersion">true</string>
+    <string name="aboutLibraries_description_text">Magistify: alle tools voor Magister.<br /><b>Broncode:</b>
+        <br /><a href="https://github.com/z3r0byte/magistify">github</a><br /><b>Licentie:</b><br />Apache 2.0
+        <br /><br /> Magistify maakt gebruik van de volgende libraries (De magister.java library is aangepast):</string>
 
     <string name="banner_1_ad_unit_id">ca-app-pub-6508010163010980/5230324150</string>
 
@@ -109,9 +116,7 @@
     <string name="switch_toggle_appointment_notification">Melding voor volgende afspraak\n(25 min. van te voren)</string>
     <string name="switch_toggle_new_grades">Melding bij nieuw cijfer inschakelen</string>
 
-    <string name="aboutLibraries_description_showIcon">true</string>
-    <string name="aboutLibraries_description_showVersion">true</string>
-    <string name="aboutLibraries_description_text">Magistify: alle tools voor Magister.<br /> Magistify maakt gebruik van de volgende libraries (De magister.java library is aangepast):</string>
+
     <string name="title_activity_auto_silent">AutoSilentActivity</string>
 
     <string name="action_settings">Settings</string>
