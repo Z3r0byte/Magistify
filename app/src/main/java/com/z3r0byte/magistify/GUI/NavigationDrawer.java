@@ -41,7 +41,6 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.z3r0byte.magistify.AppointmentActivity;
 import com.z3r0byte.magistify.AutoSilentActivity;
-import com.z3r0byte.magistify.DashboardActivity;
 import com.z3r0byte.magistify.Networking.GetRequest;
 import com.z3r0byte.magistify.NewGradeActivity;
 import com.z3r0byte.magistify.R;
@@ -128,7 +127,6 @@ public class NavigationDrawer {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         if (drawerItem == dashboardItem && selection != "Dashboard") {
-                            activity.startActivity(new Intent(activity, DashboardActivity.class));
                             closeActivity();
                             drawer.closeDrawer();
                         } else if (drawerItem == autoSilentItem && selection != "Auto-silent") {
