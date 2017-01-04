@@ -44,6 +44,7 @@ import com.z3r0byte.magistify.AutoSilentActivity;
 import com.z3r0byte.magistify.Networking.GetRequest;
 import com.z3r0byte.magistify.NewGradeActivity;
 import com.z3r0byte.magistify.R;
+import com.z3r0byte.magistify.SettingsActivity;
 
 import net.ilexiconn.magister.container.Profile;
 import net.ilexiconn.magister.container.Status;
@@ -84,9 +85,12 @@ public class NavigationDrawer {
     static PrimaryDrawerItem newGradesItem = new PrimaryDrawerItem().withName(R.string.title_new_grades)
             .withIcon(GoogleMaterial.Icon.gmd_inbox);
     static SecondaryDrawerItem statusItem = new SecondaryDrawerItem().withName(R.string.drawer_status)
-            .withIcon(GoogleMaterial.Icon.gmd_dns).withSelectable(false).withBadgeStyle(new BadgeStyle(Color.GRAY, Color.GRAY).withTextColor(Color.WHITE)).withBadge("?").withIdentifier(123);
+            .withIcon(GoogleMaterial.Icon.gmd_dns).withSelectable(false)
+            .withBadgeStyle(new BadgeStyle(Color.GRAY, Color.GRAY).withTextColor(Color.WHITE)).withBadge("?").withIdentifier(123);
     static SecondaryDrawerItem aboutItem = new SecondaryDrawerItem().withName(R.string.title_about)
             .withIcon(GoogleMaterial.Icon.gmd_info).withSelectable(false);
+    static SecondaryDrawerItem settingsItem = new SecondaryDrawerItem().withName(R.string.title_settings)
+            .withIcon(GoogleMaterial.Icon.gmd_settings).withSelectable(false);
 
 
     public void SetupNavigationDrawer() {
@@ -121,7 +125,8 @@ public class NavigationDrawer {
                         newGradesItem,
                         new SectionDrawerItem().withName(R.string.drawer_tools),
                         statusItem,
-                        aboutItem
+                        aboutItem,
+                        settingsItem
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
@@ -151,6 +156,9 @@ public class NavigationDrawer {
                                     .withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
                                     .withAboutAppName("Magistify")
                                     .start(activity);
+                            drawer.closeDrawer();
+                        } else if (drawerItem == settingsItem) {
+                            activity.startActivity(new Intent(activity, SettingsActivity.class));
                             drawer.closeDrawer();
                         }
                         return true;
