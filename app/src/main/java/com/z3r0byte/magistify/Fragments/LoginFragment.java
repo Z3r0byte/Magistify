@@ -137,10 +137,6 @@ public class LoginFragment extends SlideFragment {
             ResetButton();
         }
 
-        Log.d(TAG, "login() called with: " + "UserName = [" + UserName + "], Password = " +
-                "[" + Password.substring(0, 2) + "******" + "]"); //Not displaying entire password in log for safety reasons
-
-
         new Thread(new Runnable() {
             @Override
             public void run() {

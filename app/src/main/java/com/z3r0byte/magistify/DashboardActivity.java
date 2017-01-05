@@ -16,16 +16,24 @@
 
 package com.z3r0byte.magistify;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.gson.Gson;
 import com.z3r0byte.magistify.DatabaseHelpers.CalendarDB;
 import com.z3r0byte.magistify.DatabaseHelpers.NewGradesDB;
 import com.z3r0byte.magistify.GUI.NavigationDrawer;
@@ -33,9 +41,15 @@ import com.z3r0byte.magistify.GUI.NewGradeCard;
 import com.z3r0byte.magistify.GUI.NextAppointmentCard;
 import com.z3r0byte.magistify.Util.ConfigUtil;
 
+import net.ilexiconn.magister.Magister;
 import net.ilexiconn.magister.container.Appointment;
 import net.ilexiconn.magister.container.Grade;
+import net.ilexiconn.magister.container.School;
+import net.ilexiconn.magister.container.User;
 
+import java.io.IOException;
+import java.security.InvalidParameterException;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -49,6 +63,7 @@ public class DashboardActivity extends AppCompatActivity {
     CardViewNative appointmentMain;
     CardViewNative gradeMain;
     SwipeRefreshLayout mSwipeRefreshLayout;
+    ConfigUtil configUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +100,7 @@ public class DashboardActivity extends AppCompatActivity {
         setupAppointmentCard();
         setupGradeCard();
 
-        ConfigUtil configUtil = new ConfigUtil(this);
+        configUtil = new ConfigUtil(this);
 
         if (!configUtil.getBoolean("disable_ads")) {
             MobileAds.initialize(getApplicationContext(), getString(R.string.app_ad_id));
@@ -95,6 +110,88 @@ public class DashboardActivity extends AppCompatActivity {
                     .build();
             mAdView.loadAd(adRequest);
         }
+
+        if (configUtil.getInteger("failed_auth") >= 2) {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            alertDialogBuilder.setMessage(R.string.dialog_login_failed_body);
+            alertDialogBuilder.setPositiveButton(R.string.msg_relogin, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    relogin();
+                }
+            });
+            alertDialogBuilder.setNegativeButton(R.string.msg_later, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
+                }
+            });
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
+        }
+    }
+
+    private void relogin() {
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.fragment_login);
+        dialog.setTitle(R.string.msg_relogin);
+
+        Button button = (Button) dialog.findViewById(R.id.button_login);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Looper.prepare();
+                        EditText usertxt = (EditText) dialog.findViewById(R.id.edit_text_username);
+                        EditText passwordtxt = (EditText) dialog.findViewById(R.id.edit_text_password);
+
+                        String username = usertxt.getText().toString();
+                        String password = passwordtxt.getText().toString();
+
+                        School school = new Gson().fromJson(configUtil.getString("School"), School.class);
+                        try {
+                            Magister magister = Magister.login(school, username, password);
+                        } catch (final IOException e) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(DashboardActivity.this, R.string.err_no_connection, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            return;
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(DashboardActivity.this, R.string.err_unknown, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            return;
+                        } catch (final InvalidParameterException e) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(DashboardActivity.this, R.string.err_wrong_username_or_password, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            return;
+                        }
+                        Log.d(TAG, "onClick: login succeeded!");
+                        User user = new User(username, password, false);
+                        configUtil.setString("User", new Gson().toJson(user));
+                        configUtil.setInteger("failed_auth", 0);
+                        dialog.dismiss();
+                    }
+                }).start();
+
+            }
+        });
+
+
+        dialog.show();
     }
 
     private void setupAppointmentCard() {

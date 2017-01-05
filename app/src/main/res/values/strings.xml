@@ -54,7 +54,10 @@
     <string name="dialog_bug_title">Bug melden</string>
     <string name="dialog_bug_desc">Als je een fout wilt melden, kun je gewoon je telefoon op en neer schudden. De app maakt dan
         automatisch een screenshot en opent een mail venster. Hier kun je dan een korte beschrijving van de fout invullen.</string>
-
+    <string name="dialog_login_failed_title">Inloggen mislukt</string>
+    <string name="dialog_login_failed_body">Meerdere login-pogingen van de app zijn mislukt. Het login-proces is afgebroken
+        om te voorkomen dat je account geblokkeerd wordt. Dit kan komen omdat je wachtwoord veranderd is.
+        \n\nWil je opnieuw inloggen?</string>
 
     <string name="drawer_logout">Log uit</string>
     <string name="drawer_refresh_session">Sessie verversen</string>
@@ -78,10 +81,12 @@
 
     <string name="msg_amount_found_part_1">Er zijn </string>
     <string name="msg_amount_found_part_2"> resultaten gevonden.</string>
+    <string name="msg_cancel">Annuleren</string>
     <string name="msg_logged_in">Ingelogd</string>
     <string name="msg_logging_in">Inloggen…</string>
     <string name="msg_login_on_Magister">Log in op Magister</string>
     <string name="msg_login">Log in</string>
+    <string name="msg_later">Later</string>
     <string name="msg_next_appointment">Volgende afspraak</string>
     <string name="msg_newest_grade">Nieuwste cijfer</string>
     <string name="msg_no_results">Er zijn (nog) geen resultaten, tik om handmatig in te voeren.</string>
@@ -90,6 +95,7 @@
     <string name="msg_no_grade_short">-,-</string>
     <string name="msg_old_version">De data-structuur van Magistify is veranderd, we laten je daarom de login-stappen opnieuw doorlopen.</string>
     <string name="msg_patience">Even geduld aub</string>
+    <string name="msg_relogin">Opnieuw inloggen</string>
     <string name="msg_restart_app_to_apply">Herstart de app om de wijzigingen door te voeren</string>
     <string name="msg_school_selected">Naam van geselcteerde school: </string>
     <string name="msg_search_school">School zoeken</string>

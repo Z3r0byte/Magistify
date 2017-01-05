@@ -35,6 +35,7 @@ import net.ilexiconn.magister.container.User;
 import net.ilexiconn.magister.handler.AppointmentHandler;
 
 import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Timer;
@@ -46,14 +47,14 @@ public class SessionService extends Service {
     Timer timer = new Timer();
 
     CalendarDB calendarDB;
-
+    ConfigUtil configUtil;
 
     public SessionService() {
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        ConfigUtil configUtil = new ConfigUtil(getApplicationContext());
+        configUtil = new ConfigUtil(getApplicationContext());
         User user = new Gson().fromJson(configUtil.getString("User"), User.class);
         School school = new Gson().fromJson(configUtil.getString("School"), School.class);
         Profile profile = new Gson().fromJson(configUtil.getString("Profile"), Profile.class);
@@ -71,23 +72,39 @@ public class SessionService extends Service {
             @Override
             public void run() {
                 if (GlobalAccount.MAGISTER == null) {
+                    if (configUtil.getInteger("failed_auth") >= 2) {
+                        Log.w(TAG, "run: Warning! 2 Failed authentications, aborting for user's safety!");
+                        return;
+                    }
                     try {
                         Log.d(TAG, "run: initiating session");
                         Magister magister = Magister.login(school, user.username, user.password);
                         GlobalAccount.MAGISTER = magister;
                         GlobalAccount.PROFILE = magister.profile;
                         GlobalAccount.USER = magister.user;
+                        configUtil.setInteger("failed_auth", 0);
                     } catch (IOException e) {
                         e.printStackTrace();
                     } catch (ParseException e) {
                         e.printStackTrace();
+                    } catch (InvalidParameterException e) {
+                        int fails = configUtil.getInteger("failed_auth");
+                        fails++;
+                        configUtil.setInteger("failed_auth", fails);
+                        Log.w(TAG, "run: Amount of failed Authentications: " + fails);
                     }
                 } else {
                     try {
                         GlobalAccount.MAGISTER.login();
                         Log.d(TAG, "run: refreshing session");
+                        configUtil.setInteger("failed_auth", 0);
                     } catch (IOException e) {
                         e.printStackTrace();
+                    } catch (InvalidParameterException e) {
+                        int fails = configUtil.getInteger("failed_auth");
+                        fails++;
+                        configUtil.setInteger("failed_auth", fails);
+                        Log.w(TAG, "run: Amount of failed Authentications: " + fails);
                     }
                 }
 
