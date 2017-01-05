@@ -37,7 +37,7 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         mToolbar = (Toolbar) findViewById(R.id.Toolbar);
-        mToolbar.setTitle(R.string.title_dashboard);
+        mToolbar.setTitle(R.string.title_settings);
         mToolbar.setNavigationIcon(R.drawable.back);
         setSupportActionBar(mToolbar);
 
