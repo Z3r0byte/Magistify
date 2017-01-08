@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -191,15 +191,16 @@ public class LoginFragment extends SlideFragment {
                             Toast.makeText(c, R.string.err_unknown, Toast.LENGTH_SHORT).show();
                         }
                     });
+                    ResetButton();
                 } catch (final InvalidParameterException e) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            e.printStackTrace();
                             Toast.makeText(c, getResources().getString(R.string.err_wrong_username_or_password), Toast.LENGTH_SHORT).show();
                         }
                     });
                     ResetButton();
+                    e.printStackTrace();
                     return;
                 }
 
@@ -217,8 +218,6 @@ public class LoginFragment extends SlideFragment {
                         editor.putBoolean("LoggedIn", true);
                         editor.putInt("DataVersion", 3);
                         editor.apply();
-
-                        mSuccessfulLogin = true;
                     } else {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
@@ -236,6 +235,7 @@ public class LoginFragment extends SlideFragment {
                             Toast.makeText(c, R.string.err_wrong_username_or_password, Toast.LENGTH_SHORT).show();
                         }
                     });
+                    ResetButton();
                 }
                 if (magister != null) {
                     try {
@@ -248,19 +248,18 @@ public class LoginFragment extends SlideFragment {
                             }
                         });
                     }
-                }
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(5000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                    mAllowForward = true;
+                    mSuccessfulLogin = true;
+                    ResetButton();
+                } else {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(c, R.string.err_unknown, Toast.LENGTH_SHORT).show();
                         }
-                        mAllowForward = true;
-                        ResetButton();
-                    }
-                }).start();
+                    });
+                    ResetButton();
+                }
             }
         }).start();
     }
