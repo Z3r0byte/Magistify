@@ -183,6 +183,7 @@ public class DashboardActivity extends AppCompatActivity {
                         User user = new User(username, password, false);
                         configUtil.setString("User", new Gson().toJson(user));
                         configUtil.setInteger("failed_auth", 0);
+                        GlobalAccount.USER = user;
                         dialog.dismiss();
                     }
                 }).start();

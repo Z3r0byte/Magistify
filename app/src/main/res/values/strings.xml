@@ -82,6 +82,7 @@
     <string name="msg_amount_found_part_1">Er zijn </string>
     <string name="msg_amount_found_part_2"> resultaten gevonden.</string>
     <string name="msg_cancel">Annuleren</string>
+    <string name="msg_fix_login">Tik om op te lossen</string>
     <string name="msg_logged_in">Ingelogd</string>
     <string name="msg_logging_in">Inloggen…</string>
     <string name="msg_login_on_Magister">Log in op Magister</string>
