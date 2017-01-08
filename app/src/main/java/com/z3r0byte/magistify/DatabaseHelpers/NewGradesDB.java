@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -152,8 +152,6 @@ public class NewGradesDB extends SQLiteOpenHelper {
         contentValues.put(KEY_DATE_ADDED, grade.filledInDateString);
         contentValues.put(KEY_IS_SEEN, true);
         db.update(TABLE_GRADES, contentValues, KEY_DATE_ADDED + " = '" + grade.filledInDateString + "'", null);
-
-        db.close();
     }
 
     private Boolean isInDataBase(Grade grade, SQLiteDatabase db) {
