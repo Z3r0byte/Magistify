@@ -109,11 +109,11 @@ public class NewGradesDB extends SQLiteOpenHelper {
         }
 
         cursor.close();
-        db.close();
         if (setSeen) {
             isSeen(grade, db);
         }
 
+        db.close();
         return false;
     }
 
