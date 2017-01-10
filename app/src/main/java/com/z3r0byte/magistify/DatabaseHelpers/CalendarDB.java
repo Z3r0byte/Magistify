@@ -48,7 +48,7 @@ public class CalendarDB extends SQLiteOpenHelper {
 
     private static final String TAG = "CalendarDB";
 
-    private static final int DATABASE_VERSION = 12;
+    private static final int DATABASE_VERSION = 14;
 
     private static final String DATABASE_NAME = "calendarDB";
     private static final String TABLE_CALENDAR = "calendar";
@@ -172,8 +172,10 @@ public class CalendarDB extends SQLiteOpenHelper {
             contentValues.put(KEY_FINISHED, item.finished);
             contentValues.put(KEY_FORMATTED_END, endDateString.replaceAll("-", "").substring(0, 8));
             contentValues.put(KEY_FORMATTED_START, startDateString.replaceAll("-", "").substring(0, 8));
-            contentValues.put(KEY_FORMATTED_END_2, secondEndDateString.replaceAll("[T:-]", "").substring(4, 12));
-            contentValues.put(KEY_FORMATTED_START_2, startDateString.replaceAll("[T:-]", "").substring(4, 12));
+            contentValues.put(KEY_FORMATTED_END_2,
+                    Integer.parseInt(secondEndDateString.replaceAll("[T:-]", "").substring(4, 12)) + 100000000); //Adding number to fix bug
+            contentValues.put(KEY_FORMATTED_START_2,
+                    Integer.parseInt(startDateString.replaceAll("[T:-]", "").substring(4, 12)) + 100000000); //Adding number to fix bug
             try {
                 contentValues.put(KEY_INFO_TYPE, item.infoType.getID());
             } catch (NullPointerException e) {
@@ -223,8 +225,8 @@ public class CalendarDB extends SQLiteOpenHelper {
         Date start = addMinutes(now, 25);
         Date end = addMinutes(now, -15);
 
-        Integer startdateInt = parseInt(formatDate(start, "MMddHHmm"));
-        Integer enddateInt = parseInt(formatDate(end, "MMddHHmm"));
+        Integer startdateInt = parseInt(formatDate(start, "1MMddHHmm"));
+        Integer enddateInt = parseInt(formatDate(end, "1MMddHHmm"));
         String Query = "SELECT * FROM " + TABLE_CALENDAR + " WHERE " + KEY_FORMATTED_START_2 + " <= " + startdateInt + " AND "
                 + KEY_FORMATTED_END_2 + " >= " + startdateInt + " AND " + KEY_FORMATTED_START_2 + " >= " + enddateInt;
         Log.d(TAG, "getNotificationAppointments: Query: " + Query);
@@ -237,7 +239,7 @@ public class CalendarDB extends SQLiteOpenHelper {
                 do {
                     Appointment appointment = new Appointment();
                     appointment.id = cursor.getInt(cursor.getColumnIndex(KEY_CALENDAR_ID));
-                    appointment.startDate = DateUtils.parseDate(cursor.getString(cursor.getColumnIndex(KEY_FORMATTED_START_2)), "MMddHHmm");
+                    appointment.startDate = DateUtils.parseDate(cursor.getString(cursor.getColumnIndex(KEY_FORMATTED_START_2)), "1MMddHHmm");
                     appointment.description = cursor.getString(cursor.getColumnIndex(KEY_DESC));
                     appointment.type = AppointmentType.getTypeById(cursor.getInt(cursor.getColumnIndex(KEY_TYPE)));
                     appointment.location = cursor.getString(cursor.getColumnIndex(KEY_LOCATION));
@@ -261,8 +263,8 @@ public class CalendarDB extends SQLiteOpenHelper {
         end = addMinutes(end, 59);
 
 
-        Integer startdateInt = parseInt(formatDate(start, "MMddHHmm"));
-        Integer enddateInt = parseInt(formatDate(end, "MMddHHmm"));
+        Integer startdateInt = parseInt(formatDate(start, "1MMddHHmm"));
+        Integer enddateInt = parseInt(formatDate(end, "1MMddHHmm"));
         String Query = "SELECT * FROM " + TABLE_CALENDAR + " WHERE " + KEY_FORMATTED_START_2 + " <= " + enddateInt + " AND "
                 + KEY_FORMATTED_END_2 + " >= " + startdateInt;
         Log.d(TAG, "getNextAppointments: Query: " + Query);
@@ -275,10 +277,11 @@ public class CalendarDB extends SQLiteOpenHelper {
                 do {
                     Appointment appointment = new Appointment();
                     appointment.id = cursor.getInt(cursor.getColumnIndex(KEY_CALENDAR_ID));
-                    appointment.startDate = DateUtils.parseDate(cursor.getString(cursor.getColumnIndex(KEY_FORMATTED_START_2)), "MMddHHmm");
+                    appointment.startDate = DateUtils.parseDate(cursor.getString(cursor.getColumnIndex(KEY_FORMATTED_START_2)), "1MMddHHmm");
                     appointment.description = cursor.getString(cursor.getColumnIndex(KEY_DESC));
                     appointment.type = AppointmentType.getTypeById(cursor.getInt(cursor.getColumnIndex(KEY_TYPE)));
                     appointment.location = cursor.getString(cursor.getColumnIndex(KEY_LOCATION));
+                    appointment.periodFrom = cursor.getInt(cursor.getColumnIndex(KEY_PERIOD_FROM));
 
                     results[i] = appointment;
                     i++;
@@ -292,8 +295,8 @@ public class CalendarDB extends SQLiteOpenHelper {
 
     public Appointment[] getSilentAppointments(int margin) {
         SQLiteDatabase db = this.getWritableDatabase();
-        Integer startdateInt = parseInt(formatDate(addMinutes(getToday(), margin), "MMddHHmm"));
-        Integer enddateInt = parseInt(formatDate(addMinutes(getToday(), -margin), "MMddHHmm"));
+        Integer startdateInt = parseInt(formatDate(addMinutes(getToday(), margin), "1MMddHHmm"));
+        Integer enddateInt = parseInt(formatDate(addMinutes(getToday(), -margin), "1MMddHHmm"));
         String Query = "SELECT * FROM " + TABLE_CALENDAR + " WHERE " + KEY_FORMATTED_START_2 + " <= " + startdateInt + " AND "
                 + KEY_FORMATTED_END_2 + " >= " + enddateInt;
         Log.d(TAG, "getSilentAppointments: Query: " + Query);
