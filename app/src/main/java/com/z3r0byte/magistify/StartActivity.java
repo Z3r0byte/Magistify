@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import com.z3r0byte.magistify.Services.SessionService;
 import com.z3r0byte.magistify.Services.WatchdogService;
 import com.z3r0byte.magistify.Util.ServiceUtil;
 
-import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 
 public class StartActivity extends AppCompatActivity {
 
@@ -36,7 +35,6 @@ public class StartActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        CustomActivityOnCrash.install(this);
         setContentView(R.layout.activity_start);
 
         if (getSharedPreferences("data", MODE_PRIVATE).getInt("DataVersion", 1) != 3 && getSharedPreferences("data", MODE_PRIVATE).getBoolean("LoggedIn", false)) {

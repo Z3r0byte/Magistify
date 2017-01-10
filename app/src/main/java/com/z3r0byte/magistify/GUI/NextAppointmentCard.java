@@ -17,6 +17,7 @@
 package com.z3r0byte.magistify.GUI;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -64,10 +65,13 @@ public class NextAppointmentCard extends Card {
             TextView time = (TextView) view.findViewById(R.id.text_time);
 
 
-            period.setText(appointment.periodFrom + "");
             if (appointment.periodFrom == 0) {
+                Log.d(TAG, "setupInnerViewElements: No valid period");
                 period.setText("");
                 view.findViewById(R.id.layout_list_calendar_period).setVisibility(View.GONE);
+            } else {
+                view.findViewById(R.id.layout_list_calendar_period).setVisibility(View.VISIBLE);
+                period.setText(appointment.periodFrom + "");
             }
             lesson.setText(appointment.description);
             classroom.setText(appointment.location);

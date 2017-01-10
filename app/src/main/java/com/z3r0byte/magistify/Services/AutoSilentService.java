@@ -49,15 +49,16 @@ public class AutoSilentService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         calendarDB = new CalendarDB(getApplicationContext());
         configUtil = new ConfigUtil(getApplicationContext());
-        autoSilent = configUtil.getBoolean("auto-silent");
+        autoSilent = configUtil.getBoolean("silent_enabled");
         setup();
         //getAppointments();
+        Log.i(TAG, "onStartCommand: Starting service...");
         return START_STICKY;
     }
 
     private void setup() {
         if (autoSilent) {
-            TimerTask notificationTask = new TimerTask() {
+            TimerTask silentTask = new TimerTask() {
                 @Override
                 public void run() {
                     appointments = calendarDB.getSilentAppointments(getMargin());
@@ -96,7 +97,10 @@ public class AutoSilentService extends Service {
                     }
                 }
             };
-            timer.schedule(notificationTask, 6000, 10 * 1000);
+            Log.d(TAG, "setup: Starting task...");
+            timer.schedule(silentTask, 6000, 10 * 1000);
+        } else {
+            Log.d(TAG, "setup: Service staat uit");
         }
     }
 

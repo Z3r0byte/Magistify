@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,8 +31,6 @@ import com.heinrichreimersoftware.materialintro.slide.Slide;
 import com.z3r0byte.magistify.Fragments.LoginFragment;
 import com.z3r0byte.magistify.Fragments.SearchSchoolFragment;
 
-import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
-
 public class SetupActivity extends IntroActivity {
 
     private static final String TAG = "SetupActivity";
@@ -40,8 +38,6 @@ public class SetupActivity extends IntroActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        CustomActivityOnCrash.install(this);
-
         setSkipEnabled(false);
 
         addSlide(new SimpleSlide.Builder()

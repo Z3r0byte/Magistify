@@ -128,7 +128,7 @@ public class Magister {
         Log.d(TAG, "login: onLogin (session): " + session);
         if (session.contains("Ongeldig account of verkeerde combinatie van gebruikersnaam en wachtwoord")) {
             LogUtil.printError("Invalid credentials", new InvalidParameterException());
-            return null;
+            throw new InvalidParameterException(session);
         } else if (session.startsWith("{\"message\"")) {
             throw new InvalidParameterException(session);
         }
