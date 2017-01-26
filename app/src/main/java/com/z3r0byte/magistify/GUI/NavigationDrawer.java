@@ -123,8 +123,8 @@ public class NavigationDrawer {
                 .withToolbar(toolbar)
                 .addDrawerItems(
                         dashboardItem,
-                        autoSilentItem,
                         appointmentItem,
+                        autoSilentItem,
                         newGradesItem,
                         new SectionDrawerItem().withName(R.string.drawer_tools),
                         statusItem,
