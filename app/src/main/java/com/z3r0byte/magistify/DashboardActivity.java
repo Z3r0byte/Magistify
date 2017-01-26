@@ -132,9 +132,6 @@ public class DashboardActivity extends AppCompatActivity {
                 }
         );
 
-        setupAppointmentCard();
-        retrieveGrades();
-
         configUtil = new ConfigUtil(this);
 
         if (!configUtil.getBoolean("disable_ads")) {
@@ -170,9 +167,13 @@ public class DashboardActivity extends AppCompatActivity {
         serviceIntent.setPackage("com.android.vending");
         bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
 
+        appointmentMain = (CardViewNative) findViewById(R.id.card_next_appointment);
 
         gradeMain = (CardViewNative) findViewById(R.id.card_new_grade);
         gradeMain.setVisibility(View.GONE);
+
+        setupAppointmentCard();
+        retrieveGrades();
 
         getPurchases();
     }
@@ -258,8 +259,13 @@ public class DashboardActivity extends AppCompatActivity {
         cardHeader.setTitle(getString(R.string.msg_next_appointment));
 
         mainCardContent.addCardHeader(cardHeader);
-        appointmentMain = (CardViewNative) findViewById(R.id.card_next_appointment);
         appointmentMain.setCard(mainCardContent);
+        appointmentMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), AppointmentActivity.class));
+            }
+        });
     }
 
     private void setupGradeCard() {
@@ -285,6 +291,12 @@ public class DashboardActivity extends AppCompatActivity {
         mainCardContent.addCardHeader(cardHeader);
         gradeMain.setVisibility(View.VISIBLE);
         gradeMain.setCard(mainCardContent);
+        gradeMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), NewGradeActivity.class));
+            }
+        });
 
         mSwipeRefreshLayout.setRefreshing(false);
     }
