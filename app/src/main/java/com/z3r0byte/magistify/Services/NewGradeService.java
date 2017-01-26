@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,16 +18,19 @@ package com.z3r0byte.magistify.Services;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.z3r0byte.magistify.DatabaseHelpers.NewGradesDB;
 import com.z3r0byte.magistify.GlobalAccount;
+import com.z3r0byte.magistify.NewGradeActivity;
 import com.z3r0byte.magistify.R;
 import com.z3r0byte.magistify.Util.ConfigUtil;
 
@@ -140,6 +143,13 @@ public class NewGradeService extends Service {
                     mBuilder.setAutoCancel(true);
                     mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
                     mBuilder.setDefaults(Notification.DEFAULT_ALL);
+
+                    Intent resultIntent = new Intent(getApplicationContext(), NewGradeActivity.class);
+                    TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
+                    stackBuilder.addParentStack(NewGradeActivity.class);
+                    stackBuilder.addNextIntent(resultIntent);
+                    PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                    mBuilder.setContentIntent(resultPendingIntent);
 
 
                     NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
