@@ -129,8 +129,8 @@ public class NavigationDrawer {
                         new SectionDrawerItem().withName(R.string.drawer_tools),
                         statusItem,
                         aboutItem,
-                        donateItem,
-                        settingsItem
+                        donateItem
+                        //settingsItem
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
