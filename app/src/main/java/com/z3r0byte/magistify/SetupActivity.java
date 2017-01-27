@@ -98,7 +98,7 @@ public class SetupActivity extends IntroActivity {
         addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                if (positionOffset == 0 && position == 4) {
+                if (positionOffset == 0 && position == 5) {
                     Intent intent = new Intent(getApplicationContext(), StartActivity.class);
                     startActivity(intent);
                     finish();
