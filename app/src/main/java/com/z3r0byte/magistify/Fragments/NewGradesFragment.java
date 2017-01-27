@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import com.z3r0byte.magistify.Adapters.NewGradesAdapter;
 import com.z3r0byte.magistify.DatabaseHelpers.NewGradesDB;
 import com.z3r0byte.magistify.GlobalAccount;
 import com.z3r0byte.magistify.R;
+import com.z3r0byte.magistify.Util.ConfigUtil;
 import com.z3r0byte.magistify.Util.ErrorViewConfigs;
 
 import net.ilexiconn.magister.Magister;
@@ -36,6 +37,7 @@ import net.ilexiconn.magister.container.Grade;
 import net.ilexiconn.magister.handler.GradeHandler;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import tr.xip.errorview.ErrorView;
 
@@ -47,6 +49,7 @@ public class NewGradesFragment extends Fragment {
     ErrorView errorView;
     ListView listView;
     NewGradesAdapter mNewGradesAdapter;
+    ConfigUtil configUtil;
 
     Grade[] Grades;
 
@@ -79,6 +82,8 @@ public class NewGradesFragment extends Fragment {
         listView = (ListView) view.findViewById(R.id.list_new_grades);
         mNewGradesAdapter = new NewGradesAdapter(getActivity(), Grades);
         listView.setAdapter(mNewGradesAdapter);
+
+        configUtil = new ConfigUtil(getActivity());
 
         refresh();
 
@@ -121,6 +126,10 @@ public class NewGradesFragment extends Fragment {
                 GradeHandler gradeHandler = new GradeHandler(magister);
                 try {
                     Grades = gradeHandler.getRecentGrades();
+
+                    if (configUtil.getBoolean("pass_grades_only")) {
+                        Grades = filterGrades(Grades);
+                    }
                 } catch (IOException e) {
                     Grades = null;
                     Log.e(TAG, "run: No connection...", e);
@@ -161,6 +170,21 @@ public class NewGradesFragment extends Fragment {
                 }
             }
         }).start();
+    }
+
+
+    private Grade[] filterGrades(Grade[] grades) {
+        ArrayList<Grade> filtered = new ArrayList<>();
+        for (Grade grade : grades) {
+            if (grade.isSufficient) {
+                filtered.add(grade);
+            }
+        }
+
+        Grade[] filteredArray = new Grade[filtered.size()];
+        filteredArray = filtered.toArray(filteredArray);
+
+        return filteredArray;
     }
 
 }
