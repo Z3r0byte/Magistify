@@ -334,6 +334,10 @@ public class DashboardActivity extends AppCompatActivity {
                 Grade[] Grades;
                 try {
                     Grades = gradeHandler.getRecentGrades();
+
+                    if (configUtil.getBoolean("pass_grades_only")) {
+                        Grades = filterGrades(Grades);
+                    }
                 } catch (IOException e) {
                     Grades = null;
                     Log.e(TAG, "run: No connection...", e);
@@ -440,5 +444,20 @@ public class DashboardActivity extends AppCompatActivity {
                 }
             }
         }).start();
+    }
+
+
+    private Grade[] filterGrades(Grade[] grades) {
+        ArrayList<Grade> filtered = new ArrayList<>();
+        for (Grade grade : grades) {
+            if (grade.isSufficient) {
+                filtered.add(grade);
+            }
+        }
+
+        Grade[] filteredArray = new Grade[filtered.size()];
+        filteredArray = filtered.toArray(filteredArray);
+
+        return filteredArray;
     }
 }
