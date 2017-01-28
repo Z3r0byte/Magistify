@@ -274,6 +274,9 @@ public class DashboardActivity extends AppCompatActivity {
         Grade grade = null;
 
         if (grades != null && grades.length > 0) {
+            if (configUtil.getBoolean("pass_grades_only")) {
+                grades = filterGrades(grades);
+            }
             grade = grades[0];
         }
         /*
@@ -334,10 +337,6 @@ public class DashboardActivity extends AppCompatActivity {
                 Grade[] Grades;
                 try {
                     Grades = gradeHandler.getRecentGrades();
-
-                    if (configUtil.getBoolean("pass_grades_only")) {
-                        Grades = filterGrades(Grades);
-                    }
                 } catch (IOException e) {
                     Grades = null;
                     Log.e(TAG, "run: No connection...", e);
