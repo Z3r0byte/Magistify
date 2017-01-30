@@ -277,7 +277,9 @@ public class DashboardActivity extends AppCompatActivity {
             if (configUtil.getBoolean("pass_grades_only")) {
                 grades = filterGrades(grades);
             }
-            grade = grades[0];
+            if (grades != null && grades.length > 0) {
+                grade = grades[0];
+            }
         }
         /*
         Grade sampleGrade = new Grade();
@@ -439,6 +441,8 @@ public class DashboardActivity extends AppCompatActivity {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
             }
