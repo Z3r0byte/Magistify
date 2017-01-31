@@ -38,6 +38,8 @@ import net.ilexiconn.magister.handler.GradeHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 import tr.xip.errorview.ErrorView;
 
@@ -126,6 +128,7 @@ public class NewGradesFragment extends Fragment {
                 GradeHandler gradeHandler = new GradeHandler(magister);
                 try {
                     Grades = gradeHandler.getRecentGrades();
+                    Collections.reverse(Arrays.asList(Grades));
 
                     if (configUtil.getBoolean("pass_grades_only")) {
                         Grades = filterGrades(Grades);

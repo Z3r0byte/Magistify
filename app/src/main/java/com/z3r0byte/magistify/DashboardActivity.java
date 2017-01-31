@@ -62,6 +62,8 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 import it.gmariotti.cardslib.library.internal.CardHeader;
 import it.gmariotti.cardslib.library.view.CardViewNative;
@@ -278,6 +280,7 @@ public class DashboardActivity extends AppCompatActivity {
                 grades = filterGrades(grades);
             }
             if (grades != null && grades.length > 0) {
+                Collections.reverse(Arrays.asList(grades));
                 grade = grades[0];
             }
         }
