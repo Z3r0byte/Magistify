@@ -170,11 +170,13 @@ public class AutoSilentActivity extends AppCompatActivity implements AdapterView
         marginSpinner.setEnabled(true);
         ownAppointmentSwitch.setEnabled(true);
         margin_text.setEnabled(true);
+        reverseSwitch.setEnabled(true);
     }
 
     private void disableAll() {
         marginSpinner.setEnabled(false);
         ownAppointmentSwitch.setEnabled(false);
         margin_text.setEnabled(false);
+        reverseSwitch.setEnabled(false);
     }
 }
