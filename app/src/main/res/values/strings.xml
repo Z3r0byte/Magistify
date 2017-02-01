@@ -134,6 +134,7 @@
 
     <string name="switch_own_appointments">Eigen afspraken</string>
     <string name="switch_pass_grade_only">Alleen voldoendes weergeven</string>
+    <string name="switch_reverse_silent_state">Terug naar vorige geluidsmodus</string>
     <string name="switch_toggle_auto_silent">Auto-stil inschakelen</string>
     <string name="switch_toggle_ads">Advertenties uitschakelen</string>
     <string name="switch_toggle_appointment_notification">Melding voor volgende afspraak\n(25 min. van te voren)</string>

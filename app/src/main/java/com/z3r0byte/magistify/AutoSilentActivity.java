@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ public class AutoSilentActivity extends AppCompatActivity implements AdapterView
     Spinner marginSpinner;
     Switch enableSwitch;
     Switch ownAppointmentSwitch;
+    Switch reverseSwitch;
     TextView margin_text;
 
     @Override
@@ -116,6 +117,13 @@ public class AutoSilentActivity extends AppCompatActivity implements AdapterView
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 new ConfigUtil(getApplicationContext()).setBoolean("silent_own_appointments", b);
+            }
+        });
+        reverseSwitch = (Switch) findViewById(R.id.reverse_state);
+        reverseSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                new ConfigUtil(getApplicationContext()).setBoolean("reverse_silent_state", b);
             }
         });
         margin_text = (TextView) findViewById(R.id.text1);

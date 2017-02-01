@@ -85,13 +85,18 @@ public class AutoSilentService extends Service {
                         }*/
                         silenced(true);
                         AudioManager audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                        configUtil.setInteger("previous_silent_state", audiomanager.getRingerMode());
                         if (audiomanager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
                             audiomanager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
                         }
                     } else {
                         if (isSilencedByApp()) {
                             AudioManager audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                            audiomanager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                            if (configUtil.getBoolean("reverse_silent_state")) {
+                                audiomanager.setRingerMode(configUtil.getInteger("previous_silent_state"));
+                            } else {
+                                audiomanager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                            }
                             silenced(false);
                         }
                     }
