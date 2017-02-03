@@ -23,8 +23,8 @@ android {
         applicationId "com.z3r0byte.magistify"
         minSdkVersion 16
         targetSdkVersion 24
-        versionCode 12
-        versionName "0.1.2"
+        versionCode 100
+        versionName "1.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
