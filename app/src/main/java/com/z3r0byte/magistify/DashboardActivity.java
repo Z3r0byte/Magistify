@@ -17,9 +17,15 @@
 package com.z3r0byte.magistify;
 
 import android.app.Dialog;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.Looper;
+import android.os.RemoteException;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +36,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.android.vending.billing.IInAppBillingService;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -46,10 +53,15 @@ import net.ilexiconn.magister.container.Appointment;
 import net.ilexiconn.magister.container.Grade;
 import net.ilexiconn.magister.container.School;
 import net.ilexiconn.magister.container.User;
+import net.ilexiconn.magister.handler.GradeHandler;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -65,6 +77,30 @@ public class DashboardActivity extends AppCompatActivity {
     SwipeRefreshLayout mSwipeRefreshLayout;
     ConfigUtil configUtil;
 
+
+    final static String SKU_FIFTY_CENTS = "fifty_cents";
+    final static String SKU_ONE_EURO = "one_euro";
+    final static String SKU_TWO_EURO = "two_euro";
+    final static String SKU_FIVE_EURO = "five_euro";
+
+    IInAppBillingService mService;
+    Bundle ownedItems;
+    ArrayList<String> boughtSKU = new ArrayList<>();
+    ArrayList<String> boughtToken = new ArrayList<>();
+
+    ServiceConnection mServiceConn = new ServiceConnection() {
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mService = null;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name,
+                                       IBinder service) {
+            mService = IInAppBillingService.Stub.asInterface(service);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +115,7 @@ public class DashboardActivity extends AppCompatActivity {
                 GlobalAccount.PROFILE, GlobalAccount.USER, "Dashboard");
         navigationDrawer.SetupNavigationDrawer();
 
+
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.layout_refresh);
         mSwipeRefreshLayout.setColorSchemeResources(
                 R.color.colorPrimary,
@@ -92,13 +129,10 @@ public class DashboardActivity extends AppCompatActivity {
                         mSwipeRefreshLayout.setVisibility(View.GONE);
                         mSwipeRefreshLayout.setVisibility(View.VISIBLE);
                         setupAppointmentCard();
-                        setupGradeCard();
+                        retrieveGrades();
                     }
                 }
         );
-
-        setupAppointmentCard();
-        setupGradeCard();
 
         configUtil = new ConfigUtil(this);
 
@@ -113,7 +147,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         if (configUtil.getInteger("failed_auth") >= 2) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-            alertDialogBuilder.setMessage(R.string.dialog_login_failed_body);
+            alertDialogBuilder.setMessage(R.string.dialog_login_failed_desc);
             alertDialogBuilder.setPositiveButton(R.string.msg_relogin, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -129,6 +163,21 @@ public class DashboardActivity extends AppCompatActivity {
             AlertDialog alertDialog = alertDialogBuilder.create();
             alertDialog.show();
         }
+
+        Intent serviceIntent =
+                new Intent("com.android.vending.billing.InAppBillingService.BIND");
+        serviceIntent.setPackage("com.android.vending");
+        bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
+
+        appointmentMain = (CardViewNative) findViewById(R.id.card_next_appointment);
+
+        gradeMain = (CardViewNative) findViewById(R.id.card_new_grade);
+        gradeMain.setVisibility(View.GONE);
+
+        setupAppointmentCard();
+        retrieveGrades();
+
+        getPurchases();
     }
 
     private void relogin() {
@@ -212,8 +261,13 @@ public class DashboardActivity extends AppCompatActivity {
         cardHeader.setTitle(getString(R.string.msg_next_appointment));
 
         mainCardContent.addCardHeader(cardHeader);
-        appointmentMain = (CardViewNative) findViewById(R.id.card_next_appointment);
         appointmentMain.setCard(mainCardContent);
+        appointmentMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), AppointmentActivity.class));
+            }
+        });
     }
 
     private void setupGradeCard() {
@@ -222,9 +276,13 @@ public class DashboardActivity extends AppCompatActivity {
         Grade grade = null;
 
         if (grades != null && grades.length > 0) {
-            Collections.reverse(Arrays.asList(grades));
-            Collections.reverse(Arrays.asList(grades));
-            grade = grades[0];
+            if (configUtil.getBoolean("pass_grades_only")) {
+                grades = filterGrades(grades);
+            }
+            if (grades != null && grades.length > 0) {
+                Collections.reverse(Arrays.asList(grades));
+                grade = grades[0];
+            }
         }
         /*
         Grade sampleGrade = new Grade();
@@ -239,9 +297,173 @@ public class DashboardActivity extends AppCompatActivity {
         cardHeader.setTitle(getString(R.string.msg_newest_grade));
 
         mainCardContent.addCardHeader(cardHeader);
-        gradeMain = (CardViewNative) findViewById(R.id.card_new_grade);
+        gradeMain.setVisibility(View.VISIBLE);
         gradeMain.setCard(mainCardContent);
+        gradeMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), NewGradeActivity.class));
+            }
+        });
 
         mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    private void retrieveGrades() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Magister magister = GlobalAccount.MAGISTER;
+                if (magister != null && magister.isExpired()) {
+                    try {
+                        magister.login();
+                    } catch (IOException e) {
+                        Log.e(TAG, "run: No connection during login", e);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mSwipeRefreshLayout.setRefreshing(false);
+                                setupGradeCard();
+                            }
+                        });
+                        return;
+                    }
+                } else if (magister == null) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            setupGradeCard();
+                        }
+                    });
+                    return;
+                }
+                GradeHandler gradeHandler = new GradeHandler(magister);
+                Grade[] Grades;
+                try {
+                    Grades = gradeHandler.getRecentGrades();
+                } catch (IOException e) {
+                    Grades = null;
+                    Log.e(TAG, "run: No connection...", e);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            setupGradeCard();
+                        }
+                    });
+                }
+                if (Grades != null && Grades.length != 0) {
+                    NewGradesDB db = new NewGradesDB(getApplicationContext());
+                    db.addGrades(Grades);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            setupGradeCard();
+                        }
+                    });
+                } else if (Grades != null && Grades.length < 1) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            setupGradeCard();
+                        }
+                    });
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            setupGradeCard();
+                        }
+                    });
+                }
+
+            }
+        }).start();
+    }
+
+    private void getPurchases() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(500);
+                    ownedItems = mService.getPurchases(3, getPackageName(), "inapp", null);
+
+                    int response = ownedItems.getInt("RESPONSE_CODE");
+                    if (response == 0) {
+                        ArrayList<String> ownedSkus =
+                                ownedItems.getStringArrayList("INAPP_PURCHASE_ITEM_LIST");
+                        ArrayList<String> purchaseDataList =
+                                ownedItems.getStringArrayList("INAPP_PURCHASE_DATA_LIST");
+                        ArrayList<String> signatureList =
+                                ownedItems.getStringArrayList("INAPP_DATA_SIGNATURE_LIST");
+
+                        for (int i = 0; i < purchaseDataList.size(); ++i) {
+                            String purchaseData = purchaseDataList.get(i);
+                            String signature = signatureList.get(i);
+                            String sku = ownedSkus.get(i);
+
+                            JSONObject jo = new JSONObject(purchaseData);
+                            String token = jo.getString("purchaseToken");
+
+                            boughtSKU.add(sku);
+                            boughtToken.add(token);
+
+                            Log.i(TAG, "run: Purchased item " + i + ": SKU: " + sku +
+                                    ", purchaseData:" + purchaseData + ", Signature: " + signature);
+
+                            configUtil.setBoolean("disable_ads", false);
+                            configUtil.setBoolean("pro_unlocked", false);
+
+                            if (boughtSKU.contains(SKU_FIFTY_CENTS)) {
+                                configUtil.setBoolean("disable_ads", true);
+                            } else if (boughtSKU.contains(SKU_ONE_EURO)) {
+                                configUtil.setBoolean("disable_ads", true);
+                                configUtil.setBoolean("pro_unlocked", true);
+                                configUtil.setString("token_one_euro", token);
+                            } else if (boughtSKU.contains(SKU_TWO_EURO)) {
+                                configUtil.setBoolean("disable_ads", true);
+                                configUtil.setBoolean("pro_unlocked", true);
+                                configUtil.setString("token_two_euro", token);
+                            } else if (boughtSKU.contains(SKU_FIVE_EURO)) {
+                                configUtil.setBoolean("disable_ads", true);
+                                configUtil.setBoolean("pro_unlocked", true);
+                                configUtil.setString("token_five_euro", token);
+                            }
+
+                            // do something with this purchase information
+                            // e.g. display the updated list of products owned by user
+                        }
+                    }
+
+                } catch (RemoteException e) {
+                    if (mService != null) {
+                        unbindService(mServiceConn);
+                    }
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+
+    private Grade[] filterGrades(Grade[] grades) {
+        ArrayList<Grade> filtered = new ArrayList<>();
+        for (Grade grade : grades) {
+            if (grade.isSufficient) {
+                filtered.add(grade);
+            }
+        }
+
+        Grade[] filteredArray = new Grade[filtered.size()];
+        filteredArray = filtered.toArray(filteredArray);
+
+        return filteredArray;
     }
 }

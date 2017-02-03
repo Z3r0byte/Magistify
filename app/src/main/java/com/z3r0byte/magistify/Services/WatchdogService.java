@@ -75,6 +75,12 @@ public class WatchdogService extends Service {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        startService(new Intent(getApplicationContext(), WatchdogService.class));
+    }
+
+    @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");

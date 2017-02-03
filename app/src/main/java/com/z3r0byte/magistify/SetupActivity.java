@@ -58,6 +58,13 @@ public class SetupActivity extends IntroActivity {
                 .build();
         addSlide(permissionsSlide);
 
+        addSlide(new SimpleSlide.Builder()
+                .title(R.string.setup_title_3)
+                .description(R.string.setup_desc_3)
+                .background(R.color.setup_color_1)
+                .backgroundDark(R.color.setup_color_1)
+                .build());
+
         final FragmentSlide searchSlide = new FragmentSlide.Builder()
                 .background(R.color.setup_color_3)
                 .backgroundDark(R.color.setup_color_3)
@@ -91,7 +98,7 @@ public class SetupActivity extends IntroActivity {
         addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                if (positionOffset == 0 && position == 4) {
+                if (positionOffset == 0 && position == 5) {
                     Intent intent = new Intent(getApplicationContext(), StartActivity.class);
                     startActivity(intent);
                     finish();

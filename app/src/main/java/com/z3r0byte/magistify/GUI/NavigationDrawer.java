@@ -41,6 +41,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.z3r0byte.magistify.AppointmentActivity;
 import com.z3r0byte.magistify.AutoSilentActivity;
+import com.z3r0byte.magistify.DonationActivity;
 import com.z3r0byte.magistify.Networking.GetRequest;
 import com.z3r0byte.magistify.NewGradeActivity;
 import com.z3r0byte.magistify.R;
@@ -89,6 +90,8 @@ public class NavigationDrawer {
             .withBadgeStyle(new BadgeStyle(Color.GRAY, Color.GRAY).withTextColor(Color.WHITE)).withBadge("?").withIdentifier(123);
     static SecondaryDrawerItem aboutItem = new SecondaryDrawerItem().withName(R.string.title_about)
             .withIcon(GoogleMaterial.Icon.gmd_info).withSelectable(false);
+    static SecondaryDrawerItem donateItem = new SecondaryDrawerItem().withName(R.string.title_donate)
+            .withIcon(GoogleMaterial.Icon.gmd_favorite).withSelectable(false);
     static SecondaryDrawerItem settingsItem = new SecondaryDrawerItem().withName(R.string.title_settings)
             .withIcon(GoogleMaterial.Icon.gmd_settings).withSelectable(false);
 
@@ -120,13 +123,14 @@ public class NavigationDrawer {
                 .withToolbar(toolbar)
                 .addDrawerItems(
                         dashboardItem,
-                        autoSilentItem,
                         appointmentItem,
+                        autoSilentItem,
                         newGradesItem,
                         new SectionDrawerItem().withName(R.string.drawer_tools),
                         statusItem,
                         aboutItem,
-                        settingsItem
+                        donateItem
+                        //settingsItem
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
@@ -159,6 +163,9 @@ public class NavigationDrawer {
                             drawer.closeDrawer();
                         } else if (drawerItem == settingsItem) {
                             activity.startActivity(new Intent(activity, SettingsActivity.class));
+                            drawer.closeDrawer();
+                        } else if (drawerItem == donateItem) {
+                            activity.startActivity(new Intent(activity, DonationActivity.class));
                             drawer.closeDrawer();
                         }
                         return true;

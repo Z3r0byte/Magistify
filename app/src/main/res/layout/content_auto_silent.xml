@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+  ~ Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~  you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@
             android:switchPadding="12dp" />
 
         <RelativeLayout
+            android:id="@+id/margin_layout"
             android:layout_below="@+id/own_appointments"
             android:layout_marginTop="27dp"
             android:layout_width="match_parent"
@@ -79,6 +80,19 @@
                 android:id="@+id/margin" />
 
         </RelativeLayout>
+
+        <Switch
+            android:enabled="false"
+            android:layout_below="@+id/margin_layout"
+            android:textSize="18sp"
+            android:text="@string/switch_reverse_silent_state"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="27dp"
+            android:id="@+id/reverse_state"
+            android:switchPadding="12dp" />
 
     </RelativeLayout>
 

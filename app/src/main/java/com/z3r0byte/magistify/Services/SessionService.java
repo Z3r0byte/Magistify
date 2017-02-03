@@ -106,8 +106,6 @@ public class SessionService extends Service {
                         Log.d(TAG, "run: initiating session");
                         Magister magister = Magister.login(school, user.username, user.password);
                         GlobalAccount.MAGISTER = magister;
-                        GlobalAccount.PROFILE = magister.profile;
-                        GlobalAccount.USER = magister.user;
                         configUtil.setInteger("failed_auth", 0);
                     } catch (IOException e) {
                         e.printStackTrace();

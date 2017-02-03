@@ -26,13 +26,16 @@ import android.util.Log;
 import net.ilexiconn.magister.container.Grade;
 import net.ilexiconn.magister.container.sub.SubSubject;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 /**
  * Created by bas on 12-7-16.
  */
 public class NewGradesDB extends SQLiteOpenHelper {
     private static final String TAG = "NewGradesDB";
 
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     private static final String DATABASE_NAME = "newGradesDB";
     private static final String TABLE_GRADES = "new_grades";
@@ -77,6 +80,7 @@ public class NewGradesDB extends SQLiteOpenHelper {
             Log.d(TAG, "addGrades: No Grades!");
             return;
         }
+        Collections.reverse(Arrays.asList(grades));
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();

@@ -20,7 +20,7 @@
 
     <string name="title_dashboard">Dashboard</string>
     <string name="title_auto_silent">Auto-stil</string>
-    <string name="title_appointments">Afspraken</string>
+    <string name="title_appointments">Rooster</string>
     <string name="title_new_grades">Nieuwe cijfers</string>
     <string name="title_about">Over deze app</string>
     <string name="title_settings">Instellingen</string>
@@ -46,9 +46,11 @@
     <string name="customactivityoncrash_error_activity_restart_app">App opnieuw starten</string>
     <string name="customactivityoncrash_error_activity_unknown_exception">Onbekende fout</string>
 
-    <string name="dialog_manual_school_title">Handmatig invoeren</string>
-    <string name="dialog_manual_school_desc">Voer de url van de school handmatig in. Voer alleen het gedeelte voor .magister.net
-        in.\nVb: Als de url van je school https://commanderij.magister.net is, voer je alleen commanderij in.</string>
+    <string name="dialog_item_purchased_title">Let Op: Product al gekocht</string>
+    <string name="dialog_item_purchased_desc">Je hebt dit product al gekocht, als je zeker weet dat je dit product weer gaat
+    kopen, druk dan op Ok. \nWAARSCHUWING: als je op OK klikt, wordt je vorige aankoop verwijderd uit het systeem en moet
+    je de aankoop nog een keer uitvoeren om de gekochte functies opnieuw te activeren! Als je dit niet doet heb je geen recht meer
+    op de gekochte functies.</string>
     <string name="dialog_confirm_school_title">URL bevestigen</string>
     <string name="dialog_confirm_school_desc">Je hebt %1$s ingevoerd, is https://%2$s.magister.net de URL van jouw school? Let op:
         Als je de verkeerde URL hebt ingevoerd, kun je niet inloggen!</string>
@@ -56,9 +58,12 @@
     <string name="dialog_bug_desc">Als je een fout wilt melden, kun je gewoon je telefoon op en neer schudden. De app maakt dan
         automatisch een screenshot en opent een mail venster. Hier kun je dan een korte beschrijving van de fout invullen.</string>
     <string name="dialog_login_failed_title">Inloggen mislukt</string>
-    <string name="dialog_login_failed_body">Meerdere login-pogingen van de app zijn mislukt. Het login-proces is afgebroken
+    <string name="dialog_login_failed_desc">Meerdere login-pogingen van de app zijn mislukt. Het login-proces is afgebroken
         om te voorkomen dat je account geblokkeerd wordt. Dit kan komen omdat je wachtwoord veranderd is.
         \n\nWil je opnieuw inloggen?</string>
+    <string name="dialog_manual_school_title">Handmatig invoeren</string>
+    <string name="dialog_manual_school_desc">Voer de url van de school handmatig in. Voer alleen het gedeelte voor .magister.net
+        in.\nVb: Als de url van je school https://commanderij.magister.net is, voer je alleen commanderij in.</string>
 
     <string name="drawer_logout">Log uit</string>
     <string name="drawer_refresh_session">Sessie verversen</string>
@@ -67,6 +72,8 @@
     <string name="drawer_status">Status</string>
     <string name="drawer_tools">Tools</string>
 
+    <string name="err_purchase_cancalled">Aankoop geannuleerd door de gebruiker.</string>
+    <string name="err_purchase_unkown">Onbekende fout tijdens verwerken aankoop.</string>
     <string name="err_fill_in_everything">Fout: Vul eerst alle velden in!</string>
     <string name="err_invalid_session">Ongeldige sessie…</string>
     <string name="err_no_connection">Er is iets misgegaan in de verbinding, controleer je internetverbinding.</string>
@@ -84,6 +91,7 @@
     <string name="msg_amount_found_part_2"> resultaten gevonden.</string>
     <string name="msg_cancel">Annuleren</string>
     <string name="msg_fix_login">Tik om op te lossen</string>
+    <string name="msg_loading_purchases">Aankopen inladen...</string>
     <string name="msg_logged_in">Ingelogd</string>
     <string name="msg_logging_in">Inloggen…</string>
     <string name="msg_login_on_Magister">Log in op Magister</string>
@@ -97,6 +105,7 @@
     <string name="msg_no_grade_short">-,-</string>
     <string name="msg_old_version">De data-structuur van Magistify is veranderd, we laten je daarom de login-stappen opnieuw doorlopen.</string>
     <string name="msg_patience">Even geduld aub</string>
+    <string name="msg_purchase_successful">Aankoop successvol</string>
     <string name="msg_relogin">Opnieuw inloggen</string>
     <string name="msg_restart_app_to_apply">Herstart de app om de wijzigingen door te voeren</string>
     <string name="msg_school_selected">Naam van geselcteerde school: </string>
@@ -106,9 +115,12 @@
 
     <string name="setup_desc_1">Let op: Ouder-accounts zijn op dit moment nog niet ondersteund.</string>
     <string name="setup_desc_2">Magistify heeft toegang nodig tot de sdkaart om logbestanden en dergelijken op te slaan.</string>
+    <string name="setup_desc_3">Magistify is GEEN volledige Magister app. Het biedt slechts handige tooltjes aan die andere apps
+     niet hebben. Plaats dus aub geen reviews in de richting van "Ik kan niet al mijn cijfers zien!". Wie weet wordt Magistify
+    ooit nog een volledige app, maar nu is hij dat nog niet.</string>
     <string name="setup_title_1">Welkom bij Magistify</string>
     <string name="setup_title_2">Permissies</string>
-    <string name="setup_title_3"></string>
+    <string name="setup_title_3">Even om onduidelijkheid te voorkomen:</string>
     <string name="setup_title_4"></string>
     <string name="setup_title_5"></string>
 
@@ -122,6 +134,7 @@
 
     <string name="switch_own_appointments">Eigen afspraken</string>
     <string name="switch_pass_grade_only">Alleen voldoendes weergeven</string>
+    <string name="switch_reverse_silent_state">Terug naar vorige geluidsmodus</string>
     <string name="switch_toggle_auto_silent">Auto-stil inschakelen</string>
     <string name="switch_toggle_ads">Advertenties uitschakelen</string>
     <string name="switch_toggle_appointment_notification">Melding voor volgende afspraak\n(25 min. van te voren)</string>
@@ -133,6 +146,6 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_new_grade">NewGradeActivity</string>
     <string name="title_activity_appointment">AppointmentActivity</string>
-    <string name="msg_donations_desc">Bij elke donatie worden advertenties verwijderd.\nDonaties vanaf €1.00 ontgrendelen ook alle toekomstige PRO-functies.\nPrijzen zijn onder voorbehoud en excl. BTW.</string>
+    <string name="msg_donations_desc">De genoemde bedragen zijn de bedragen die IK ontvang, de echte prijs zal hoger liggen in verband met belasting.\nBij elke donatie worden advertenties verwijderd. Donaties vanaf €1.00 ontgrendelen ook alle toekomstige PRO-functies.\nPrijzen zijn onder voorbehoud en excl. BTW.</string>
     <string name="msg_donate">Doneren</string>
 </resources>
