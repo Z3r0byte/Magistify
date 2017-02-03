@@ -19,7 +19,6 @@ package com.z3r0byte.magistify.Services;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.IBinder;
 import android.util.Log;
@@ -51,7 +50,7 @@ public class AutoSilentService extends Service {
         configUtil = new ConfigUtil(getApplicationContext());
         autoSilent = configUtil.getBoolean("silent_enabled");
         setup();
-        //getAppointments();
+
         Log.i(TAG, "onStartCommand: Starting service...");
         return START_STICKY;
     }
@@ -63,26 +62,6 @@ public class AutoSilentService extends Service {
                 public void run() {
                     appointments = calendarDB.getSilentAppointments(getMargin());
                     if (doSilent(appointments)) {
-                        /*NotificationManager notificationManager =
-                                (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-                                && !notificationManager.isNotificationPolicyAccessGranted()) {
-                            Log.w(TAG, "run: Not allowed to change state of do not disturb!");
-                        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && notificationManager.isNotificationPolicyAccessGranted()) {
-                            Log.d(TAG, "run: Allowed to change state of Do Not Disturb");
-                            silenced(true);
-                            AudioManager audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                            if (audiomanager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
-                                audiomanager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                            }
-                        } else {
-                            Log.d(TAG, "run: Not Android N of above, so automatically allowed to change state.");
-                            silenced(true);
-                            AudioManager audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                            if (audiomanager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
-                                audiomanager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                            }
-                        }*/
                         silenced(true);
                         AudioManager audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
                         configUtil.setInteger("previous_silent_state", audiomanager.getRingerMode());
@@ -131,15 +110,11 @@ public class AutoSilentService extends Service {
     }
 
     private void silenced(Boolean silenced) {
-        SharedPreferences prefs = getSharedPreferences("data", MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean("silent", silenced);
-        editor.apply();
+        configUtil.setBoolean("silent", silenced);
     }
 
     private Boolean isSilencedByApp() {
-        SharedPreferences prefs = getSharedPreferences("data", MODE_PRIVATE);
-        return prefs.getBoolean("silent", false);
+        return configUtil.getBoolean("silenced");
     }
 
     private Integer getMargin() {
