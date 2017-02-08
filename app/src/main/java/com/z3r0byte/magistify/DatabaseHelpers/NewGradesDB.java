@@ -159,7 +159,8 @@ public class NewGradesDB extends SQLiteOpenHelper {
     }
 
     private Boolean isInDataBase(Grade grade, SQLiteDatabase db) {
-        String Query = "Select * from " + TABLE_GRADES + " where " + KEY_DATE_ADDED + " = '" + grade.filledInDateString + "'";
+        String Query = "Select * from " + TABLE_GRADES + " where " + KEY_DATE_ADDED + " = '" + grade.filledInDateString + "' AND "
+                + KEY_GRADE + " = '" + grade.grade + "'";
         Cursor cursor = db.rawQuery(Query, null);
         if (cursor.getCount() >= 1) {
             cursor.close();
