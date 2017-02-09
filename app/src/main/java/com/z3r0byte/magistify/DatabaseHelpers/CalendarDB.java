@@ -257,7 +257,7 @@ public class CalendarDB extends SQLiteOpenHelper {
     public Appointment[] getNextAppointments() {
         SQLiteDatabase db = this.getWritableDatabase();
         Date now = getToday();
-        Date start = now;
+        Date start = addMinutes(now, 15);
         Date end = parseDate(formatDate(now, "ddMMyyyy"), "ddMMyyyy");
         end = addHours(end, 23);
         end = addMinutes(end, 59);
