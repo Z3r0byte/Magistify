@@ -99,7 +99,7 @@ public class AutoSilentActivity extends AppCompatActivity implements AdapterView
                 if (b) {
                     enableAll();
                     stopService(new Intent(getApplicationContext(), BackgroundService.class));
-                    startActivity(new Intent(getApplicationContext(), BackgroundService.class));
+                    startService(new Intent(getApplicationContext(), BackgroundService.class));
                     /*
                     if (!ServiceUtil.isServiceRunning(AutoSilentService.class, getApplicationContext())) {
                         Log.d(TAG, "onCheckedChanged: Starting auto-silent service");
@@ -109,7 +109,7 @@ public class AutoSilentActivity extends AppCompatActivity implements AdapterView
                 } else {
                     disableAll();
                     stopService(new Intent(getApplicationContext(), BackgroundService.class));
-                    startActivity(new Intent(getApplicationContext(), BackgroundService.class));
+                    startService(new Intent(getApplicationContext(), BackgroundService.class));
                     /*
                     if (ServiceUtil.isServiceRunning(AutoSilentService.class, getApplicationContext())) {
                         Log.d(TAG, "onCheckedChanged: Stopping auto-silent service");

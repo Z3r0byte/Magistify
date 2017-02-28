@@ -61,7 +61,7 @@ public class AppointmentSettingsFragment extends Fragment {
                 if (b) {
                     enableAll();
                     getActivity().stopService(new Intent(getActivity().getApplicationContext(), BackgroundService.class));
-                    getActivity().startActivity(new Intent(getActivity().getApplicationContext(), BackgroundService.class));
+                    getActivity().startService(new Intent(getActivity().getApplicationContext(), BackgroundService.class));
                     /*
                     if (!ServiceUtil.isServiceRunning(AppointmentService.class, getActivity().getApplicationContext())) {
                         Log.d(TAG, "onCheckedChanged: Starting appointment service");
@@ -71,7 +71,7 @@ public class AppointmentSettingsFragment extends Fragment {
                 } else {
                     disableAll();
                     getActivity().stopService(new Intent(getActivity().getApplicationContext(), BackgroundService.class));
-                    getActivity().startActivity(new Intent(getActivity().getApplicationContext(), BackgroundService.class));
+                    getActivity().startService(new Intent(getActivity().getApplicationContext(), BackgroundService.class));
                     /*
                     if (ServiceUtil.isServiceRunning(AppointmentService.class, getActivity().getApplicationContext())) {
                         Log.d(TAG, "onCheckedChanged: Stopping appointment service");

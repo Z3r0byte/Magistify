@@ -70,7 +70,6 @@ public class BackgroundService extends Service {
 
     String previousAppointment;
 
-    Boolean autoSilent;
     Appointment[] appointments;
 
     public BackgroundService() {
@@ -78,6 +77,7 @@ public class BackgroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i(TAG, "onStartCommand: Starting background service...");
         configUtil = new ConfigUtil(getApplicationContext());
         User user = new Gson().fromJson(configUtil.getString("User"), User.class);
         School school = new Gson().fromJson(configUtil.getString("School"), School.class);
@@ -85,6 +85,7 @@ public class BackgroundService extends Service {
         GlobalAccount.USER = user;
         GlobalAccount.PROFILE = profile;
         calendarDB = new CalendarDB(getApplicationContext());
+
 
         sessionTimer(user, school);
         loadAppointmentTimer();
@@ -108,6 +109,7 @@ public class BackgroundService extends Service {
      */
 
     private void sessionTimer(final User user, final School school) {
+        Log.d(TAG, "sessionTimer: Starting session timer");
         TimerTask refreshSession = new TimerTask() {
             @Override
             public void run() {
@@ -205,6 +207,7 @@ public class BackgroundService extends Service {
      */
 
     private void notifyAppoinytmentTimer() {
+        Log.d(TAG, "notifyAppoinytmentTimer: Starting appointment timer");
         TimerTask notificationTask = new TimerTask() {
             @Override
             public void run() {
@@ -268,36 +271,32 @@ public class BackgroundService extends Service {
      */
 
     private void autoSilentTimer() {
-        if (autoSilent) {
-            TimerTask silentTask = new TimerTask() {
-                @Override
-                public void run() {
-                    appointments = calendarDB.getSilentAppointments(getMargin());
-                    if (doSilent(appointments)) {
-                        silenced(true);
+        Log.d(TAG, "autoSilentTimer: Starting autoSilent Timer");
+        TimerTask silentTask = new TimerTask() {
+            @Override
+            public void run() {
+                appointments = calendarDB.getSilentAppointments(getMargin());
+                if (doSilent(appointments)) {
+                    silenced(true);
+                    AudioManager audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                    configUtil.setInteger("previous_silent_state", audiomanager.getRingerMode());
+                    if (audiomanager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
+                        audiomanager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    }
+                } else {
+                    if (isSilencedByApp()) {
                         AudioManager audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                        configUtil.setInteger("previous_silent_state", audiomanager.getRingerMode());
-                        if (audiomanager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
-                            audiomanager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                        if (configUtil.getBoolean("reverse_silent_state")) {
+                            audiomanager.setRingerMode(configUtil.getInteger("previous_silent_state"));
+                        } else {
+                            audiomanager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
                         }
-                    } else {
-                        if (isSilencedByApp()) {
-                            AudioManager audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                            if (configUtil.getBoolean("reverse_silent_state")) {
-                                audiomanager.setRingerMode(configUtil.getInteger("previous_silent_state"));
-                            } else {
-                                audiomanager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-                            }
-                            silenced(false);
-                        }
+                        silenced(false);
                     }
                 }
-            };
-            Log.d(TAG, "setup: Starting task...");
-            timer.schedule(silentTask, 6000, 10 * 1000);
-        } else {
-            Log.d(TAG, "setup: Service staat uit");
-        }
+            }
+        };
+        timer.schedule(silentTask, 6000, 10 * 1000);
     }
 
     private Boolean doSilent(Appointment[] appointments) {
@@ -351,6 +350,7 @@ public class BackgroundService extends Service {
      */
 
     private void gradeTimer() {
+        Log.d(TAG, "gradeTimer: Starting grade timer");
         TimerTask gradeStack = new TimerTask() {
             @Override
             public void run() {

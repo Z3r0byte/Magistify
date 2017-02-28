@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 
 package net.ilexiconn.magister.util;
-
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -88,7 +86,6 @@ public class HttpUtil {
     }
 
     public static InputStreamReader httpPost(String url, String data) throws IOException {
-        Log.d(TAG, "httpPost() called with: url = [" + url + "], data = [" + data + "]");  //Sorry, but this is really nescessary for debugging TODO remove this when #25 is fixed
         HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
@@ -107,8 +104,6 @@ public class HttpUtil {
         //outputStream.flush();
         //outputStream.close();
 
-        Log.d(TAG, "httpPost: connection: Cookie: " + connection.getRequestProperty("Cookie"));
-        Log.d(TAG, "httpPost: connection: Cookie-Set: " + connection.getHeaderField("Set-Cookie"));
 
         storeCookies(connection);
         if (connection.getResponseCode() >= 200 && connection.getResponseCode() < 400) {
@@ -207,7 +202,6 @@ public class HttpUtil {
         }*/
 
 
-        Log.d("HTTPGet", "httpGet() called with: " + "url = [" + url + "]");
         HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
         connection.setRequestMethod("GET");
         connection.setRequestProperty("Cookie", getCurrentCookies());
@@ -217,9 +211,6 @@ public class HttpUtil {
         connection.setRequestProperty("X-API-Client-ID", ApiKeyUtil.getKey());
         connection.connect();
         storeCookies(connection);
-
-        Log.d(TAG, "httpPost: connection: Cookie: " + connection.getRequestProperty("Cookie"));
-        Log.d(TAG, "httpPost: connection: Cookie-Set: " + connection.getHeaderField("Set-Cookie"));
 
 
         if (connection.getResponseCode() >= 200 && connection.getResponseCode() < 400) {

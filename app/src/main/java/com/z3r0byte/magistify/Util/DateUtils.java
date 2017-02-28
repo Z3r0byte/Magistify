@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.z3r0byte.magistify.Util;
 
 import android.content.Context;
-import android.util.Log;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -87,7 +86,7 @@ public class DateUtils {
         Calendar Time = toCalendar(date);
         Calendar localTime = toCalendar(new Date());
         long seconds = (magisterTime.getTimeInMillis() - localTime.getTimeInMillis()) / 1000;
-        Log.d(TAG, "fixTimeZone: Differnce in seconds = " + 3600);
+        //Log.d(TAG, "fixTimeZone: Difference in seconds = " + 3600);
         Calendar newTime = Calendar.getInstance();
         newTime.setTimeInMillis(Time.getTimeInMillis() + 3600 * 1000);
         return newTime.getTime();
