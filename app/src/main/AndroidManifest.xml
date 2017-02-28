@@ -13,6 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.z3r0byte.magistify">
 
@@ -42,7 +43,7 @@
         <activity android:name=".DashboardActivity" />
 
         <service
-            android:name=".Services.SessionService"
+            android:name=".Services.BackgroundService"
             android:enabled="true"
             android:exported="true" />
         <service

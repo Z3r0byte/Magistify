@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ package com.z3r0byte.magistify.Fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,9 +27,8 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import com.z3r0byte.magistify.R;
-import com.z3r0byte.magistify.Services.AppointmentService;
+import com.z3r0byte.magistify.Services.BackgroundService;
 import com.z3r0byte.magistify.Util.ConfigUtil;
-import com.z3r0byte.magistify.Util.ServiceUtil;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -62,16 +60,24 @@ public class AppointmentSettingsFragment extends Fragment {
                 configUtil.setBoolean("appointment_enabled", b);
                 if (b) {
                     enableAll();
+                    getActivity().stopService(new Intent(getActivity().getApplicationContext(), BackgroundService.class));
+                    getActivity().startActivity(new Intent(getActivity().getApplicationContext(), BackgroundService.class));
+                    /*
                     if (!ServiceUtil.isServiceRunning(AppointmentService.class, getActivity().getApplicationContext())) {
                         Log.d(TAG, "onCheckedChanged: Starting appointment service");
                         getActivity().startService(new Intent(getActivity().getApplicationContext(), AppointmentService.class));
                     }
+                    */
                 } else {
                     disableAll();
+                    getActivity().stopService(new Intent(getActivity().getApplicationContext(), BackgroundService.class));
+                    getActivity().startActivity(new Intent(getActivity().getApplicationContext(), BackgroundService.class));
+                    /*
                     if (ServiceUtil.isServiceRunning(AppointmentService.class, getActivity().getApplicationContext())) {
                         Log.d(TAG, "onCheckedChanged: Stopping appointment service");
                         getActivity().stopService(new Intent(getActivity().getApplicationContext(), AppointmentService.class));
                     }
+                    */
                 }
             }
         });

@@ -47,9 +47,9 @@ public class WatchdogService extends Service {
             public void run() {
                 ConfigUtil configUtil = new ConfigUtil(getApplicationContext());
 
-                if (!ServiceUtil.isServiceRunning(SessionService.class, getApplicationContext())) {
+                if (!ServiceUtil.isServiceRunning(BackgroundService.class, getApplicationContext())) {
                     Log.w(TAG, "run: Session service is not running, trying to (re)start it...");
-                    startService(new Intent(getApplicationContext(), SessionService.class));
+                    startService(new Intent(getApplicationContext(), BackgroundService.class));
                 }
 
                 if (configUtil.getBoolean("new_grade_enabled") &&

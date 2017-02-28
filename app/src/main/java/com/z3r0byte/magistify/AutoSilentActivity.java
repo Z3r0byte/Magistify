@@ -36,9 +36,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.z3r0byte.magistify.GUI.NavigationDrawer;
-import com.z3r0byte.magistify.Services.AutoSilentService;
+import com.z3r0byte.magistify.Services.BackgroundService;
 import com.z3r0byte.magistify.Util.ConfigUtil;
-import com.z3r0byte.magistify.Util.ServiceUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,16 +98,24 @@ public class AutoSilentActivity extends AppCompatActivity implements AdapterView
                 new ConfigUtil(getApplicationContext()).setBoolean("silent_enabled", b);
                 if (b) {
                     enableAll();
+                    stopService(new Intent(getApplicationContext(), BackgroundService.class));
+                    startActivity(new Intent(getApplicationContext(), BackgroundService.class));
+                    /*
                     if (!ServiceUtil.isServiceRunning(AutoSilentService.class, getApplicationContext())) {
                         Log.d(TAG, "onCheckedChanged: Starting auto-silent service");
                         startService(new Intent(getApplicationContext(), AutoSilentService.class));
                     }
+                    */
                 } else {
                     disableAll();
+                    stopService(new Intent(getApplicationContext(), BackgroundService.class));
+                    startActivity(new Intent(getApplicationContext(), BackgroundService.class));
+                    /*
                     if (ServiceUtil.isServiceRunning(AutoSilentService.class, getApplicationContext())) {
                         Log.d(TAG, "onCheckedChanged: Stopping auto-silent service");
                         stopService(new Intent(getApplicationContext(), AutoSilentService.class));
                     }
+                    */
                 }
             }
         });
