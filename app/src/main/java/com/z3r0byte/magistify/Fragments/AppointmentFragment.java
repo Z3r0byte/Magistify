@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,11 +24,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import com.mikepenz.google_material_typeface_library.GoogleMaterial;
+import com.mikepenz.iconics.IconicsDrawable;
 import com.z3r0byte.magistify.Adapters.AppointmentsAdapter;
 import com.z3r0byte.magistify.GlobalAccount;
 import com.z3r0byte.magistify.R;
+import com.z3r0byte.magistify.Util.DateUtils;
 import com.z3r0byte.magistify.Util.ErrorViewConfigs;
 
 import net.ilexiconn.magister.Magister;
@@ -36,6 +41,7 @@ import net.ilexiconn.magister.container.Appointment;
 import net.ilexiconn.magister.handler.AppointmentHandler;
 
 import java.io.IOException;
+import java.util.Date;
 
 import tr.xip.errorview.ErrorView;
 
@@ -54,9 +60,15 @@ public class AppointmentFragment extends Fragment {
     SwipeRefreshLayout mSwipeRefreshLayout;
     ErrorView errorView;
     ListView listView;
+    TextView currentDay;
+    ImageView nextDay;
+    ImageView previousDay;
     AppointmentsAdapter mAppointmentsAdapter;
 
     Appointment[] Appointments;
+    Date selectedDate;
+
+    Thread refreshThread;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -85,13 +97,48 @@ public class AppointmentFragment extends Fragment {
         mAppointmentsAdapter = new AppointmentsAdapter(getActivity(), Appointments);
         listView.setAdapter(mAppointmentsAdapter);
 
+        currentDay = (TextView) view.findViewById(R.id.current_day);
+        nextDay = (ImageView) view.findViewById(R.id.nextDay);
+        previousDay = (ImageView) view.findViewById(R.id.previousDay);
+
+        IconicsDrawable previousDayIcon = new IconicsDrawable(getActivity(), GoogleMaterial.Icon.gmd_navigate_before)
+                .color(getResources().getColor(R.color.md_white_1000))
+                .sizeDp(25);
+        IconicsDrawable nextDayIcon = new IconicsDrawable(getActivity(), GoogleMaterial.Icon.gmd_navigate_next)
+                .color(getResources().getColor(R.color.md_white_1000))
+                .sizeDp(25);
+        nextDay.setImageDrawable(nextDayIcon);
+        previousDay.setImageDrawable(previousDayIcon);
+
+        nextDay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectedDate = DateUtils.addDays(selectedDate, 1);
+                refresh();
+            }
+        });
+        previousDay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectedDate = DateUtils.addDays(selectedDate, -1);
+                refresh();
+            }
+        });
+
+        selectedDate = DateUtils.getToday();
+
         refresh();
 
         return view;
     }
 
     private void refresh() {
-        new Thread(new Runnable() {
+        if (refreshThread != null) {
+            refreshThread.interrupt();
+        }
+        mSwipeRefreshLayout.setRefreshing(true);
+        currentDay.setText(DateUtils.formatDate(selectedDate, "EEE dd MMM"));
+        refreshThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 Magister magister = GlobalAccount.MAGISTER;
@@ -123,13 +170,23 @@ public class AppointmentFragment extends Fragment {
                     });
                     return;
                 }
+
+                if (Thread.interrupted()) {
+                    return;
+                }
+
                 AppointmentHandler appointmentHandler = new AppointmentHandler(magister);
                 try {
-                    Appointments = appointmentHandler.getAppointmentsOfToday();
+                    Appointments = appointmentHandler.getAppointments(selectedDate, selectedDate);
                 } catch (IOException e) {
                     Appointments = null;
                     Log.e(TAG, "run: No connection...", e);
                 }
+
+                if (Thread.interrupted()) {
+                    return;
+                }
+
                 if (Appointments != null && Appointments.length != 0) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
@@ -163,7 +220,8 @@ public class AppointmentFragment extends Fragment {
                     });
                 }
             }
-        }).start();
+        });
+        refreshThread.start();
     }
 
 }
