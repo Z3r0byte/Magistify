@@ -124,4 +124,5 @@ public class AppointmentActivity extends AppCompatActivity implements MaterialTa
         }
 
     }
+
 }

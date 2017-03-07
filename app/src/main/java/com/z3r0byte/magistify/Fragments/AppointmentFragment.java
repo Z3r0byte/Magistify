@@ -22,6 +22,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -41,6 +44,7 @@ import net.ilexiconn.magister.container.Appointment;
 import net.ilexiconn.magister.handler.AppointmentHandler;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.util.Date;
 
 import tr.xip.errorview.ErrorView;
@@ -178,6 +182,9 @@ public class AppointmentFragment extends Fragment {
                 AppointmentHandler appointmentHandler = new AppointmentHandler(magister);
                 try {
                     Appointments = appointmentHandler.getAppointments(selectedDate, selectedDate);
+                } catch (InterruptedIOException e) {
+                    e.printStackTrace();
+                    return;
                 } catch (IOException e) {
                     Appointments = null;
                     Log.e(TAG, "run: No connection...", e);
@@ -223,5 +230,32 @@ public class AppointmentFragment extends Fragment {
         });
         refreshThread.start();
     }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_appointments, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.action_today) {
+            selectedDate = new Date();
+            refresh();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
 }
