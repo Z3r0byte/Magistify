@@ -23,11 +23,13 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.gson.Gson;
 import com.z3r0byte.magistify.AppointmentActivity;
 import com.z3r0byte.magistify.DashboardActivity;
@@ -72,6 +74,8 @@ public class BackgroundService extends Service {
 
     Appointment[] appointments;
 
+    private FirebaseAnalytics mFirebaseAnalytics;
+
     public BackgroundService() {
     }
 
@@ -86,12 +90,13 @@ public class BackgroundService extends Service {
         GlobalAccount.PROFILE = profile;
         calendarDB = new CalendarDB(getApplicationContext());
 
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(getApplicationContext());
 
         sessionTimer(user, school);
         loadAppointmentTimer();
 
         if (configUtil.getBoolean("appointment_enabled")) {
-            notifyAppoinytmentTimer();
+            notifyAppointmentTimer();
         }
 
         if (configUtil.getBoolean("silent_enabled")) {
@@ -113,58 +118,69 @@ public class BackgroundService extends Service {
         TimerTask refreshSession = new TimerTask() {
             @Override
             public void run() {
-                if (GlobalAccount.MAGISTER == null) {
-                    if (configUtil.getInteger("failed_auth") >= 2) {
-                        Log.w(TAG, "run: Warning! 2 Failed authentications, aborting for user's safety!");
-                        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
-                        mBuilder.setSmallIcon(R.drawable.ic_error);
+                try {
+                    if (GlobalAccount.MAGISTER == null) {
+                        if (configUtil.getInteger("failed_auth") >= 2) {
+                            Log.w(TAG, "run: Warning! 2 Failed authentications, aborting for user's safety!");
+                            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
+                            mBuilder.setSmallIcon(R.drawable.ic_error);
 
-                        Intent resultIntent = new Intent(getApplicationContext(), DashboardActivity.class);
-                        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
-                        stackBuilder.addParentStack(DashboardActivity.class);
-                        stackBuilder.addNextIntent(resultIntent);
-                        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,
-                                PendingIntent.FLAG_UPDATE_CURRENT);
+                            Intent resultIntent = new Intent(getApplicationContext(), DashboardActivity.class);
+                            TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
+                            stackBuilder.addParentStack(DashboardActivity.class);
+                            stackBuilder.addNextIntent(resultIntent);
+                            PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,
+                                    PendingIntent.FLAG_UPDATE_CURRENT);
 
-                        mBuilder.setContentIntent(resultPendingIntent);
-                        mBuilder.setContentTitle(getString(R.string.dialog_login_failed_title));
-                        mBuilder.setContentText(getString(R.string.msg_fix_login));
-                        mBuilder.setAutoCancel(true);
-                        mBuilder.setSound(null);
-                        mBuilder.setVisibility(NotificationCompat.VISIBILITY_PRIVATE);
+                            mBuilder.setContentIntent(resultPendingIntent);
+                            mBuilder.setContentTitle(getString(R.string.dialog_login_failed_title));
+                            mBuilder.setContentText(getString(R.string.msg_fix_login));
+                            mBuilder.setAutoCancel(true);
+                            mBuilder.setSound(null);
+                            mBuilder.setVisibility(NotificationCompat.VISIBILITY_PRIVATE);
 
-                        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                        mNotificationManager.notify(666, mBuilder.build());
-                        return;
+                            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                            mNotificationManager.notify(666, mBuilder.build());
+                            return;
+                        }
+                        try {
+                            Log.d(TAG, "run: initiating session");
+                            Magister magister = Magister.login(school, user.username, user.password);
+                            GlobalAccount.MAGISTER = magister;
+                            configUtil.setInteger("failed_auth", 0);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        } catch (InvalidParameterException e) {
+                            int fails = configUtil.getInteger("failed_auth");
+                            fails++;
+                            configUtil.setInteger("failed_auth", fails);
+                            Log.w(TAG, "run: Amount of failed Authentications: " + fails);
+                        }
+                    } else {
+                        try {
+                            GlobalAccount.MAGISTER.login();
+                            Log.d(TAG, "run: refreshing session");
+                            configUtil.setInteger("failed_auth", 0);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (InvalidParameterException e) {
+                            int fails = configUtil.getInteger("failed_auth");
+                            fails++;
+                            configUtil.setInteger("failed_auth", fails);
+                            Log.w(TAG, "run: Amount of failed Authentications: " + fails);
+                        }
                     }
-                    try {
-                        Log.d(TAG, "run: initiating session");
-                        Magister magister = Magister.login(school, user.username, user.password);
-                        GlobalAccount.MAGISTER = magister;
-                        configUtil.setInteger("failed_auth", 0);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    } catch (InvalidParameterException e) {
-                        int fails = configUtil.getInteger("failed_auth");
-                        fails++;
-                        configUtil.setInteger("failed_auth", fails);
-                        Log.w(TAG, "run: Amount of failed Authentications: " + fails);
-                    }
-                } else {
-                    try {
-                        GlobalAccount.MAGISTER.login();
-                        Log.d(TAG, "run: refreshing session");
-                        configUtil.setInteger("failed_auth", 0);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (InvalidParameterException e) {
-                        int fails = configUtil.getInteger("failed_auth");
-                        fails++;
-                        configUtil.setInteger("failed_auth", fails);
-                        Log.w(TAG, "run: Amount of failed Authentications: " + fails);
-                    }
+                    throw new RuntimeException("Test for firebase!");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Bundle bundle = new Bundle();
+                    bundle.putString(FirebaseAnalytics.Param.ORIGIN, "SessionManager");
+                    bundle.putString("error", e.getMessage());
+
+                    bundle.putString("stacktrace", e.getMessage());
+                    mFirebaseAnalytics.logEvent("error", bundle);
                 }
 
             }
@@ -179,23 +195,32 @@ public class BackgroundService extends Service {
         TimerTask notificationTask = new TimerTask() {
             @Override
             public void run() {
-                Magister magister = GlobalAccount.MAGISTER;
-                if (magister != null && !magister.isExpired()) {
-                    Date start = DateUtils.addDays(DateUtils.getToday(), -2);
-                    Date end = DateUtils.addDays(DateUtils.getToday(), 7);
-                    AppointmentHandler appointmentHandler = new AppointmentHandler(magister);
-                    try {
-                        Appointment[] appointments = appointmentHandler.getAppointments(start, end);
-                        calendarDB.removeAll();
-                        calendarDB.addItems(appointments);
-                        Log.d(TAG, "run: New items added");
-                    } catch (IOException e) {
-                        Log.w(TAG, "run: Failed to get appointments.");
-                    } catch (AssertionError e) {
-                        e.printStackTrace();
+                try {
+                    Magister magister = GlobalAccount.MAGISTER;
+                    if (magister != null && !magister.isExpired()) {
+                        Date start = DateUtils.addDays(DateUtils.getToday(), -2);
+                        Date end = DateUtils.addDays(DateUtils.getToday(), 7);
+                        AppointmentHandler appointmentHandler = new AppointmentHandler(magister);
+                        try {
+                            Appointment[] appointments = appointmentHandler.getAppointments(start, end);
+                            calendarDB.removeAll();
+                            calendarDB.addItems(appointments);
+                            Log.d(TAG, "run: New items added");
+                        } catch (IOException e) {
+                            Log.w(TAG, "run: Failed to get appointments.");
+                        } catch (AssertionError e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        Log.e(TAG, "run: Invalid Magister!");
                     }
-                } else {
-                    Log.e(TAG, "run: Invalid Magister!");
+                } catch (Exception e) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString(FirebaseAnalytics.Param.ORIGIN, "AppointmentLoader");
+                    bundle.putString("error", e.getMessage());
+
+                    bundle.putString("stacktrace", e.getMessage());
+                    mFirebaseAnalytics.logEvent("error", bundle);
                 }
             }
         };
@@ -206,47 +231,56 @@ public class BackgroundService extends Service {
     Appointment notifications
      */
 
-    private void notifyAppoinytmentTimer() {
+    private void notifyAppointmentTimer() {
         Log.d(TAG, "notifyAppoinytmentTimer: Starting appointment timer");
         TimerTask notificationTask = new TimerTask() {
             @Override
             public void run() {
-                Gson gson = new Gson();
-                Appointment[] appointments = calendarDB.getNotificationAppointments();
-                Log.d(TAG, "run: amount " + appointments.length);
-                previousAppointment = configUtil.getString("previous_appointment");
-                if (appointments.length >= 1) {
-                    Appointment appointment = appointments[0];
-                    if (!gson.toJson(appointment).equals(previousAppointment) && isCandidate(appointment)) {
-                        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
-                        mBuilder.setSmallIcon(R.drawable.ic_appointment);
+                try {
+                    Gson gson = new Gson();
+                    Appointment[] appointments = calendarDB.getNotificationAppointments();
+                    Log.d(TAG, "run: amount " + appointments.length);
+                    previousAppointment = configUtil.getString("previous_appointment");
+                    if (appointments.length >= 1) {
+                        Appointment appointment = appointments[0];
+                        if (!gson.toJson(appointment).equals(previousAppointment) && isCandidate(appointment)) {
+                            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
+                            mBuilder.setSmallIcon(R.drawable.ic_appointment);
 
-                        if (appointment.startDate != null) {
-                            String time = DateUtils.formatDate(appointment.startDate, "HH:mm");
-                            mBuilder.setContentTitle("Volgende afspraak (" + time + ")");
-                        } else {
-                            mBuilder.setContentTitle("Volgende afspraak:");
+                            if (appointment.startDate != null) {
+                                String time = DateUtils.formatDate(appointment.startDate, "HH:mm");
+                                mBuilder.setContentTitle("Volgende afspraak (" + time + ")");
+                            } else {
+                                mBuilder.setContentTitle("Volgende afspraak:");
+                            }
+                            mBuilder.setContentText(appointment.description + " in " + appointment.location);
+                            mBuilder.setAutoCancel(true);
+                            mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+
+                            Intent resultIntent = new Intent(getApplicationContext(), AppointmentActivity.class);
+                            TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
+                            stackBuilder.addParentStack(AppointmentActivity.class);
+                            stackBuilder.addNextIntent(resultIntent);
+                            PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                            mBuilder.setContentIntent(resultPendingIntent);
+
+                            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                            mNotificationManager.notify(9991, mBuilder.build());
+
+                            previousAppointment = gson.toJson(appointment);
+                            configUtil.setString("previous_appointment", previousAppointment);
                         }
-                        mBuilder.setContentText(appointment.description + " in " + appointment.location);
-                        mBuilder.setAutoCancel(true);
-                        mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-
-                        Intent resultIntent = new Intent(getApplicationContext(), AppointmentActivity.class);
-                        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
-                        stackBuilder.addParentStack(AppointmentActivity.class);
-                        stackBuilder.addNextIntent(resultIntent);
-                        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-                        mBuilder.setContentIntent(resultPendingIntent);
-
-                        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                        mNotificationManager.notify(9991, mBuilder.build());
-
-                        previousAppointment = gson.toJson(appointment);
-                        configUtil.setString("previous_appointment", previousAppointment);
+                    } else {
+                        NotificationManager notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                        notifManager.cancel(9991);
                     }
-                } else {
-                    NotificationManager notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    notifManager.cancel(9991);
+                } catch (Exception e) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString(FirebaseAnalytics.Param.ORIGIN, "AppointmentNotification");
+                    bundle.putString("error", e.getMessage());
+
+                    bundle.putString("stacktrace", e.getMessage());
+                    mFirebaseAnalytics.logEvent("error", bundle);
                 }
             }
         };
@@ -275,24 +309,33 @@ public class BackgroundService extends Service {
         TimerTask silentTask = new TimerTask() {
             @Override
             public void run() {
-                appointments = calendarDB.getSilentAppointments(getMargin());
-                if (doSilent(appointments)) {
-                    silenced(true);
-                    AudioManager audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                    configUtil.setInteger("previous_silent_state", audiomanager.getRingerMode());
-                    if (audiomanager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
-                        audiomanager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                    }
-                } else {
-                    if (isSilencedByApp()) {
+                try {
+                    appointments = calendarDB.getSilentAppointments(getMargin());
+                    if (doSilent(appointments)) {
+                        silenced(true);
                         AudioManager audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                        if (configUtil.getBoolean("reverse_silent_state")) {
-                            audiomanager.setRingerMode(configUtil.getInteger("previous_silent_state"));
-                        } else {
-                            audiomanager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                        configUtil.setInteger("previous_silent_state", audiomanager.getRingerMode());
+                        if (audiomanager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
+                            audiomanager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
                         }
-                        silenced(false);
+                    } else {
+                        if (isSilencedByApp()) {
+                            AudioManager audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                            if (configUtil.getBoolean("reverse_silent_state")) {
+                                audiomanager.setRingerMode(configUtil.getInteger("previous_silent_state"));
+                            } else {
+                                audiomanager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                            }
+                            silenced(false);
+                        }
                     }
+                } catch (Exception e) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString(FirebaseAnalytics.Param.ORIGIN, "AutoSilent");
+                    bundle.putString("error", e.getMessage());
+
+                    bundle.putString("stacktrace", e.getMessage());
+                    mFirebaseAnalytics.logEvent("error", bundle);
                 }
             }
         };
@@ -354,23 +397,24 @@ public class BackgroundService extends Service {
         TimerTask gradeStack = new TimerTask() {
             @Override
             public void run() {
-                Magister magister = GlobalAccount.MAGISTER;
-                if (magister == null || magister.isExpired()) {
-                    Log.e(TAG, "run: Invalid magister");
-                    return;
-                }
-
-                NewGradesDB gradesdb = new NewGradesDB(getApplicationContext());
-
-                GradeHandler gradeHandler = new GradeHandler(magister);
-                Grade[] gradeArray;
-                List<Grade> gradeList = new ArrayList<Grade>();
                 try {
-                    gradeArray = gradeHandler.getRecentGrades();
-                    gradesdb.addGrades(gradeArray);
-                    Collections.reverse(Arrays.asList(gradeArray));
+                    Magister magister = GlobalAccount.MAGISTER;
+                    if (magister == null || magister.isExpired()) {
+                        Log.e(TAG, "run: Invalid magister");
+                        return;
+                    }
 
-                    //For testing purposes:
+                    NewGradesDB gradesdb = new NewGradesDB(getApplicationContext());
+
+                    GradeHandler gradeHandler = new GradeHandler(magister);
+                    Grade[] gradeArray;
+                    List<Grade> gradeList = new ArrayList<Grade>();
+                    try {
+                        gradeArray = gradeHandler.getRecentGrades();
+                        gradesdb.addGrades(gradeArray);
+                        Collections.reverse(Arrays.asList(gradeArray));
+
+                        //For testing purposes:
                     /*Grade sampleGrade = new Grade();
                     sampleGrade.isSufficient = false;
                     sampleGrade.grade = "2.3";
@@ -387,63 +431,71 @@ public class BackgroundService extends Service {
                     gradeArray[0] = sampleGrade;
                     gradeArray[1] = sampleGrade2;*/
 
-                    for (Grade grade : gradeArray) {
-                        if (!gradesdb.hasBeenSeen(grade, false)
-                                && (grade.isSufficient || !configUtil.getBoolean("pass_grades_only"))) {
-                            gradeList.add(grade);
-                        }
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return;
-                }
-                String GradesNotification = new Gson().toJson(gradeList);
-                if (gradeList != null && gradeList.size() > 0
-                        && !configUtil.getString("lastGradesNotification").equals(GradesNotification)) {
-
-                    Log.d(TAG, "run: Some grades to show: " + gradeList.size());
-
-                    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
-                    mBuilder.setSmallIcon(R.drawable.ic_grade_notification);
-
-                    if (gradeList.size() == 1) {
-                        Grade grade = gradeList.get(0);
-                        mBuilder.setContentTitle("Nieuw cijfer voor " + grade.subject.name);
-                        //mBuilder.setStyle(new NotificationCompat.BigTextStyle(mBuilder).bigText())
-                        mBuilder.setContentText("Een " + grade.grade);
-                    } else {
-                        String content = "";
-                        for (Grade grade : gradeList) {
-                            String string = grade.subject.name + ", een " + grade.grade;
-                            if (content.length() > 1) {
-                                content = content + "\n" + string;
-                            } else {
-                                content = string;
+                        for (Grade grade : gradeArray) {
+                            if (!gradesdb.hasBeenSeen(grade, false)
+                                    && (grade.isSufficient || !configUtil.getBoolean("pass_grades_only"))) {
+                                gradeList.add(grade);
                             }
                         }
-                        mBuilder.setContentTitle("Nieuwe cijfers voor:");
-                        mBuilder.setStyle(new NotificationCompat.BigTextStyle(mBuilder).bigText(content));
-                        mBuilder.setContentText(content);
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return;
                     }
-                    mBuilder.setAutoCancel(true);
-                    mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-                    mBuilder.setDefaults(Notification.DEFAULT_ALL);
+                    String GradesNotification = new Gson().toJson(gradeList);
+                    if (gradeList != null && gradeList.size() > 0
+                            && !configUtil.getString("lastGradesNotification").equals(GradesNotification)) {
 
-                    Intent resultIntent = new Intent(getApplicationContext(), NewGradeActivity.class);
-                    TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
-                    stackBuilder.addParentStack(NewGradeActivity.class);
-                    stackBuilder.addNextIntent(resultIntent);
-                    PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-                    mBuilder.setContentIntent(resultPendingIntent);
+                        Log.d(TAG, "run: Some grades to show: " + gradeList.size());
+
+                        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
+                        mBuilder.setSmallIcon(R.drawable.ic_grade_notification);
+
+                        if (gradeList.size() == 1) {
+                            Grade grade = gradeList.get(0);
+                            mBuilder.setContentTitle("Nieuw cijfer voor " + grade.subject.name);
+                            //mBuilder.setStyle(new NotificationCompat.BigTextStyle(mBuilder).bigText())
+                            mBuilder.setContentText("Een " + grade.grade);
+                        } else {
+                            String content = "";
+                            for (Grade grade : gradeList) {
+                                String string = grade.subject.name + ", een " + grade.grade;
+                                if (content.length() > 1) {
+                                    content = content + "\n" + string;
+                                } else {
+                                    content = string;
+                                }
+                            }
+                            mBuilder.setContentTitle("Nieuwe cijfers voor:");
+                            mBuilder.setStyle(new NotificationCompat.BigTextStyle(mBuilder).bigText(content));
+                            mBuilder.setContentText(content);
+                        }
+                        mBuilder.setAutoCancel(true);
+                        mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+                        mBuilder.setDefaults(Notification.DEFAULT_ALL);
+
+                        Intent resultIntent = new Intent(getApplicationContext(), NewGradeActivity.class);
+                        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
+                        stackBuilder.addParentStack(NewGradeActivity.class);
+                        stackBuilder.addNextIntent(resultIntent);
+                        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                        mBuilder.setContentIntent(resultPendingIntent);
 
 
-                    NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    mNotificationManager.notify(9992, mBuilder.build());
+                        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                        mNotificationManager.notify(9992, mBuilder.build());
 
-                    configUtil.setString("lastGradesNotification", GradesNotification);
-                } else {
-                    Log.w(TAG, "run: No grades!");
+                        configUtil.setString("lastGradesNotification", GradesNotification);
+                    } else {
+                        Log.w(TAG, "run: No grades!");
+                    }
+                } catch (Exception e) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString(FirebaseAnalytics.Param.ORIGIN, "GradeNotification");
+                    bundle.putString("error", e.getMessage());
+
+                    bundle.putString("stacktrace", e.getMessage());
+                    mFirebaseAnalytics.logEvent("error", bundle);
                 }
             }
         };

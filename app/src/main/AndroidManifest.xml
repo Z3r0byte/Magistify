@@ -22,6 +22,8 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <uses-permission android:name="com.android.vending.BILLING" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -46,7 +48,7 @@
             android:name=".Services.BackgroundService"
             android:enabled="true"
             android:exported="true" />
-        <service
+        <!--<service
             android:name=".Services.NewGradeService"
             android:enabled="true"
             android:exported="true" />
@@ -57,7 +59,7 @@
         <service
             android:name=".Services.WatchdogService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true" /> -->
 
         <receiver android:name=".Services.BootListener">
             <intent-filter>
