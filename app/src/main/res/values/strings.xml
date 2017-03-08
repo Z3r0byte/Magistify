@@ -112,6 +112,7 @@
     <string name="msg_search_school">School zoeken</string>
     <string name="msg_search">Zoek</string>
     <string name="msg_searching">Zoeken…</string>
+    <string name="msg_to_today">Naar vandaag</string>
 
     <string name="setup_desc_1">Let op: Ouder-accounts zijn op dit moment nog niet ondersteund.</string>
     <string name="setup_desc_2">Magistify heeft toegang nodig tot de sdkaart om logbestanden en dergelijken op te slaan.</string>

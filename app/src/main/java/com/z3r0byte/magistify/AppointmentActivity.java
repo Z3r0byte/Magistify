@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -117,11 +117,12 @@ public class AppointmentActivity extends AppCompatActivity implements MaterialTa
         @Override
         public CharSequence getPageTitle(int position) {
             if (position == 0) {
-                return "Afspraken van vandaag";
+                return "Afspraken";
             } else {
                 return "Instellingen";
             }
         }
 
     }
+
 }

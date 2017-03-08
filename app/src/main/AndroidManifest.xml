@@ -13,6 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.z3r0byte.magistify">
 
@@ -21,6 +22,8 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <uses-permission android:name="com.android.vending.BILLING" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -42,10 +45,10 @@
         <activity android:name=".DashboardActivity" />
 
         <service
-            android:name=".Services.SessionService"
+            android:name=".Services.BackgroundService"
             android:enabled="true"
             android:exported="true" />
-        <service
+        <!--<service
             android:name=".Services.NewGradeService"
             android:enabled="true"
             android:exported="true" />
@@ -56,7 +59,7 @@
         <service
             android:name=".Services.WatchdogService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true" /> -->
 
         <receiver android:name=".Services.BootListener">
             <intent-filter>

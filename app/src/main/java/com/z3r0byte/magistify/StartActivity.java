@@ -21,8 +21,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
-import com.z3r0byte.magistify.Services.SessionService;
-import com.z3r0byte.magistify.Services.WatchdogService;
+import com.z3r0byte.magistify.Services.BackgroundService;
 import com.z3r0byte.magistify.Util.ServiceUtil;
 
 
@@ -48,14 +47,15 @@ public class StartActivity extends AppCompatActivity {
             startActivity(new Intent(this, SetupActivity.class));
             finish();
         } else if (!relogin) {
-            if (!ServiceUtil.isServiceRunning(SessionService.class, this)) {
-                startService(new Intent(this, SessionService.class));
+            if (!ServiceUtil.isServiceRunning(BackgroundService.class, this)) {
+                startService(new Intent(this, BackgroundService.class));
             }
 
-
+            /*
             if (!ServiceUtil.isServiceRunning(WatchdogService.class, this)) {
                 startService(new Intent(this, WatchdogService.class));
             }
+            */
             startActivity(new Intent(this, DashboardActivity.class));
             finish();
         }

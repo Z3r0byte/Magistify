@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+  ~ Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~  you may not use this file except in compliance with the License.
@@ -19,31 +19,46 @@
     android:id="@+id/main_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
     tools:context="com.z3r0byte.magistify.AppointmentActivity">
 
-    <Switch
-        android:textSize="18sp"
-        android:text="@string/switch_toggle_appointment_notification"
+    <RelativeLayout
+        android:padding="16dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="27dp"
-        android:id="@+id/enable"
-        android:switchPadding="12dp" />
+        android:layout_height="wrap_content">
 
-    <Switch
-        android:enabled="false"
-        android:layout_below="@+id/enable"
-        android:textSize="18sp"
-        android:text="@string/switch_own_appointments"
+        <Switch
+            android:textSize="14sp"
+            android:text="@string/switch_toggle_appointment_notification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="27dp"
+            android:id="@+id/enable"
+            android:switchPadding="12dp" />
+
+        <Switch
+            android:enabled="false"
+            android:layout_below="@+id/enable"
+            android:textSize="14sp"
+            android:text="@string/switch_own_appointments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="27dp"
+            android:id="@+id/own_appointments"
+            android:switchPadding="12dp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="27dp"
-        android:id="@+id/own_appointments"
-        android:switchPadding="12dp" />
+        android:layout_height="50dp"
+        android:id="@+id/blue_bar"
+        android:background="@color/primary">
+
+    </RelativeLayout>
 
 </RelativeLayout>
