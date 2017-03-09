@@ -160,6 +160,7 @@ public class AutoSilentActivity extends AppCompatActivity implements AdapterView
             disableAll();
         }
         ownAppointmentSwitch.setChecked(configutil.getBoolean("silent_own_appointments"));
+        reverseSwitch.setChecked(configutil.getBoolean("reverse_silent_state"));
     }
 
     @Override

@@ -364,7 +364,7 @@ public class BackgroundService extends Service {
     }
 
     private void silenced(Boolean silenced) {
-        configUtil.setBoolean("silent", silenced);
+        configUtil.setBoolean("silenced", silenced);
     }
 
     private Boolean isSilencedByApp() {
