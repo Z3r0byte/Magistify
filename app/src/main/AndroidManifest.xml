@@ -13,7 +13,6 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.z3r0byte.magistify">
 
@@ -48,7 +47,8 @@
             android:name=".Services.BackgroundService"
             android:enabled="true"
             android:exported="true" />
-        <!--<service
+        <!--
+        <service
             android:name=".Services.NewGradeService"
             android:enabled="true"
             android:exported="true" />
@@ -59,7 +59,8 @@
         <service
             android:name=".Services.WatchdogService"
             android:enabled="true"
-            android:exported="true" /> -->
+            android:exported="true" />
+        -->
 
         <receiver android:name=".Services.BootListener">
             <intent-filter>
@@ -86,7 +87,11 @@
             android:label="@string/title_activity_appointment"
             android:theme="@style/AppTheme" />
         <activity android:name=".SettingsActivity" />
-        <activity android:name=".DonationActivity"></activity>
+        <activity android:name=".DonationActivity" />
+        <activity
+            android:name=".SheduleChangeActivity"
+            android:label="@string/title_activity_shedule_change"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

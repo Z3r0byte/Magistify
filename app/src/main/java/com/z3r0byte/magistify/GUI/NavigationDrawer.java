@@ -46,6 +46,7 @@ import com.z3r0byte.magistify.Networking.GetRequest;
 import com.z3r0byte.magistify.NewGradeActivity;
 import com.z3r0byte.magistify.R;
 import com.z3r0byte.magistify.SettingsActivity;
+import com.z3r0byte.magistify.SheduleChangeActivity;
 
 import net.ilexiconn.magister.container.Profile;
 import net.ilexiconn.magister.container.Status;
@@ -85,6 +86,8 @@ public class NavigationDrawer {
             .withIcon(GoogleMaterial.Icon.gmd_event);
     static PrimaryDrawerItem newGradesItem = new PrimaryDrawerItem().withName(R.string.title_new_grades)
             .withIcon(GoogleMaterial.Icon.gmd_inbox);
+    static PrimaryDrawerItem sheduleChangeItem = new PrimaryDrawerItem().withName(R.string.title_shedule_changes)
+            .withIcon(GoogleMaterial.Icon.gmd_warning);
     static SecondaryDrawerItem statusItem = new SecondaryDrawerItem().withName(R.string.drawer_status)
             .withIcon(GoogleMaterial.Icon.gmd_dns).withSelectable(false)
             .withBadgeStyle(new BadgeStyle(Color.GRAY, Color.GRAY).withTextColor(Color.WHITE)).withBadge("?").withIdentifier(123);
@@ -126,6 +129,7 @@ public class NavigationDrawer {
                         appointmentItem,
                         autoSilentItem,
                         newGradesItem,
+                        //sheduleChangeItem,
                         new SectionDrawerItem().withName(R.string.drawer_tools),
                         statusItem,
                         aboutItem,
@@ -148,6 +152,10 @@ public class NavigationDrawer {
                             drawer.closeDrawer();
                         } else if (drawerItem == appointmentItem && selection != "Appointment") {
                             activity.startActivity(new Intent(activity, AppointmentActivity.class));
+                            closeActivity();
+                            drawer.closeDrawer();
+                        } else if (drawerItem == sheduleChangeItem && selection != "SheduleChanges") {
+                            activity.startActivity(new Intent(activity, SheduleChangeActivity.class));
                             closeActivity();
                             drawer.closeDrawer();
                         } else if (drawerItem == aboutItem) {
@@ -189,6 +197,9 @@ public class NavigationDrawer {
                 break;
             case "Appointment":
                 drawer.setSelection(appointmentItem);
+                break;
+            case "SheduleChanges":
+                drawer.setSelection(sheduleChangeItem);
                 break;
             case "":
                 drawer.setSelection(-1);

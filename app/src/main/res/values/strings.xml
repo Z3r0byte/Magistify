@@ -25,6 +25,7 @@
     <string name="title_about">Over deze app</string>
     <string name="title_settings">Instellingen</string>
     <string name="title_donate">Doneren</string>
+    <string name="title_shedule_changes">Roosterwijzigingen</string>
 
     <string name="aboutLibraries_description_showIcon">true</string>
     <string name="aboutLibraries_description_showVersion">true</string>
@@ -149,4 +150,10 @@
     <string name="title_activity_appointment">AppointmentActivity</string>
     <string name="msg_donations_desc">De genoemde bedragen zijn de bedragen die IK ontvang, de echte prijs zal hoger liggen in verband met belasting.\nBij elke donatie worden advertenties verwijderd. Donaties vanaf €1.00 ontgrendelen ook alle toekomstige PRO-functies.\nPrijzen zijn onder voorbehoud en excl. BTW.</string>
     <string name="msg_donate">Doneren</string>
+    <string name="title_activity_shedule_change">SheduleChangeActivity</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="msg_shedule_changes">Roosterwijzigingen</string>
 </resources>
