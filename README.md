@@ -1,9 +1,9 @@
 # Magistify
 All your favorite Magister tools in one app
 
-######[Website](https://magistify.nl)
+###### [Website](https://magistify.nl)
 
-###License
+### License
 ```
 Copyright 2017 Bas van den Boom 'Z3r0byte'
 
