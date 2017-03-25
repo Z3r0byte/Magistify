@@ -40,9 +40,6 @@ import static com.z3r0byte.magistify.Util.DateUtils.getToday;
 import static com.z3r0byte.magistify.Util.DateUtils.parseDate;
 import static java.lang.Integer.parseInt;
 
-/**
- * Created by bas on 14-11-16.
- */
 
 public class CalendarDB extends SQLiteOpenHelper {
 
@@ -76,8 +73,11 @@ public class CalendarDB extends SQLiteOpenHelper {
     private static final String KEY_INFO_TYPE = "infoType";
     private static final String KEY_SUBJECTS = "subjects";
 
+    Context context;
+
     public CalendarDB(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
 
     // Creating Tables
@@ -139,7 +139,7 @@ public class CalendarDB extends SQLiteOpenHelper {
              */
             String startDateString;
             try {
-                startDateString = DateUtil.dateToString(DateUtils.fixTimeZone(item.startDate));
+                startDateString = DateUtil.dateToString(DateUtils.fixTimeZone(item.startDate, context));
             } catch (ParseException e) {
                 startDateString = null;
                 e.printStackTrace();
@@ -148,8 +148,8 @@ public class CalendarDB extends SQLiteOpenHelper {
             String secondEndDateString;
             try {
                 //Not adding 2 hours to prevent appointments from being showed one day too long.
-                endDateString = DateUtil.dateToString(DateUtils.fixTimeZone(item.endDate));
-                secondEndDateString = DateUtil.dateToString(DateUtils.fixTimeZone(item.endDate));
+                endDateString = DateUtil.dateToString(DateUtils.fixTimeZone(item.endDate, context));
+                secondEndDateString = DateUtil.dateToString(DateUtils.fixTimeZone(item.endDate, context));
             } catch (ParseException e) {
                 endDateString = null;
                 secondEndDateString = null;
