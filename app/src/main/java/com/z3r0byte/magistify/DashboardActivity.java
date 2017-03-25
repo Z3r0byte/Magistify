@@ -54,6 +54,7 @@ import net.ilexiconn.magister.container.Grade;
 import net.ilexiconn.magister.container.School;
 import net.ilexiconn.magister.container.User;
 import net.ilexiconn.magister.handler.GradeHandler;
+import net.ilexiconn.magister.util.HttpUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -307,6 +308,8 @@ public class DashboardActivity extends AppCompatActivity {
         });
 
         mSwipeRefreshLayout.setRefreshing(false);
+
+        getDaylightSaving();
     }
 
     private void retrieveGrades() {
@@ -446,6 +449,34 @@ public class DashboardActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+
+    private void getDaylightSaving() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String response = HttpUtil.convertInputStreamReaderToString(
+                            HttpUtil.httpGet("https://api.z3r0byteapps.eu/timezones/daylightsavings/nextchange"));
+                    String date = response.substring(0, response.indexOf(","));
+                    String offset = response.substring(response.indexOf(",") + 1, response.length());
+                    configUtil.setString("nextChange", date);
+                    configUtil.setInteger("nextOffset", Integer.parseInt(offset));
+                    Log.d(TAG, "run: date:" + date);
+                    Log.d(TAG, "run: offset" + offset);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    String response = HttpUtil.convertInputStreamReaderToString(
+                            HttpUtil.httpGet("https://api.z3r0byteapps.eu/timezones/daylightsavings/currentoffset"));
+                    configUtil.setInteger("currentOffset", Integer.parseInt(response));
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }

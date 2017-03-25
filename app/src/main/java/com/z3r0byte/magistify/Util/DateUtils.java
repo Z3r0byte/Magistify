@@ -17,13 +17,13 @@
 package com.z3r0byte.magistify.Util;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * Created by bas on 14-11-16.
@@ -81,14 +81,20 @@ public class DateUtils {
         context.getSharedPreferences("data", Context.MODE_PRIVATE).edit().putString("LastLogin", date).apply();
     }
 
-    public static Date fixTimeZone(Date date) {
-        Calendar magisterTime = Calendar.getInstance(TimeZone.getTimeZone("EST"));
+    public static Date fixTimeZone(Date date, Context context) {
+        ConfigUtil configUtil = new ConfigUtil(context);
+        String nextChange = configUtil.getString("nextChange");
+        Integer offset;
+        if (parseDate(nextChange, "dd-MM-yyyy").before(date)) {
+            Log.d(TAG, "fixTimeZone: using next offset");
+            offset = configUtil.getInteger("nextOffset");
+        } else {
+            offset = configUtil.getInteger("currentOffset");
+        }
+
         Calendar Time = toCalendar(date);
-        Calendar localTime = toCalendar(new Date());
-        long seconds = (magisterTime.getTimeInMillis() - localTime.getTimeInMillis()) / 1000;
-        //Log.d(TAG, "fixTimeZone: Difference in seconds = " + 3600);
         Calendar newTime = Calendar.getInstance();
-        newTime.setTimeInMillis(Time.getTimeInMillis() + 3600 * 1000);
+        newTime.setTimeInMillis(Time.getTimeInMillis() + offset * 1000);
         return newTime.getTime();
     }
 

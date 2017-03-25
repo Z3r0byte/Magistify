@@ -172,7 +172,6 @@ public class BackgroundService extends Service {
                             Log.w(TAG, "run: Amount of failed Authentications: " + fails);
                         }
                     }
-                    throw new RuntimeException("Test for firebase!");
                 } catch (Exception e) {
                     e.printStackTrace();
                     Bundle bundle = new Bundle();
@@ -180,7 +179,7 @@ public class BackgroundService extends Service {
                     bundle.putString("error", e.getMessage());
 
                     bundle.putString("stacktrace", e.getMessage());
-                    mFirebaseAnalytics.logEvent("error", bundle);
+                    mFirebaseAnalytics.logEvent("error_in_background", bundle);
                 }
 
             }
@@ -220,7 +219,7 @@ public class BackgroundService extends Service {
                     bundle.putString("error", e.getMessage());
 
                     bundle.putString("stacktrace", e.getMessage());
-                    mFirebaseAnalytics.logEvent("error", bundle);
+                    mFirebaseAnalytics.logEvent("error_in_background", bundle);
                 }
             }
         };
@@ -280,7 +279,7 @@ public class BackgroundService extends Service {
                     bundle.putString("error", e.getMessage());
 
                     bundle.putString("stacktrace", e.getMessage());
-                    mFirebaseAnalytics.logEvent("error", bundle);
+                    mFirebaseAnalytics.logEvent("error_in_background", bundle);
                 }
             }
         };
@@ -335,7 +334,7 @@ public class BackgroundService extends Service {
                     bundle.putString("error", e.getMessage());
 
                     bundle.putString("stacktrace", e.getMessage());
-                    mFirebaseAnalytics.logEvent("error", bundle);
+                    mFirebaseAnalytics.logEvent("error_in_background", bundle);
                 }
             }
         };
@@ -495,13 +494,18 @@ public class BackgroundService extends Service {
                     bundle.putString("error", e.getMessage());
 
                     bundle.putString("stacktrace", e.getMessage());
-                    mFirebaseAnalytics.logEvent("error", bundle);
+                    mFirebaseAnalytics.logEvent("error_in_background", bundle);
                 }
             }
         };
         timer.schedule(gradeStack, 6000, 10 * 1000);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getApplicationContext().startService(new Intent(getApplicationContext(), BackgroundService.class));
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
