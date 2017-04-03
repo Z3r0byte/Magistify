@@ -100,7 +100,8 @@ public class NewGradesDB extends SQLiteOpenHelper {
 
     public Boolean hasBeenSeen(Grade grade, Boolean setSeen) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String Query = "Select * from " + TABLE_GRADES + " where " + KEY_DATE_ADDED + " = '" + grade.filledInDateString + "'";
+        String Query = "Select * from " + TABLE_GRADES + " where " + KEY_DATE_ADDED + " = '" + grade.filledInDateString + "' AND "
+                + KEY_GRADE + " = '" + grade.grade + "'";
         Cursor cursor = db.rawQuery(Query, null);
         if (cursor.getCount() == 1) {
             if (cursor.moveToFirst()) {
@@ -153,9 +154,9 @@ public class NewGradesDB extends SQLiteOpenHelper {
 
     private void isSeen(Grade grade, SQLiteDatabase db) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(KEY_DATE_ADDED, grade.filledInDateString);
         contentValues.put(KEY_IS_SEEN, true);
-        db.update(TABLE_GRADES, contentValues, KEY_DATE_ADDED + " = '" + grade.filledInDateString + "'", null);
+        db.update(TABLE_GRADES, contentValues, KEY_DATE_ADDED + " = '" + grade.filledInDateString + "' AND "
+                + KEY_GRADE + " = '" + grade.grade + "'", null);
     }
 
     private Boolean isInDataBase(Grade grade, SQLiteDatabase db) {
