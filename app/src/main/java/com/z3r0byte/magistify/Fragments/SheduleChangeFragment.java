@@ -40,7 +40,7 @@ public class SheduleChangeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_shedule_change, container, false);
+        return inflater.inflate(R.layout.fragment_schedule_change, container, false);
     }
 
 }

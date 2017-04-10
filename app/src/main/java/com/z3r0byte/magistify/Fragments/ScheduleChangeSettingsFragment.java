@@ -28,10 +28,10 @@ import com.z3r0byte.magistify.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SheduleChangeSettingsFragment extends Fragment {
+public class ScheduleChangeSettingsFragment extends Fragment {
 
 
-    public SheduleChangeSettingsFragment() {
+    public ScheduleChangeSettingsFragment() {
         // Required empty public constructor
     }
 
@@ -40,7 +40,7 @@ public class SheduleChangeSettingsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_shedule_change_settings, container, false);
+        return inflater.inflate(R.layout.fragment_schedule_change_settings, container, false);
     }
 
 }

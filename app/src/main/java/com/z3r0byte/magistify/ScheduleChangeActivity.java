@@ -25,11 +25,11 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import com.z3r0byte.magistify.Fragments.ScheduleChangeSettingsFragment;
 import com.z3r0byte.magistify.Fragments.SheduleChangeFragment;
-import com.z3r0byte.magistify.Fragments.SheduleChangeSettingsFragment;
 import com.z3r0byte.magistify.GUI.NavigationDrawer;
 
-public class SheduleChangeActivity extends AppCompatActivity {
+public class ScheduleChangeActivity extends AppCompatActivity {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -49,13 +49,13 @@ public class SheduleChangeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_shedule_change);
+        setContentView(R.layout.activity_schedule_change);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.title_shedule_changes);
         setSupportActionBar(toolbar);
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
+
+
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
@@ -88,13 +88,12 @@ public class SheduleChangeActivity extends AppCompatActivity {
             if (position == 0) {
                 return new SheduleChangeFragment();
             } else {
-                return new SheduleChangeSettingsFragment();
+                return new ScheduleChangeSettingsFragment();
             }
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
             return 2;
         }
 
