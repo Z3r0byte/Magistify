@@ -18,12 +18,12 @@ package net.ilexiconn.magister.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.z3r0byte.magistify.Util.ApiKeyUtil;
 
 import net.ilexiconn.magister.Magister;
 import net.ilexiconn.magister.adapter.ProfileAdapter;
 import net.ilexiconn.magister.adapter.StudyAdapter;
 import net.ilexiconn.magister.adapter.SubjectAdapter;
+import net.ilexiconn.magister.container.ApiKey;
 import net.ilexiconn.magister.container.Profile;
 import net.ilexiconn.magister.container.Study;
 import net.ilexiconn.magister.container.Subject;
@@ -62,7 +62,7 @@ public class HttpUtil {
         HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
         connection.setRequestMethod("DELETE");
         connection.setRequestProperty("Cookie", getCurrentCookies());
-        connection.setRequestProperty("X-API-Client-ID", ApiKeyUtil.getKey());
+        connection.setRequestProperty("X-API-Client-ID", ApiKey.getKey());
         connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         connection.connect();
         storeCookies(connection);
@@ -74,7 +74,7 @@ public class HttpUtil {
         connection.setDoOutput(true);
         connection.setRequestMethod("PUT");
         connection.setRequestProperty("Cookie", getCurrentCookies());
-        connection.setRequestProperty("X-API-Client-ID", ApiKeyUtil.getKey());
+        connection.setRequestProperty("X-API-Client-ID", ApiKey.getKey());
         connection.setRequestProperty("Content-Type", "application/json");
         byte[] data_url = json.getBytes("UTF-8");
         DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
@@ -90,7 +90,7 @@ public class HttpUtil {
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Accept", "application/json");
-        connection.setRequestProperty("X-API-Client-ID", ApiKeyUtil.getKey());
+        connection.setRequestProperty("X-API-Client-ID", ApiKey.getKey());
         connection.setRequestProperty("Cookie", getCurrentCookies());
         connection.setRequestProperty("Content-Type", "application/json");
 
@@ -118,7 +118,7 @@ public class HttpUtil {
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Cookie", getCurrentCookies());
-        connection.setRequestProperty("X-API-Client-ID", ApiKeyUtil.getKey());
+        connection.setRequestProperty("X-API-Client-ID", ApiKey.getKey());
         connection.setRequestProperty("Content-Type", "application/json");
         byte[] data_url = json.getBytes("UTF-8");
         DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
@@ -138,7 +138,7 @@ public class HttpUtil {
 
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Cookie", HttpUtil.getCurrentCookies());
-        connection.setRequestProperty("X-API-Client-ID", ApiKeyUtil.getKey());
+        connection.setRequestProperty("X-API-Client-ID", ApiKey.getKey());
         connection.setRequestProperty("Connection", "Keep-Alive");
         connection.setRequestProperty("Cache-Control", "no-cache");
         connection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
@@ -208,7 +208,7 @@ public class HttpUtil {
         if (AndroidUtil.getAndroidSupportCache()) {
             connection.setUseCaches(true);
         }
-        connection.setRequestProperty("X-API-Client-ID", ApiKeyUtil.getKey());
+        connection.setRequestProperty("X-API-Client-ID", ApiKey.getKey());
         connection.connect();
         storeCookies(connection);
 
@@ -227,7 +227,7 @@ public class HttpUtil {
         if (AndroidUtil.getAndroidSupportCache()) {
             connection.setUseCaches(true);
         }
-        connection.setRequestProperty("X-API-Client-ID", ApiKeyUtil.getKey());
+        connection.setRequestProperty("X-API-Client-ID", ApiKey.getKey());
         String disposition = connection.getHeaderField("Content-Disposition");
         String fileName = disposition.substring(disposition.indexOf("filename=") + 10, disposition.length() - 1);
         File target = new File(downloadDir.getPath() + "\\" + fileName);

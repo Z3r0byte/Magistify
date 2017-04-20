@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package com.z3r0byte.magistify.Util;
+package net.ilexiconn.magister.container;
 
 /**
- * Created by bas on 26-9-16.
+ * Created by bas on 20-4-17.
  */
 
-public class ApiKeyUtil {
-
+public class ApiKey {
     private static final String API_KEY = "EF15";
 
     public static String getKey() {
         return API_KEY;
     }
-
 }
