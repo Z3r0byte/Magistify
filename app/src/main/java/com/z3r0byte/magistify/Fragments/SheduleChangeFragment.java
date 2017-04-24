@@ -23,12 +23,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.z3r0byte.magistify.GlobalAccount;
 import com.z3r0byte.magistify.R;
+import com.z3r0byte.magistify.Util.DateUtils;
+
+import net.ilexiconn.magister.container.Appointment;
+import net.ilexiconn.magister.handler.AppointmentHandler;
+
+import java.io.IOException;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class SheduleChangeFragment extends Fragment {
+    private static final String TAG = "SheduleChangeFragment";
 
 
     public SheduleChangeFragment() {
@@ -39,8 +47,30 @@ public class SheduleChangeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_schedule_change, container, false);
+        View view = inflater.inflate(R.layout.fragment_schedule_change, container, false);
+
+        getScheduleChanges();
+
+
+        return view;
+    }
+
+    private void getScheduleChanges() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (GlobalAccount.MAGISTER == null || GlobalAccount.MAGISTER.isExpired()) {
+                    return;
+                }
+                AppointmentHandler appointmentHandler = new AppointmentHandler(GlobalAccount.MAGISTER);
+                try {
+                    Appointment[] changes = appointmentHandler.getScheduleChanges(DateUtils.getToday(),
+                            DateUtils.addDays(DateUtils.getToday(), 3));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
 }

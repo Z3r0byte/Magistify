@@ -21,23 +21,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.z3r0byte.magistify.R;
+import com.z3r0byte.magistify.Util.DateUtils;
 
-import net.ilexiconn.magister.container.ScheduleChange;
+import net.ilexiconn.magister.container.Appointment;
 
-/**
- * Created by bas on 10-4-17.
- */
 
-public class ScheduleChangeAdapter extends ArrayAdapter<ScheduleChange> {
+public class ScheduleChangeAdapter extends ArrayAdapter<Appointment> {
 
     private static final String TAG = "ScheduleChangeAdapter";
 
     private final Context context;
-    private final ScheduleChange[] scheduleChanges;
+    private final Appointment[] scheduleChanges;
 
-    public ScheduleChangeAdapter(Context context, ScheduleChange[] scheduleChanges) {
+    public ScheduleChangeAdapter(Context context, Appointment[] scheduleChanges) {
         super(context, -1, scheduleChanges);
         this.context = context;
         this.scheduleChanges = scheduleChanges;
@@ -47,7 +47,44 @@ public class ScheduleChangeAdapter extends ArrayAdapter<ScheduleChange> {
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.list_lesson, parent, false);
+        View rowView = inflater.inflate(R.layout.list_schedule_change, parent, false);
+
+        RelativeLayout dateLayout = (RelativeLayout) rowView.findViewById(R.id.day_layout);
+        TextView dateTextView = (TextView) rowView.findViewById(R.id.date_textview);
+
+        TextView lessonTextView = (TextView) rowView.findViewById(R.id.text_lesson);
+        TextView periodTextView = (TextView) rowView.findViewById(R.id.text_list_period);
+        TextView classroomTextView = (TextView) rowView.findViewById(R.id.text_classroom);
+        TextView timeTextView = (TextView) rowView.findViewById(R.id.text_time);
+
+        if (position == 0) {
+            dateLayout.setVisibility(View.VISIBLE);
+            dateTextView.setText(DateUtils.formatDate(scheduleChanges[position].startDate, "EEEE dd MM"));
+        } else {
+            if (DateUtils.formatDate(scheduleChanges[position].startDate, "EEEE dd MM").equals(
+                    DateUtils.formatDate(scheduleChanges[position - 1].startDate, "EEEE dd MM"))) {
+                dateLayout.setVisibility(View.GONE);
+            } else {
+                dateLayout.setVisibility(View.VISIBLE);
+                dateTextView.setText(DateUtils.formatDate(scheduleChanges[position].startDate, "EEEE dd MM"));
+            }
+        }
+        if (scheduleChanges[position].description == null) {
+            lessonTextView.setText(R.string.msg_cancelled_class);
+        } else {
+            lessonTextView.setText(scheduleChanges[position].description);
+        }
+
+        if (scheduleChanges[position].periodFrom == 0) {
+            periodTextView.setText("");
+            rowView.findViewById(R.id.layout_list_calendar_period).setBackgroundResource(0);
+        } else {
+            periodTextView.setText(scheduleChanges[position].periodFrom);
+        }
+
+        classroomTextView.setText(scheduleChanges[position].location);
+        timeTextView.setText(DateUtils.formatDate(scheduleChanges[position].startDate, "HH:mm")
+                + " - " + DateUtils.formatDate(scheduleChanges[position].endDate, "HH:mm"));
 
 
         return rowView;

@@ -70,6 +70,7 @@ public class ScheduleChangeActivity extends AppCompatActivity {
                 GlobalAccount.USER, "SheduleChanges");
         navigationDrawer.SetupNavigationDrawer();
 
+
     }
 
 
