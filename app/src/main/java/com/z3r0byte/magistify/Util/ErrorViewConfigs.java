@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -60,6 +60,12 @@ public class ErrorViewConfigs {
 
     public static ErrorView.Config NoNewGradesConfig = ErrorView.Config.create()
             .title("Geen nieuwe cijfers")
+            .subtitle("")
+            .retryVisible(false)
+            .build();
+
+    public static ErrorView.Config NoScheduleChangesConfig = ErrorView.Config.create()
+            .title("Geen roosterwijzigingen")
             .subtitle("")
             .retryVisible(false)
             .build();
