@@ -85,9 +85,15 @@ public class SheduleChangeFragment extends Fragment {
             @Override
             public void run() {
                 if (GlobalAccount.MAGISTER == null || GlobalAccount.MAGISTER.isExpired()) {
-                    errorView.setVisibility(View.VISIBLE);
-                    errorView.setConfig(ErrorViewConfigs.NoConnectionConfig);
-                    listView.setVisibility(View.GONE);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            errorView.setVisibility(View.VISIBLE);
+                            errorView.setConfig(ErrorViewConfigs.NoConnectionConfig);
+                            listView.setVisibility(View.GONE);
+                        }
+                    });
+
                     return;
                 }
                 AppointmentHandler appointmentHandler = new AppointmentHandler(GlobalAccount.MAGISTER);
@@ -107,12 +113,20 @@ public class SheduleChangeFragment extends Fragment {
                                 errorView.setVisibility(View.VISIBLE);
                                 errorView.setConfig(ErrorViewConfigs.NoScheduleChangesConfig);
                             }
+                            swipeRefreshLayout.setRefreshing(false);
                         }
                     });
                 } catch (IOException e) {
-                    errorView.setVisibility(View.VISIBLE);
-                    errorView.setConfig(ErrorViewConfigs.NoConnectionConfig);
-                    listView.setVisibility(View.GONE);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            errorView.setVisibility(View.VISIBLE);
+                            errorView.setConfig(ErrorViewConfigs.NoConnectionConfig);
+                            listView.setVisibility(View.GONE);
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+                    });
+
                     e.printStackTrace();
                 }
             }

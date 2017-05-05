@@ -59,18 +59,19 @@ public class ScheduleChangeAdapter extends ArrayAdapter<Appointment> {
 
         if (position == 0) {
             dateLayout.setVisibility(View.VISIBLE);
-            dateTextView.setText(DateUtils.formatDate(scheduleChanges[position].startDate, "EEEE dd MM"));
+            dateTextView.setText(DateUtils.formatDate(scheduleChanges[position].startDate, "EEEE dd MMMM"));
         } else {
             if (DateUtils.formatDate(scheduleChanges[position].startDate, "EEEE dd MM").equals(
                     DateUtils.formatDate(scheduleChanges[position - 1].startDate, "EEEE dd MM"))) {
                 dateLayout.setVisibility(View.GONE);
             } else {
                 dateLayout.setVisibility(View.VISIBLE);
-                dateTextView.setText(DateUtils.formatDate(scheduleChanges[position].startDate, "EEEE dd MM"));
+                dateTextView.setText(DateUtils.formatDate(scheduleChanges[position].startDate, "EEEE dd MMMM"));
             }
         }
         if (scheduleChanges[position].description == null) {
             lessonTextView.setText(R.string.msg_cancelled_class);
+            lessonTextView.setTextColor(context.getResources().getColor(R.color.md_red_500));
         } else {
             lessonTextView.setText(scheduleChanges[position].description);
         }
@@ -79,7 +80,7 @@ public class ScheduleChangeAdapter extends ArrayAdapter<Appointment> {
             periodTextView.setText("");
             rowView.findViewById(R.id.layout_list_calendar_period).setBackgroundResource(0);
         } else {
-            periodTextView.setText(scheduleChanges[position].periodFrom);
+            periodTextView.setText(String.valueOf(scheduleChanges[position].periodFrom));
         }
 
         classroomTextView.setText(scheduleChanges[position].location);
