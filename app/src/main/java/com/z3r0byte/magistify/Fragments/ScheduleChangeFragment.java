@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.z3r0byte.magistify.Adapters.ScheduleChangeAdapter;
+import com.z3r0byte.magistify.DatabaseHelpers.ScheduleChangeDB;
 import com.z3r0byte.magistify.GlobalAccount;
 import com.z3r0byte.magistify.R;
 import com.z3r0byte.magistify.Util.DateUtils;
@@ -41,8 +42,8 @@ import tr.xip.errorview.ErrorView;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SheduleChangeFragment extends Fragment {
-    private static final String TAG = "SheduleChangeFragment";
+public class ScheduleChangeFragment extends Fragment {
+    private static final String TAG = "ScheduleChangeFragment";
 
     ScheduleChangeAdapter scheduleChangeAdapter;
     ListView listView;
@@ -50,7 +51,7 @@ public class SheduleChangeFragment extends Fragment {
     SwipeRefreshLayout swipeRefreshLayout;
 
 
-    public SheduleChangeFragment() {
+    public ScheduleChangeFragment() {
         // Required empty public constructor
     }
 
@@ -98,11 +99,15 @@ public class SheduleChangeFragment extends Fragment {
                 }
                 AppointmentHandler appointmentHandler = new AppointmentHandler(GlobalAccount.MAGISTER);
                 try {
-                    final Appointment[] changes = appointmentHandler.getScheduleChanges(DateUtils.getToday(),
-                            DateUtils.addDays(DateUtils.getToday(), 3));
+                    Appointment[] changes = appointmentHandler.getScheduleChanges(DateUtils.getToday(),
+                            DateUtils.addDays(DateUtils.getToday(), 7));
+                    final ScheduleChangeDB scheduleChangeDB = new ScheduleChangeDB(getActivity());
+                    scheduleChangeDB.addItems(changes);
+
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            Appointment[] changes = scheduleChangeDB.getChanges();
                             if (changes != null && changes.length > 0) {
                                 scheduleChangeAdapter = new ScheduleChangeAdapter(getActivity(), changes);
                                 listView.setAdapter(scheduleChangeAdapter);

@@ -25,8 +25,8 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import com.z3r0byte.magistify.Fragments.ScheduleChangeFragment;
 import com.z3r0byte.magistify.Fragments.ScheduleChangeSettingsFragment;
-import com.z3r0byte.magistify.Fragments.SheduleChangeFragment;
 import com.z3r0byte.magistify.GUI.NavigationDrawer;
 
 public class ScheduleChangeActivity extends AppCompatActivity {
@@ -87,7 +87,7 @@ public class ScheduleChangeActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
             if (position == 0) {
-                return new SheduleChangeFragment();
+                return new ScheduleChangeFragment();
             } else {
                 return new ScheduleChangeSettingsFragment();
             }
