@@ -14,16 +14,33 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.z3r0byte.magistify.Fragments.ScheduleChangeSettingsFragment">
+    android:padding="16dp"
+    android:id="@+id/main_view">
 
-
-    <TextView
+    <Switch
+        android:textSize="18sp"
+        android:text="@string/switch_notify_changes"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Nog niet klaar..." />
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="27dp"
+        android:id="@+id/notification_new"
+        android:switchPadding="12dp" />
 
-</FrameLayout>
+    <Switch
+        android:layout_below="@+id/notification_new"
+        android:textSize="18sp"
+        android:text="@string/msg_notify_changed_lesson"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="27dp"
+        android:id="@+id/notification_before"
+        android:switchPadding="12dp" />
+
+</RelativeLayout>
