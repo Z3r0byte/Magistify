@@ -156,6 +156,7 @@ public class ScheduleChangeDB extends SQLiteOpenHelper {
                         appointment.startDate = DateUtils.getToday();
                         appointment.endDate = DateUtils.getToday();
                     }
+                    appointment.location = cursor.getString(cursor.getColumnIndex(KEY_LOCATION));
 
 
                     results[i] = appointment;
