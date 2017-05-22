@@ -170,6 +170,23 @@ public class ScheduleChangeDB extends SQLiteOpenHelper {
         return results;
     }
 
+    public Boolean isInDatabase(Appointment appointment){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String today = DateUtils.formatDate(DateUtils.getToday(), "YYYYMMddHHmm");
+        String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + KEY_LOCATION + " = "
+                + appointment.location +
+                " AND " + KEY_START + " = " + appointment.startDateString +
+                " AND " + KEY_END + " = " + appointment.endDateString;
+
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.getCount() > 0){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
     private void removeAll() {
         SQLiteDatabase db = this.getWritableDatabase();
