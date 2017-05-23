@@ -17,19 +17,28 @@
 package com.z3r0byte.magistify.Fragments;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 
 import com.z3r0byte.magistify.R;
+import com.z3r0byte.magistify.Services.BackgroundService;
+import com.z3r0byte.magistify.Util.ConfigUtil;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class ScheduleChangeSettingsFragment extends Fragment {
 
+    Switch notificationNewChanges;
+    Switch notificationChangedLesson;
+
+    ConfigUtil configUtil;
 
     public ScheduleChangeSettingsFragment() {
         // Required empty public constructor
@@ -40,7 +49,39 @@ public class ScheduleChangeSettingsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_schedule_change_settings, container, false);
+        View view = inflater.inflate(R.layout.fragment_schedule_change_settings, container, false);
+
+        configUtil = new ConfigUtil(getActivity());
+
+        notificationNewChanges = (Switch) view.findViewById(R.id.notification_new);
+        notificationChangedLesson = (Switch) view.findViewById(R.id.notification_before);
+
+        notificationNewChanges.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                configUtil.setBoolean("notificationOnNewChanges", b);
+                getActivity().stopService(new Intent(getActivity(), BackgroundService.class));
+                getActivity().startService(new Intent(getActivity(), BackgroundService.class));
+            }
+        });
+
+        notificationChangedLesson.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                configUtil.setBoolean("notificationOnChangedLesson", b);
+                getActivity().stopService(new Intent(getActivity(), BackgroundService.class));
+                getActivity().startService(new Intent(getActivity(), BackgroundService.class));
+            }
+        });
+
+        setupSwitches();
+
+        return view;
+    }
+
+    private void setupSwitches() {
+        notificationNewChanges.setChecked(configUtil.getBoolean("notificationOnNewChanges"));
+        notificationChangedLesson.setChecked(configUtil.getBoolean("notificationOnChangedLesson"));
     }
 
 }
