@@ -153,10 +153,9 @@
     <string name="title_activity_shedule_change">SheduleChangeActivity</string>
     <string name="section_format">Hello World from section: %1$d</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
     <string name="msg_shedule_changes">Roosterwijzigingen</string>
     <string name="msg_cancelled_class">Uitval</string>
-    <string name="msg_notify_changed_lesson">Melding geven als de volgende les gewijzigd is</string>
+    <string name="msg_notify_changed_lesson">Melding geven als de volgende les gewijzigd is (WIP)</string>
     <string name="switch_notify_changes">Melding weergeven bij nieuwe roosterwijzigingen</string>
 </resources>
