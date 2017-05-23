@@ -108,6 +108,11 @@ public class BackgroundService extends Service {
         if (configUtil.getBoolean("new_grade_enabled")) {
             gradeTimer();
         }
+
+        if (configUtil.getBoolean("notificationOnNewChanges")) {
+            scheduleChangeTimer();
+        }
+
         return START_STICKY;
     }
 
