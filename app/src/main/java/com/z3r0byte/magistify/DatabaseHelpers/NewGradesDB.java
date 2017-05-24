@@ -106,7 +106,6 @@ public class NewGradesDB extends SQLiteOpenHelper {
         if (cursor.getCount() == 1) {
             if (cursor.moveToFirst()) {
                 if (cursor.getInt(cursor.getColumnIndex(KEY_IS_SEEN)) == 1) {
-                    Log.d(TAG, "hasBeenSeen: Seen Before!");
                     return true;
                 }
                 cursor.close();
@@ -126,7 +125,6 @@ public class NewGradesDB extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         String Query = "SELECT * FROM " + TABLE_GRADES;
-        Log.d(TAG, "getUnseenGrades: Query: " + Query);
         Cursor cursor = db.rawQuery(Query, null);
 
         Grade[] results = new Grade[cursor.getCount()];

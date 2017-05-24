@@ -509,6 +509,7 @@ public class BackgroundService extends Service {
     }
 
     private void scheduleChangeTimer(){
+        Log.d(TAG, "scheduleChangeTimer: Starting background service...");
         TimerTask scheduleChangeTask = new TimerTask() {
             @Override
             public void run() {
@@ -520,8 +521,10 @@ public class BackgroundService extends Service {
 
                     ScheduleChangeDB scheduleChangeDB = new ScheduleChangeDB(getApplicationContext());
                     AppointmentHandler appointmentHandler = new AppointmentHandler(magister);
+                    Appointment[] appointments;
                     try {
-                        Appointment[] appointments = appointmentHandler.getScheduleChanges(
+                        Log.d(TAG, "run: Requesting schedule changes....");
+                        appointments = appointmentHandler.getScheduleChanges(
                                 DateUtils.getToday(), DateUtils.addDays(DateUtils.getToday(), 3)
                         );
                     } catch (IOException e){
@@ -532,6 +535,7 @@ public class BackgroundService extends Service {
                     if (appointments == null || appointments.length < 1){
                         return;
                     } else {
+                        Log.d(TAG, "run: Checking for new changes....");
                         for (Appointment appointment :
                                 appointments) {
                             if (!scheduleChangeDB.isInDatabase(appointment)){

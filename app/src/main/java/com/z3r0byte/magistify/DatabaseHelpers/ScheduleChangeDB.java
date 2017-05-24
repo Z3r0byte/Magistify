@@ -55,7 +55,7 @@ public class ScheduleChangeDB extends SQLiteOpenHelper {
     private static final String KEY_SUBJECTS = "subjects";
 
 
-    Context context;
+    private Context context;
 
     public ScheduleChangeDB(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -100,9 +100,6 @@ public class ScheduleChangeDB extends SQLiteOpenHelper {
 
         ContentValues contentValues = new ContentValues();
 
-        Log.d(TAG, "addItems: amount of items: " + appointments.length);
-
-        String day = "";
 
         for (Appointment item :
                 appointments) {
@@ -173,16 +170,16 @@ public class ScheduleChangeDB extends SQLiteOpenHelper {
     public Boolean isInDatabase(Appointment appointment){
         SQLiteDatabase db = this.getWritableDatabase();
 
-        String today = DateUtils.formatDate(DateUtils.getToday(), "YYYYMMddHHmm");
-        String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + KEY_LOCATION + " = "
-                + appointment.location +
-                " AND " + KEY_START + " = " + appointment.startDateString +
-                " AND " + KEY_END + " = " + appointment.endDateString;
+        String query = "SELECT * FROM " + TABLE_NAME + " WHERE "
+                + KEY_START + " = '" + appointment.startDateString +
+                "' AND " + KEY_END + " = '" + appointment.endDateString + "'";
 
         Cursor cursor = db.rawQuery(query, null);
         if (cursor.getCount() > 0){
+            cursor.close();
             return true;
         } else {
+            cursor.close();
             return false;
         }
     }

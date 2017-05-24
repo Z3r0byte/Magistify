@@ -17,7 +17,6 @@
 package com.z3r0byte.magistify.Util;
 
 import android.content.Context;
-import android.util.Log;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -86,7 +85,7 @@ public class DateUtils {
         String nextChange = configUtil.getString("nextChange");
         Integer offset;
         if (parseDate(nextChange, "dd-MM-yyyy").before(date)) {
-            Log.d(TAG, "fixTimeZone: using next offset");
+            //Log.d(TAG, "fixTimeZone: using next offset");
             offset = configUtil.getInteger("nextOffset");
         } else {
             offset = configUtil.getInteger("currentOffset");
