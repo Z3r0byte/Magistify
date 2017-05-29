@@ -32,6 +32,12 @@ import net.ilexiconn.magister.container.type.AppointmentType;
 import net.ilexiconn.magister.util.DateUtil;
 
 import java.text.ParseException;
+import java.util.Date;
+
+import static com.z3r0byte.magistify.Util.DateUtils.addMinutes;
+import static com.z3r0byte.magistify.Util.DateUtils.formatDate;
+import static com.z3r0byte.magistify.Util.DateUtils.getToday;
+import static java.lang.Integer.parseInt;
 
 public class ScheduleChangeDB extends SQLiteOpenHelper {
     private static final String TAG = "ScheduleChangeDB";
@@ -126,7 +132,7 @@ public class ScheduleChangeDB extends SQLiteOpenHelper {
     public Appointment[] getChanges() {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        String today = DateUtils.formatDate(DateUtils.getToday(), "YYYYMMddHHmm");
+        String today = DateUtils.formatDate(DateUtils.getToday(), "yyyyMMddHHmm");
         String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + KEY_SORTABLE_DATE + ">"
                 + today + " ORDER BY " + KEY_SORTABLE_DATE + " ASC";
 
@@ -182,6 +188,51 @@ public class ScheduleChangeDB extends SQLiteOpenHelper {
             cursor.close();
             return false;
         }
+    }
+
+    public Appointment[] getNotificationAppointments() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Date now = getToday();
+        Date start = addMinutes(now, 25);
+        Date end = addMinutes(now, -15);
+
+        Integer startdateInt = parseInt(formatDate(start, "yyyyMMddHHmm"));
+        Integer enddateInt = parseInt(formatDate(end, "yyyyMMddHHmm"));
+        String Query = "SELECT * FROM " + TABLE_NAME + " WHERE " + KEY_SORTABLE_DATE + " <= " + startdateInt + " AND "
+                + KEY_SORTABLE_DATE + " >= " + enddateInt;
+        Log.d(TAG, "getNotificationAppointments: Query: " + Query);
+        Cursor cursor = db.rawQuery(Query, null);
+
+        Appointment[] results = new Appointment[cursor.getCount()];
+        int i = 0;
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    Appointment appointment = new Appointment();
+                    appointment.id = cursor.getInt(cursor.getColumnIndex(KEY_CALENDAR_ID));
+                    appointment.type = AppointmentType.getTypeById(cursor.getInt(cursor.getColumnIndex(KEY_TYPE)));
+                    appointment.description = cursor.getString(cursor.getColumnIndex(KEY_DESC));
+                    appointment.periodFrom = cursor.getInt(cursor.getColumnIndex(KEY_PERIOD_FROM));
+                    appointment.periodUpToAndIncluding = cursor.getInt(cursor.getColumnIndex(KEY_PERIOD_TO));
+                    appointment.startDateString = cursor.getString(cursor.getColumnIndex(KEY_START));
+                    appointment.endDateString = cursor.getString(cursor.getColumnIndex(KEY_END));
+                    try {
+                        appointment.startDate = DateUtil.stringToDate(appointment.startDateString);
+                        appointment.endDate = DateUtil.stringToDate(appointment.endDateString);
+                    } catch (ParseException e) {
+                        appointment.startDate = DateUtils.getToday();
+                        appointment.endDate = DateUtils.getToday();
+                    }
+                    appointment.location = cursor.getString(cursor.getColumnIndex(KEY_LOCATION));
+
+                    results[i] = appointment;
+                    i++;
+                } while (cursor.moveToNext());
+            }
+        }
+        cursor.close();
+
+        return results;
     }
 
 

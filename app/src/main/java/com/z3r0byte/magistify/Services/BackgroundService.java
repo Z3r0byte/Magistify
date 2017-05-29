@@ -73,6 +73,7 @@ public class BackgroundService extends Service {
     ConfigUtil configUtil;
 
     String previousAppointment;
+    String previousChangedAppointment;
 
     Appointment[] appointments;
 
@@ -111,6 +112,10 @@ public class BackgroundService extends Service {
 
         if (configUtil.getBoolean("notificationOnNewChanges")) {
             scheduleChangeTimer();
+        }
+
+        if (configUtil.getBoolean("notificationOnChangedLesson")) {
+            notifyAppointmentChangedTimer();
         }
 
         return START_STICKY;
@@ -579,6 +584,68 @@ public class BackgroundService extends Service {
             }
         };
         timer.schedule(scheduleChangeTask, 6000, 120 * 1000);
+    }
+
+    private void notifyAppointmentChangedTimer() {
+        Log.d(TAG, "notifyAppoinytmentTimer: Starting notify appointmentchange timer");
+        TimerTask notificationTask = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    ScheduleChangeDB scheduleChangeDB = new ScheduleChangeDB(getApplicationContext());
+                    Gson gson = new Gson();
+
+                    Appointment[] appointments = scheduleChangeDB.getNotificationAppointments();
+                    Log.d(TAG, "run: amount " + appointments.length);
+                    previousChangedAppointment = configUtil.getString("previous_changed_appointment");
+                    if (appointments.length >= 1) {
+                        Appointment appointment = appointments[0];
+                        if (!gson.toJson(appointment).equals(previousAppointment)) {
+                            String content;
+                            if (appointment.description != null &&
+                                    !appointment.description.equalsIgnoreCase("null")) {
+                                content = appointment.description;
+                            } else {
+                                content = "De les is uitgevallen!";
+                            }
+
+                            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
+                            mBuilder.setSmallIcon(R.drawable.ic_schedule_change);
+
+                            mBuilder.setContentTitle("Let op! De volgende les is gewijzigd!");
+                            mBuilder.setContentText(content);
+                            mBuilder.setAutoCancel(true);
+                            mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+                            mBuilder.setDefaults(Notification.DEFAULT_ALL);
+
+                            Intent resultIntent = new Intent(getApplicationContext(), ScheduleChangeActivity.class);
+                            TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
+                            stackBuilder.addParentStack(ScheduleChangeActivity.class);
+                            stackBuilder.addNextIntent(resultIntent);
+                            PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                            mBuilder.setContentIntent(resultPendingIntent);
+
+                            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                            mNotificationManager.notify(9994, mBuilder.build());
+
+                            previousChangedAppointment = gson.toJson(appointment);
+                            configUtil.setString("previous_changed_appointment", previousChangedAppointment);
+                        }
+                    } else {
+                        NotificationManager notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                        notifManager.cancel(9994);
+                    }
+                } catch (Exception e) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString(FirebaseAnalytics.Param.ORIGIN, "ChangedAppointmentNotification");
+                    bundle.putString("error", e.getMessage());
+
+                    bundle.putString("stacktrace", e.getMessage());
+                    mFirebaseAnalytics.logEvent("error_in_background", bundle);
+                }
+            }
+        };
+        timer.schedule(notificationTask, 20000, 30 * 1000);
     }
 
     @Override
