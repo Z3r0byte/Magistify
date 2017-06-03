@@ -574,6 +574,7 @@ public class BackgroundService extends Service {
 
 
                 } catch (Exception e){
+                    e.printStackTrace();
                     Bundle bundle = new Bundle();
                     bundle.putString(FirebaseAnalytics.Param.ORIGIN, "ScheduleChangeNotification");
                     bundle.putString("error", e.getMessage());
@@ -596,11 +597,10 @@ public class BackgroundService extends Service {
                     Gson gson = new Gson();
 
                     Appointment[] appointments = scheduleChangeDB.getNotificationAppointments();
-                    Log.d(TAG, "run: amount " + appointments.length);
                     previousChangedAppointment = configUtil.getString("previous_changed_appointment");
                     if (appointments.length >= 1) {
                         Appointment appointment = appointments[0];
-                        if (!gson.toJson(appointment).equals(previousAppointment)) {
+                        if (!appointment.startDateString.equals(previousChangedAppointment)) {
                             String content;
                             if (appointment.description != null &&
                                     !appointment.description.equalsIgnoreCase("null")) {
@@ -628,8 +628,8 @@ public class BackgroundService extends Service {
                             NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                             mNotificationManager.notify(9994, mBuilder.build());
 
-                            previousChangedAppointment = gson.toJson(appointment);
-                            configUtil.setString("previous_changed_appointment", previousChangedAppointment);
+                            previousChangedAppointment = appointment.startDateString;
+                            configUtil.setString("previous_changed_appointment", appointment.startDateString);
                         }
                     } else {
                         NotificationManager notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

@@ -37,7 +37,6 @@ import java.util.Date;
 import static com.z3r0byte.magistify.Util.DateUtils.addMinutes;
 import static com.z3r0byte.magistify.Util.DateUtils.formatDate;
 import static com.z3r0byte.magistify.Util.DateUtils.getToday;
-import static java.lang.Integer.parseInt;
 
 public class ScheduleChangeDB extends SQLiteOpenHelper {
     private static final String TAG = "ScheduleChangeDB";
@@ -196,11 +195,11 @@ public class ScheduleChangeDB extends SQLiteOpenHelper {
         Date start = addMinutes(now, 25);
         Date end = addMinutes(now, -15);
 
-        Integer startdateInt = parseInt(formatDate(start, "yyyyMMddHHmm"));
-        Integer enddateInt = parseInt(formatDate(end, "yyyyMMddHHmm"));
+        String startdateInt = formatDate(start, "yyyyMMddHHmm");
+        String enddateInt = formatDate(end, "yyyyMMddHHmm");
+        Log.d(TAG, "getNotificationAppointments: Building Query....");
         String Query = "SELECT * FROM " + TABLE_NAME + " WHERE " + KEY_SORTABLE_DATE + " <= " + startdateInt + " AND "
                 + KEY_SORTABLE_DATE + " >= " + enddateInt;
-        Log.d(TAG, "getNotificationAppointments: Query: " + Query);
         Cursor cursor = db.rawQuery(Query, null);
 
         Appointment[] results = new Appointment[cursor.getCount()];
