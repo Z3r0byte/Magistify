@@ -35,9 +35,11 @@ import com.z3r0byte.magistify.AppointmentActivity;
 import com.z3r0byte.magistify.DashboardActivity;
 import com.z3r0byte.magistify.DatabaseHelpers.CalendarDB;
 import com.z3r0byte.magistify.DatabaseHelpers.NewGradesDB;
+import com.z3r0byte.magistify.DatabaseHelpers.ScheduleChangeDB;
 import com.z3r0byte.magistify.GlobalAccount;
 import com.z3r0byte.magistify.NewGradeActivity;
 import com.z3r0byte.magistify.R;
+import com.z3r0byte.magistify.ScheduleChangeActivity;
 import com.z3r0byte.magistify.Util.ConfigUtil;
 import com.z3r0byte.magistify.Util.DateUtils;
 
@@ -71,6 +73,7 @@ public class BackgroundService extends Service {
     ConfigUtil configUtil;
 
     String previousAppointment;
+    String previousChangedAppointment;
 
     Appointment[] appointments;
 
@@ -106,6 +109,15 @@ public class BackgroundService extends Service {
         if (configUtil.getBoolean("new_grade_enabled")) {
             gradeTimer();
         }
+
+        if (configUtil.getBoolean("notificationOnNewChanges")) {
+            scheduleChangeTimer();
+        }
+
+        if (configUtil.getBoolean("notificationOnChangedLesson")) {
+            notifyAppointmentChangedTimer();
+        }
+
         return START_STICKY;
     }
 
@@ -223,7 +235,7 @@ public class BackgroundService extends Service {
                 }
             }
         };
-        timer.schedule(notificationTask, 6000, 60 * 1000); //short refresh time, because of errors that happen sometimes and crash the refresh function.
+        timer.schedule(notificationTask, 6000, 120 * 1000); //short refresh time, because of errors that happen sometimes and crash the refresh function.
     }
 
     /*
@@ -498,7 +510,142 @@ public class BackgroundService extends Service {
                 }
             }
         };
-        timer.schedule(gradeStack, 6000, 10 * 1000);
+        timer.schedule(gradeStack, 6000, 120 * 1000);
+    }
+
+    private void scheduleChangeTimer(){
+        Log.d(TAG, "scheduleChangeTimer: Starting background service...");
+        TimerTask scheduleChangeTask = new TimerTask() {
+            @Override
+            public void run() {
+                try{
+                    Magister magister = GlobalAccount.MAGISTER;
+                    if (magister == null || magister.isExpired()){
+                        return;
+                    }
+
+                    ScheduleChangeDB scheduleChangeDB = new ScheduleChangeDB(getApplicationContext());
+                    AppointmentHandler appointmentHandler = new AppointmentHandler(magister);
+                    Appointment[] appointments;
+                    try {
+                        Log.d(TAG, "run: Requesting schedule changes....");
+                        appointments = appointmentHandler.getScheduleChanges(
+                                DateUtils.getToday(), DateUtils.addDays(DateUtils.getToday(), 3)
+                        );
+                    } catch (IOException e){
+                        return;
+                    }
+
+                    Boolean newChanges = false;
+                    if (appointments == null || appointments.length < 1){
+                        return;
+                    } else {
+                        Log.d(TAG, "run: Checking for new changes....");
+                        for (Appointment appointment :
+                                appointments) {
+                            if (!scheduleChangeDB.isInDatabase(appointment)){
+                                newChanges = true;
+                            }
+                        }
+                        scheduleChangeDB.addItems(appointments);
+                    }
+
+                    if (newChanges){
+                        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
+                        mBuilder.setSmallIcon(R.drawable.ic_schedule_change);
+
+                        mBuilder.setContentTitle("Nieuwe roosterijziging(en)!");
+                        mBuilder.setContentText("Tik om te bekijken");
+                        mBuilder.setAutoCancel(true);
+                        mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+                        mBuilder.setDefaults(Notification.DEFAULT_ALL);
+
+                        Intent resultIntent = new Intent(getApplicationContext(), ScheduleChangeActivity.class);
+                        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
+                        stackBuilder.addParentStack(ScheduleChangeActivity.class);
+                        stackBuilder.addNextIntent(resultIntent);
+                        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                        mBuilder.setContentIntent(resultPendingIntent);
+
+
+                        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                        mNotificationManager.notify(9993, mBuilder.build());
+                    }
+
+
+                } catch (Exception e){
+                    e.printStackTrace();
+                    Bundle bundle = new Bundle();
+                    bundle.putString(FirebaseAnalytics.Param.ORIGIN, "ScheduleChangeNotification");
+                    bundle.putString("error", e.getMessage());
+
+                    bundle.putString("stacktrace", e.getMessage());
+                    mFirebaseAnalytics.logEvent("error_in_background", bundle);
+                }
+            }
+        };
+        timer.schedule(scheduleChangeTask, 6000, 120 * 1000);
+    }
+
+    private void notifyAppointmentChangedTimer() {
+        Log.d(TAG, "notifyAppoinytmentTimer: Starting notify appointmentchange timer");
+        TimerTask notificationTask = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    ScheduleChangeDB scheduleChangeDB = new ScheduleChangeDB(getApplicationContext());
+                    Gson gson = new Gson();
+
+                    Appointment[] appointments = scheduleChangeDB.getNotificationAppointments();
+                    previousChangedAppointment = configUtil.getString("previous_changed_appointment");
+                    if (appointments.length >= 1) {
+                        Appointment appointment = appointments[0];
+                        if (!appointment.startDateString.equals(previousChangedAppointment)) {
+                            String content;
+                            if (appointment.description != null &&
+                                    !appointment.description.equalsIgnoreCase("null")) {
+                                content = appointment.description;
+                            } else {
+                                content = "De les is uitgevallen!";
+                            }
+
+                            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
+                            mBuilder.setSmallIcon(R.drawable.ic_schedule_change);
+
+                            mBuilder.setContentTitle("Let op! De volgende les is gewijzigd!");
+                            mBuilder.setContentText(content);
+                            mBuilder.setAutoCancel(true);
+                            mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+                            mBuilder.setDefaults(Notification.DEFAULT_ALL);
+
+                            Intent resultIntent = new Intent(getApplicationContext(), ScheduleChangeActivity.class);
+                            TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
+                            stackBuilder.addParentStack(ScheduleChangeActivity.class);
+                            stackBuilder.addNextIntent(resultIntent);
+                            PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                            mBuilder.setContentIntent(resultPendingIntent);
+
+                            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                            mNotificationManager.notify(9994, mBuilder.build());
+
+                            previousChangedAppointment = appointment.startDateString;
+                            configUtil.setString("previous_changed_appointment", appointment.startDateString);
+                        }
+                    } else {
+                        NotificationManager notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                        notifManager.cancel(9994);
+                    }
+                } catch (Exception e) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString(FirebaseAnalytics.Param.ORIGIN, "ChangedAppointmentNotification");
+                    bundle.putString("error", e.getMessage());
+
+                    bundle.putString("stacktrace", e.getMessage());
+                    mFirebaseAnalytics.logEvent("error_in_background", bundle);
+                }
+            }
+        };
+        timer.schedule(notificationTask, 20000, 30 * 1000);
     }
 
     @Override

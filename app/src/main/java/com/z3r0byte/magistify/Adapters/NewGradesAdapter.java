@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import net.ilexiconn.magister.container.Grade;
  * Created by bas on 6-7-16.
  */
 public class NewGradesAdapter extends ArrayAdapter<Grade> {
-    private static final String TAG = "NewGradesAdapter";
+    private static final String TAG = "ScheduleChangeAdapter";
 
     private final Context context;
     private final Grade[] grades;

@@ -45,8 +45,8 @@ import com.z3r0byte.magistify.DonationActivity;
 import com.z3r0byte.magistify.Networking.GetRequest;
 import com.z3r0byte.magistify.NewGradeActivity;
 import com.z3r0byte.magistify.R;
+import com.z3r0byte.magistify.ScheduleChangeActivity;
 import com.z3r0byte.magistify.SettingsActivity;
-import com.z3r0byte.magistify.SheduleChangeActivity;
 
 import net.ilexiconn.magister.container.Profile;
 import net.ilexiconn.magister.container.Status;
@@ -129,7 +129,7 @@ public class NavigationDrawer {
                         appointmentItem,
                         autoSilentItem,
                         newGradesItem,
-                        //sheduleChangeItem,
+                        sheduleChangeItem,
                         new SectionDrawerItem().withName(R.string.drawer_tools),
                         statusItem,
                         aboutItem,
@@ -155,7 +155,7 @@ public class NavigationDrawer {
                             closeActivity();
                             drawer.closeDrawer();
                         } else if (drawerItem == sheduleChangeItem && selection != "SheduleChanges") {
-                            activity.startActivity(new Intent(activity, SheduleChangeActivity.class));
+                            activity.startActivity(new Intent(activity, ScheduleChangeActivity.class));
                             closeActivity();
                             drawer.closeDrawer();
                         } else if (drawerItem == aboutItem) {

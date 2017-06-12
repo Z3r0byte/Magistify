@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -174,6 +174,13 @@ public class AppointmentHandler implements IHandler {
             throw new InvalidParameterException("Id can't be 0 or lower!");
         }
         HttpUtil.httpDelete(magister.school.url + "/api/personen/" + magister.profile.id + "/afspraken/" + id);
+    }
+
+    public Appointment[] getScheduleChanges(Date from, Date until) throws IOException {
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+        String dateNow = format.format(from);
+        String dateFrom = format.format(until);
+        return gson.fromJson(HttpUtil.httpGet(magister.school.url + "/api/personen/" + magister.profile.id + "/roosterwijzigingen?van=" + dateNow + "&tot=" + dateFrom), Appointment[].class);
     }
 
     /**
