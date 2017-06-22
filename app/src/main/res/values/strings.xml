@@ -158,4 +158,5 @@
     <string name="msg_cancelled_class">Uitval</string>
     <string name="msg_notify_changed_lesson">Melding geven als de volgende les gewijzigd is</string>
     <string name="switch_notify_changes">Melding weergeven bij nieuwe roosterwijzigingen</string>
+    <string name="msg_only_use_wifi">Alleen data ophalen met WiFi</string>
 </resources>

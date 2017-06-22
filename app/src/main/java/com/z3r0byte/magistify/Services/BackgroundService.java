@@ -23,6 +23,8 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -130,6 +132,9 @@ public class BackgroundService extends Service {
         TimerTask refreshSession = new TimerTask() {
             @Override
             public void run() {
+                if (!allowDataTransfer()) {
+                    return;
+                }
                 try {
                     if (GlobalAccount.MAGISTER == null) {
                         if (configUtil.getInteger("failed_auth") >= 2) {
@@ -206,6 +211,9 @@ public class BackgroundService extends Service {
         TimerTask notificationTask = new TimerTask() {
             @Override
             public void run() {
+                if (!allowDataTransfer()) {
+                    return;
+                }
                 try {
                     Magister magister = GlobalAccount.MAGISTER;
                     if (magister != null && !magister.isExpired()) {
@@ -408,6 +416,9 @@ public class BackgroundService extends Service {
         TimerTask gradeStack = new TimerTask() {
             @Override
             public void run() {
+                if (!allowDataTransfer()) {
+                    return;
+                }
                 try {
                     Magister magister = GlobalAccount.MAGISTER;
                     if (magister == null || magister.isExpired()) {
@@ -518,6 +529,9 @@ public class BackgroundService extends Service {
         TimerTask scheduleChangeTask = new TimerTask() {
             @Override
             public void run() {
+                if (!allowDataTransfer()) {
+                    return;
+                }
                 try{
                     Magister magister = GlobalAccount.MAGISTER;
                     if (magister == null || magister.isExpired()){
@@ -646,6 +660,29 @@ public class BackgroundService extends Service {
             }
         };
         timer.schedule(notificationTask, 20000, 30 * 1000);
+    }
+
+
+    private Boolean usingWifi() {
+        final ConnectivityManager connMgr = (ConnectivityManager)
+                this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = connMgr.getActiveNetworkInfo();
+        if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private Boolean allowDataTransfer() {
+        Boolean isWifi = usingWifi();
+        Boolean dataAllowed = !configUtil.getBoolean("wifi_only");
+        if (isWifi || dataAllowed) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
