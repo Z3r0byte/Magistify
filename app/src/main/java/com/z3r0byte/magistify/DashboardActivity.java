@@ -320,6 +320,7 @@ public class DashboardActivity extends AppCompatActivity {
                 if (magister != null && magister.isExpired()) {
                     try {
                         magister.login();
+                        GlobalAccount.MAGISTER = magister;
                     } catch (IOException e) {
                         Log.e(TAG, "run: No connection during login", e);
                         runOnUiThread(new Runnable() {
@@ -332,6 +333,14 @@ public class DashboardActivity extends AppCompatActivity {
                         return;
                     }
                 } else if (magister == null) {
+                    User user = new Gson().fromJson(configUtil.getString("User"), User.class);
+                    School school = new Gson().fromJson(configUtil.getString("School"), School.class);
+                    try {
+                        GlobalAccount.MAGISTER = Magister.login(school, user.username, user.password);
+                        magister = GlobalAccount.MAGISTER;
+                    } catch (IOException | ParseException e) {
+                        e.printStackTrace();
+                    }
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -339,7 +348,9 @@ public class DashboardActivity extends AppCompatActivity {
                             setupGradeCard();
                         }
                     });
-                    return;
+                    if (magister == null) {
+                        return;
+                    }
                 }
                 GradeHandler gradeHandler = new GradeHandler(magister);
                 Grade[] Grades;

@@ -45,7 +45,7 @@
         <Switch
             android:layout_centerInParent="true"
             android:textSize="18sp"
-            android:text="@string/switch_toggle_ads"
+            android:text="@string/msg_only_use_wifi"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/ad_switch"

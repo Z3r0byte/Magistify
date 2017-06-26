@@ -50,15 +50,15 @@ public class SettingsActivity extends AppCompatActivity {
 
         final ConfigUtil configUtil = new ConfigUtil(this);
 
-        Switch ads = (Switch) findViewById(R.id.ad_switch);
-        ads.setChecked(configUtil.getBoolean("disable_ads"));
-        ads.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        Switch wifiOnly = (Switch) findViewById(R.id.ad_switch);
+        wifiOnly.setChecked(configUtil.getBoolean("wifi_only"));
+        wifiOnly.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
-                    configUtil.setBoolean("disable_ads", b);
+                    configUtil.setBoolean("wifi_only", b);
                 } else {
-                    configUtil.setBoolean("disable_ads", b);
+                    configUtil.setBoolean("wifi_only", b);
                 }
                 Toast.makeText(SettingsActivity.this, R.string.msg_restart_app_to_apply, Toast.LENGTH_LONG).show();
             }
