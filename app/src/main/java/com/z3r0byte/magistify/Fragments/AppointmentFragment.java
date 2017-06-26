@@ -149,6 +149,7 @@ public class AppointmentFragment extends Fragment {
                 if (magister != null && magister.isExpired()) {
                     try {
                         magister.login();
+                        GlobalAccount.MAGISTER = magister;
                     } catch (IOException e) {
                         Log.e(TAG, "run: No connection during login", e);
                         getActivity().runOnUiThread(new Runnable() {

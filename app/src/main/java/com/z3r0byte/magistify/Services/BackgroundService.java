@@ -668,7 +668,7 @@ public class BackgroundService extends Service {
                 this.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = connMgr.getActiveNetworkInfo();
-        if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
+        if (activeNetwork != null && activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
             return true;
         } else {
             return false;
