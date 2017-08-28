@@ -31,7 +31,7 @@
         app:theme="@style/ToolBarStyle"
         android:titleTextColor="@android:color/white" />
 
-    <android.support.v4.widget.SwipeRefreshLayout
+    <com.z3r0byte.magistify.GUI.ScrollRefreshLayout
         android:id="@+id/layout_refresh"
         android:layout_below="@+id/Toolbar"
         android:layout_width="match_parent"
@@ -62,9 +62,18 @@
                 android:layout_marginRight="12dp"
                 android:layout_marginTop="12dp" />
 
+            <it.gmariotti.cardslib.library.view.CardViewNative
+                android:layout_below="@+id/card_new_grade"
+                android:id="@+id/card_schedulechanges"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginTop="12dp" />
+
         </LinearLayout>
 
-    </android.support.v4.widget.SwipeRefreshLayout>
+    </com.z3r0byte.magistify.GUI.ScrollRefreshLayout>
 
     <com.google.android.gms.ads.AdView
         android:id="@+id/adView"

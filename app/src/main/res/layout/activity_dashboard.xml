@@ -32,37 +32,56 @@
         android:elevation="4dp"
         app:theme="@style/ToolBarStyle" />
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/layout_refresh"
+
+    <com.z3r0byte.magistify.GUI.ScrollRefreshLayout
+        android:layout_above="@+id/adView"
         android:layout_below="@+id/Toolbar"
+        android:id="@+id/layout_refresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <RelativeLayout
+        <ScrollView
+            android:id="@+id/card_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true">
 
-            <it.gmariotti.cardslib.library.view.CardViewNative
-                android:id="@+id/card_next_appointment"
+
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
-                android:layout_marginRight="12dp"
-                android:layout_marginTop="12dp" />
+                android:layout_height="match_parent">
 
-            <it.gmariotti.cardslib.library.view.CardViewNative
-                android:layout_below="@+id/card_next_appointment"
-                android:id="@+id/card_new_grade"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
-                android:layout_marginRight="12dp"
-                android:layout_marginTop="12dp" />
+                <it.gmariotti.cardslib.library.view.CardViewNative
+                    android:id="@+id/card_next_appointment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:layout_marginTop="12dp" />
 
-        </RelativeLayout>
+                <it.gmariotti.cardslib.library.view.CardViewNative
+                    android:layout_below="@+id/card_next_appointment"
+                    android:id="@+id/card_new_grade"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:layout_marginTop="12dp" />
 
-    </android.support.v4.widget.SwipeRefreshLayout>
+                <it.gmariotti.cardslib.library.view.CardViewNative
+                    android:layout_below="@+id/card_new_grade"
+                    android:id="@+id/card_schedulechanges"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:layout_marginTop="12dp" />
+
+            </RelativeLayout>
+        </ScrollView>
+
+    </com.z3r0byte.magistify.GUI.ScrollRefreshLayout>
 
     <com.google.android.gms.ads.AdView
         android:id="@+id/adView"
@@ -71,6 +90,6 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         ads:adSize="BANNER"
-        ads:adUnitId="@string/banner_1_ad_unit_id"></com.google.android.gms.ads.AdView>
+        ads:adUnitId="@string/banner_1_ad_unit_id" />
 
 </RelativeLayout>
