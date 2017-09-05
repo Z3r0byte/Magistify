@@ -35,7 +35,7 @@
         android:id="@+id/layout_refresh"
         android:layout_below="@+id/Toolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:padding="16dp">
 
         <LinearLayout
@@ -63,7 +63,9 @@
                 android:layout_marginTop="12dp" />
 
 
+
         </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -73,7 +75,7 @@
             <it.gmariotti.cardslib.library.view.CardViewNative
                 android:layout_weight="0.5"
                 android:id="@+id/card_schedulechanges"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="12dp"
                 android:layout_marginRight="12dp"
@@ -89,7 +91,7 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         ads:adSize="BANNER"
-        ads:adUnitId="@string/banner_1_ad_unit_id"></com.google.android.gms.ads.AdView>
+        ads:adUnitId="@string/banner_1_ad_unit_id" />
 
 
 </RelativeLayout>
