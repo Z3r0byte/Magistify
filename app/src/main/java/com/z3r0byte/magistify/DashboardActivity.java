@@ -117,6 +117,8 @@ public class DashboardActivity extends AppCompatActivity {
         mToolbar.setTitle(R.string.title_dashboard);
         setSupportActionBar(mToolbar);
 
+        configUtil = new ConfigUtil(this);
+
         User user = new Gson().fromJson(configUtil.getString("User"), User.class);
         Profile profile = new Gson().fromJson(configUtil.getString("Profile"), Profile.class);
 
@@ -144,8 +146,6 @@ public class DashboardActivity extends AppCompatActivity {
                     }
                 }
         );
-
-        configUtil = new ConfigUtil(this);
 
         if (!configUtil.getBoolean("disable_ads")) {
             MobileAds.initialize(getApplicationContext(), getString(R.string.app_ad_id));

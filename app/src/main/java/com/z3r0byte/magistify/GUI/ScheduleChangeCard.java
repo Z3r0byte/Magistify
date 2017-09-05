@@ -17,13 +17,16 @@
 package com.z3r0byte.magistify.GUI;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import com.z3r0byte.magistify.Adapters.ScheduleChangeAdapter;
 import com.z3r0byte.magistify.R;
+import com.z3r0byte.magistify.ScheduleChangeActivity;
 
 import net.ilexiconn.magister.container.Appointment;
 
@@ -65,6 +68,12 @@ public class ScheduleChangeCard extends Card {
 
             listView.setVisibility(View.VISIBLE);
             listView.setAdapter(adapter);
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    Context.startActivity(new Intent(Context, ScheduleChangeActivity.class));
+                }
+            });
 
             final float scale = getContext().getResources().getDisplayMetrics().density;
             if (appointments.length != 0) {
