@@ -161,4 +161,5 @@
     <string name="msg_only_use_wifi">Alleen data ophalen met WiFi</string>
     <string name="msg_upcoming_changes">Komende roosterwijzigingen</string>
     <string name="msg_no_upcoming_schedulechanges">Geen roosterwijzigingen de komende tijd</string>
+    <string name="err_failed_login_dashboard">Kon niet inloggen, gebruikersnaam/wachtwoord mogelijk verkeerd.</string>
 </resources>

@@ -54,6 +54,7 @@ import com.z3r0byte.magistify.Util.ConfigUtil;
 import net.ilexiconn.magister.Magister;
 import net.ilexiconn.magister.container.Appointment;
 import net.ilexiconn.magister.container.Grade;
+import net.ilexiconn.magister.container.Profile;
 import net.ilexiconn.magister.container.School;
 import net.ilexiconn.magister.container.User;
 import net.ilexiconn.magister.handler.GradeHandler;
@@ -116,8 +117,11 @@ public class DashboardActivity extends AppCompatActivity {
         mToolbar.setTitle(R.string.title_dashboard);
         setSupportActionBar(mToolbar);
 
+        User user = new Gson().fromJson(configUtil.getString("User"), User.class);
+        Profile profile = new Gson().fromJson(configUtil.getString("Profile"), Profile.class);
+
         NavigationDrawer navigationDrawer = new NavigationDrawer(this, mToolbar,
-                GlobalAccount.PROFILE, GlobalAccount.USER, "Dashboard");
+                profile, user, "Dashboard");
         navigationDrawer.SetupNavigationDrawer();
 
 
@@ -341,6 +345,18 @@ public class DashboardActivity extends AppCompatActivity {
                             }
                         });
                         return;
+                    } catch (InvalidParameterException e) {
+                        e.printStackTrace();
+                        int fails = configUtil.getInteger("failed_auth");
+                        fails++;
+                        configUtil.setInteger("failed_auth", fails);
+                        Log.w(TAG, "run: Amount of failed Authentications: " + fails);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(DashboardActivity.this, R.string.err_failed_login_dashboard, Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
                 } else if (magister == null) {
                     User user = new Gson().fromJson(configUtil.getString("User"), User.class);
