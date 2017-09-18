@@ -114,7 +114,7 @@ public class ScheduleChangeDB extends SQLiteOpenHelper {
             contentValues.put(KEY_DESC, item.description);
             contentValues.put(KEY_CLASS_ROOMS, new Gson().toJson(item.classrooms));
             contentValues.put(KEY_END, item.endDateString);
-            contentValues.put(KEY_SORTABLE_DATE, DateUtils.formatDate(item.startDate, "YYYYMMddHHmm"));
+            contentValues.put(KEY_SORTABLE_DATE, DateUtils.formatDate(item.startDate, "yyyyMMddHHmm"));
             contentValues.put(KEY_LOCATION, item.location);
             contentValues.put(KEY_PERIOD_FROM, item.periodFrom);
             contentValues.put(KEY_PERIOD_TO, item.periodUpToAndIncluding);

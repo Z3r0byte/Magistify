@@ -81,18 +81,21 @@
 
         <activity
             android:name=".NewGradeActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_new_grade"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".AppointmentActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_appointment"
             android:theme="@style/AppTheme" />
         <activity android:name=".SettingsActivity" />
         <activity android:name=".DonationActivity" />
         <activity
             android:name=".ScheduleChangeActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_shedule_change"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

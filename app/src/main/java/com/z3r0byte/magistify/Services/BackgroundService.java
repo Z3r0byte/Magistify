@@ -56,6 +56,8 @@ import net.ilexiconn.magister.handler.AppointmentHandler;
 import net.ilexiconn.magister.handler.GradeHandler;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -193,7 +195,7 @@ public class BackgroundService extends Service {
                     e.printStackTrace();
                     Bundle bundle = new Bundle();
                     bundle.putString(FirebaseAnalytics.Param.ORIGIN, "SessionManager");
-                    bundle.putString("error", e.getMessage());
+                    bundle.putString("error", getStackTrace(e));
 
                     bundle.putString("stacktrace", e.getMessage());
                     mFirebaseAnalytics.logEvent("error_in_background", bundle);
@@ -236,7 +238,7 @@ public class BackgroundService extends Service {
                 } catch (Exception e) {
                     Bundle bundle = new Bundle();
                     bundle.putString(FirebaseAnalytics.Param.ORIGIN, "AppointmentLoader");
-                    bundle.putString("error", e.getMessage());
+                    bundle.putString("error", getStackTrace(e));
 
                     bundle.putString("stacktrace", e.getMessage());
                     mFirebaseAnalytics.logEvent("error_in_background", bundle);
@@ -296,7 +298,7 @@ public class BackgroundService extends Service {
                 } catch (Exception e) {
                     Bundle bundle = new Bundle();
                     bundle.putString(FirebaseAnalytics.Param.ORIGIN, "AppointmentNotification");
-                    bundle.putString("error", e.getMessage());
+                    bundle.putString("error", getStackTrace(e));
 
                     bundle.putString("stacktrace", e.getMessage());
                     mFirebaseAnalytics.logEvent("error_in_background", bundle);
@@ -351,7 +353,7 @@ public class BackgroundService extends Service {
                 } catch (Exception e) {
                     Bundle bundle = new Bundle();
                     bundle.putString(FirebaseAnalytics.Param.ORIGIN, "AutoSilent");
-                    bundle.putString("error", e.getMessage());
+                    bundle.putString("error", getStackTrace(e));
 
                     bundle.putString("stacktrace", e.getMessage());
                     mFirebaseAnalytics.logEvent("error_in_background", bundle);
@@ -514,7 +516,7 @@ public class BackgroundService extends Service {
                 } catch (Exception e) {
                     Bundle bundle = new Bundle();
                     bundle.putString(FirebaseAnalytics.Param.ORIGIN, "GradeNotification");
-                    bundle.putString("error", e.getMessage());
+                    bundle.putString("error", getStackTrace(e));
 
                     bundle.putString("stacktrace", e.getMessage());
                     mFirebaseAnalytics.logEvent("error_in_background", bundle);
@@ -546,7 +548,13 @@ public class BackgroundService extends Service {
                         appointments = appointmentHandler.getScheduleChanges(
                                 DateUtils.getToday(), DateUtils.addDays(DateUtils.getToday(), 3)
                         );
-                    } catch (IOException e){
+                    } catch (IOException | AssertionError e) {
+                        Bundle bundle = new Bundle();
+                        bundle.putString(FirebaseAnalytics.Param.ORIGIN, "scheduleChangeTimer");
+                        bundle.putString("error", e.getMessage());
+
+                        bundle.putString("stacktrace", e.getMessage());
+                        mFirebaseAnalytics.logEvent("error_in_background_schedule", bundle);
                         return;
                     }
 
@@ -591,7 +599,7 @@ public class BackgroundService extends Service {
                     e.printStackTrace();
                     Bundle bundle = new Bundle();
                     bundle.putString(FirebaseAnalytics.Param.ORIGIN, "ScheduleChangeNotification");
-                    bundle.putString("error", e.getMessage());
+                    bundle.putString("error", getStackTrace(e));
 
                     bundle.putString("stacktrace", e.getMessage());
                     mFirebaseAnalytics.logEvent("error_in_background", bundle);
@@ -652,7 +660,7 @@ public class BackgroundService extends Service {
                 } catch (Exception e) {
                     Bundle bundle = new Bundle();
                     bundle.putString(FirebaseAnalytics.Param.ORIGIN, "ChangedAppointmentNotification");
-                    bundle.putString("error", e.getMessage());
+                    bundle.putString("error", getStackTrace(e));
 
                     bundle.putString("stacktrace", e.getMessage());
                     mFirebaseAnalytics.logEvent("error_in_background", bundle);
@@ -683,6 +691,12 @@ public class BackgroundService extends Service {
         } else {
             return false;
         }
+    }
+
+    private String getStackTrace(Exception ex) {
+        StringWriter errors = new StringWriter();
+        ex.printStackTrace(new PrintWriter(errors));
+        return errors.toString();
     }
 
     @Override

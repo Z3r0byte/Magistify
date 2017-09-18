@@ -176,7 +176,7 @@ public class AppointmentHandler implements IHandler {
         HttpUtil.httpDelete(magister.school.url + "/api/personen/" + magister.profile.id + "/afspraken/" + id);
     }
 
-    public Appointment[] getScheduleChanges(Date from, Date until) throws IOException {
+    public Appointment[] getScheduleChanges(Date from, Date until) throws IOException, AssertionError {
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
         String dateNow = format.format(from);
         String dateFrom = format.format(until);

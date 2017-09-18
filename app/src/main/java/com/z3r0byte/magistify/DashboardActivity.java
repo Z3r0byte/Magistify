@@ -43,14 +43,18 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.gson.Gson;
 import com.z3r0byte.magistify.DatabaseHelpers.CalendarDB;
 import com.z3r0byte.magistify.DatabaseHelpers.NewGradesDB;
+import com.z3r0byte.magistify.DatabaseHelpers.ScheduleChangeDB;
 import com.z3r0byte.magistify.GUI.NavigationDrawer;
 import com.z3r0byte.magistify.GUI.NewGradeCard;
 import com.z3r0byte.magistify.GUI.NextAppointmentCard;
+import com.z3r0byte.magistify.GUI.ScheduleChangeCard;
+import com.z3r0byte.magistify.GUI.ScrollRefreshLayout;
 import com.z3r0byte.magistify.Util.ConfigUtil;
 
 import net.ilexiconn.magister.Magister;
 import net.ilexiconn.magister.container.Appointment;
 import net.ilexiconn.magister.container.Grade;
+import net.ilexiconn.magister.container.Profile;
 import net.ilexiconn.magister.container.School;
 import net.ilexiconn.magister.container.User;
 import net.ilexiconn.magister.handler.GradeHandler;
@@ -75,7 +79,8 @@ public class DashboardActivity extends AppCompatActivity {
     Toolbar mToolbar;
     CardViewNative appointmentMain;
     CardViewNative gradeMain;
-    SwipeRefreshLayout mSwipeRefreshLayout;
+    CardViewNative scheduleChangeMain;
+    ScrollRefreshLayout mSwipeRefreshLayout;
     ConfigUtil configUtil;
 
 
@@ -112,16 +117,22 @@ public class DashboardActivity extends AppCompatActivity {
         mToolbar.setTitle(R.string.title_dashboard);
         setSupportActionBar(mToolbar);
 
+        configUtil = new ConfigUtil(this);
+
+        User user = new Gson().fromJson(configUtil.getString("User"), User.class);
+        Profile profile = new Gson().fromJson(configUtil.getString("Profile"), Profile.class);
+
         NavigationDrawer navigationDrawer = new NavigationDrawer(this, mToolbar,
-                GlobalAccount.PROFILE, GlobalAccount.USER, "Dashboard");
+                profile, user, "Dashboard");
         navigationDrawer.SetupNavigationDrawer();
 
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.layout_refresh);
+        mSwipeRefreshLayout = (ScrollRefreshLayout) findViewById(R.id.layout_refresh);
         mSwipeRefreshLayout.setColorSchemeResources(
                 R.color.colorPrimary,
                 R.color.setup_color_3,
                 R.color.setup_color_5);
+        mSwipeRefreshLayout.setSwipeableChildren(R.id.card_layout);
         mSwipeRefreshLayout.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
@@ -130,12 +141,11 @@ public class DashboardActivity extends AppCompatActivity {
                         mSwipeRefreshLayout.setVisibility(View.GONE);
                         mSwipeRefreshLayout.setVisibility(View.VISIBLE);
                         setupAppointmentCard();
+                        setupChangeCard();
                         retrieveGrades();
                     }
                 }
         );
-
-        configUtil = new ConfigUtil(this);
 
         if (!configUtil.getBoolean("disable_ads")) {
             MobileAds.initialize(getApplicationContext(), getString(R.string.app_ad_id));
@@ -144,6 +154,8 @@ public class DashboardActivity extends AppCompatActivity {
                     .addTestDevice("BEF9819F219452AE8661484A2AA03C59")
                     .build();
             mAdView.loadAd(adRequest);
+        } else {
+            findViewById(R.id.adView).setVisibility(View.GONE);
         }
 
         if (configUtil.getInteger("failed_auth") >= 2) {
@@ -171,11 +183,13 @@ public class DashboardActivity extends AppCompatActivity {
         bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
 
         appointmentMain = (CardViewNative) findViewById(R.id.card_next_appointment);
+        scheduleChangeMain = (CardViewNative) findViewById(R.id.card_schedulechanges);
 
         gradeMain = (CardViewNative) findViewById(R.id.card_new_grade);
         gradeMain.setVisibility(View.GONE);
 
         setupAppointmentCard();
+        setupChangeCard();
         retrieveGrades();
 
         getPurchases();
@@ -331,6 +345,18 @@ public class DashboardActivity extends AppCompatActivity {
                             }
                         });
                         return;
+                    } catch (InvalidParameterException e) {
+                        e.printStackTrace();
+                        int fails = configUtil.getInteger("failed_auth");
+                        fails++;
+                        configUtil.setInteger("failed_auth", fails);
+                        Log.w(TAG, "run: Amount of failed Authentications: " + fails);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(DashboardActivity.this, R.string.err_failed_login_dashboard, Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
                 } else if (magister == null) {
                     User user = new Gson().fromJson(configUtil.getString("User"), User.class);
@@ -393,6 +419,76 @@ public class DashboardActivity extends AppCompatActivity {
 
             }
         }).start();
+    }
+
+    private void setupChangeCard() {
+        ScheduleChangeDB db = new ScheduleChangeDB(this);
+
+        Appointment[] rawAppointments = db.getChanges();
+
+
+        /*rawAppointments = new Appointment[4];
+
+        rawAppointments[0] = new Appointment();
+        rawAppointments[0].description = "Roosterwijziging 1";
+        rawAppointments[0].startDate = new Date();
+        rawAppointments[0].endDate = rawAppointments[0].startDate;
+        rawAppointments[0].location = "Lokatie 1";
+        rawAppointments[0].periodFrom = 2;
+
+        rawAppointments[1] = new Appointment();
+        rawAppointments[1].description = "Roosterwijziging 2";
+        rawAppointments[1].startDate = new Date();
+        rawAppointments[1].endDate = rawAppointments[1].startDate;
+        rawAppointments[1].location = "Lokatie 2";
+        rawAppointments[1].periodFrom = 6;
+
+        rawAppointments[2] = new Appointment();
+        rawAppointments[2].description = "Roosterwijziging 3";
+        rawAppointments[2].startDate = DateUtils.addDays(new Date(),1);
+        rawAppointments[2].endDate = rawAppointments[2].startDate;
+        rawAppointments[2].location = "Lokatie 3";
+        rawAppointments[2].periodFrom = 4;
+
+        rawAppointments[3] = new Appointment();
+        rawAppointments[3].description = "Roosterwijziging 4";
+        rawAppointments[3].startDate = new Date();
+        rawAppointments[3].endDate = rawAppointments[3].startDate;
+        rawAppointments[3].location = "Lokatie 4";
+        rawAppointments[3].periodFrom = 9;
+        */
+
+
+        Appointment[] appointments = null;
+
+        if (rawAppointments != null && rawAppointments.length > 0) {
+            if (rawAppointments.length == 1) {
+                appointments = new Appointment[1];
+                appointments[0] = rawAppointments[0];
+            } else if (rawAppointments.length == 2) {
+                appointments = new Appointment[2];
+                appointments[0] = rawAppointments[0];
+                appointments[1] = rawAppointments[1];
+            } else {
+                appointments = new Appointment[3];
+                appointments[0] = rawAppointments[0];
+                appointments[1] = rawAppointments[1];
+                appointments[2] = rawAppointments[2];
+            }
+        }
+
+        ScheduleChangeCard mainCardContent = new ScheduleChangeCard(this, appointments);
+        CardHeader cardHeader = new CardHeader(this);
+        cardHeader.setTitle(getString(R.string.msg_upcoming_changes));
+
+        mainCardContent.addCardHeader(cardHeader);
+        scheduleChangeMain.setCard(mainCardContent);
+        scheduleChangeMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), ScheduleChangeActivity.class));
+            }
+        });
     }
 
     private void getPurchases() {
