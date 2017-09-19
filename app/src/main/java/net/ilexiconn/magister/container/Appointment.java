@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -88,6 +88,9 @@ public class Appointment implements Serializable {
 
     @SerializedName("Omschrijving")
     public String description;
+
+    @SerializedName("TaakGewijzigdOp")
+    public String homeworkLastEdited;
 
     @Override
     public String toString() {

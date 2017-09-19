@@ -25,9 +25,14 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import com.google.gson.Gson;
 import com.z3r0byte.magistify.Fragments.AppointmentFragment;
 import com.z3r0byte.magistify.Fragments.AppointmentSettingsFragment;
 import com.z3r0byte.magistify.GUI.NavigationDrawer;
+import com.z3r0byte.magistify.Util.ConfigUtil;
+
+import net.ilexiconn.magister.container.Profile;
+import net.ilexiconn.magister.container.User;
 
 import it.neokree.materialtabs.MaterialTab;
 import it.neokree.materialtabs.MaterialTabHost;
@@ -51,8 +56,12 @@ public class AppointmentActivity extends AppCompatActivity implements MaterialTa
         mToolbar.setTitle(R.string.title_appointments);
         setSupportActionBar(mToolbar);
 
+        ConfigUtil configUtil = new ConfigUtil(this);
+        User user = new Gson().fromJson(configUtil.getString("User"), User.class);
+        Profile profile = new Gson().fromJson(configUtil.getString("Profile"), Profile.class);
+
         NavigationDrawer navigationDrawer = new NavigationDrawer(this, mToolbar,
-                GlobalAccount.PROFILE, GlobalAccount.USER, "Appointment");
+                profile, user, "Dashboard");
         navigationDrawer.SetupNavigationDrawer();
 
         tabHost = (MaterialTabHost) findViewById(R.id.materialTabHost);

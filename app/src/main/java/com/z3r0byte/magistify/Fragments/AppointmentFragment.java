@@ -17,6 +17,7 @@
 package com.z3r0byte.magistify.Fragments;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -27,14 +28,20 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.z3r0byte.magistify.Adapters.AppointmentsAdapter;
+import com.z3r0byte.magistify.AppointmentDetailsActivity;
 import com.z3r0byte.magistify.GlobalAccount;
+import com.z3r0byte.magistify.Listeners.FinishInitiator;
+import com.z3r0byte.magistify.Listeners.FinishResponder;
+import com.z3r0byte.magistify.Listeners.SharedListener;
 import com.z3r0byte.magistify.R;
 import com.z3r0byte.magistify.Util.DateUtils;
 import com.z3r0byte.magistify.Util.ErrorViewConfigs;
@@ -100,6 +107,14 @@ public class AppointmentFragment extends Fragment {
         listView = (ListView) view.findViewById(R.id.list_appointments);
         mAppointmentsAdapter = new AppointmentsAdapter(getActivity(), Appointments);
         listView.setAdapter(mAppointmentsAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(getActivity(), AppointmentDetailsActivity.class);
+                intent.putExtra("Appointment", new Gson().toJson(Appointments[i]));
+                startActivity(intent);
+            }
+        });
 
         currentDay = (TextView) view.findViewById(R.id.current_day);
         nextDay = (ImageView) view.findViewById(R.id.nextDay);
@@ -133,10 +148,14 @@ public class AppointmentFragment extends Fragment {
 
         refresh();
 
+        SharedListener.finishInitiator = new FinishInitiator();
+        FinishResponder responder = new FinishResponder(this);
+        SharedListener.finishInitiator.addListener(responder);
+
         return view;
     }
 
-    private void refresh() {
+    public void refresh() {
         if (refreshThread != null) {
             refreshThread.interrupt();
         }

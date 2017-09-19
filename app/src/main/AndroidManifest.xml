@@ -13,7 +13,6 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.z3r0byte.magistify">
 
@@ -83,19 +82,23 @@
             android:name=".NewGradeActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_new_grade"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme"
+            android:parentActivityName=".DashboardActivity" />
         <activity
             android:name=".AppointmentActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_appointment"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme"
+            android:parentActivityName=".DashboardActivity" />
         <activity android:name=".SettingsActivity" />
         <activity android:name=".DonationActivity" />
         <activity
             android:name=".ScheduleChangeActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_shedule_change"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme"
+            android:parentActivityName=".DashboardActivity" />
+        <activity android:name=".AppointmentDetailsActivity" />
     </application>
 
 </manifest>
