@@ -77,7 +77,7 @@ public class AutoSilentActivity extends AppCompatActivity implements AdapterView
         navigationDrawer.SetupNavigationDrawer();
 
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
-        collapsingToolbarLayout.setTitle("Auto-silent");
+        collapsingToolbarLayout.setTitle(getString(R.string.title_auto_silent));
         collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(android.R.color.transparent));
 
         enableSwitch = (Switch) findViewById(R.id.enable);
