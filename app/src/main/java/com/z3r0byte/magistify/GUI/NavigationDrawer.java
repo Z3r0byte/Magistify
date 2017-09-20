@@ -162,7 +162,8 @@ public class NavigationDrawer {
                             new LibsBuilder()
                                     .withActivityTitle(activity.getString(R.string.title_about))
                                     .withAboutDescription("Magistify: alle tools voor Magister.<br/><b>Broncode:</b>" +
-                                            "<br /><a href=\"https://github.com/z3r0byte/magistify\">https://github.com/z3r0byte/magistify</a><br />" +
+                                            "<br /><a href=\"https://github.com/z3r0byte/magistify\">https://github.com/z3r0byte/magistify</a><br/><b>Website:</b>" +
+                                            "<br /><a href=\"https://magistify.nl\">https://magistify.nl</a><br />" +
                                             "<b>Licentie:</b><br /><a href=\"https://github.com/Z3r0byte/Magistify/blob/master/LICENSE\">Apache 2.0</a>" +
                                             "<br /><br /> Magistify maakt gebruik van de volgende libraries (De magister.java library is aangepast):")
                                     .withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
