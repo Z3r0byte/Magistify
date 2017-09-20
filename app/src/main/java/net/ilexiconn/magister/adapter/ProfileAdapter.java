@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ public class ProfileAdapter extends TypeAdapter<Profile> {
     public Profile read(JsonReader in) throws IOException {
         JsonObject object = gson.getAdapter(JsonElement.class).read(in).getAsJsonObject();
         Profile profile = gson.fromJson(object.getAsJsonObject("Persoon"), Profile.class);
-        profile.privileges = gson.getAdapter(Privilege[].class).fromJsonTree(object.get("Groep"));
+        //profile.privileges = gson.getAdapter(Privilege[].class).fromJsonTree(object.get("Groep"));
         return profile;
     }
 }
