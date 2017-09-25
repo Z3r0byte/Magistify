@@ -320,6 +320,28 @@ public class CalendarDB extends SQLiteOpenHelper {
         return results;
     }
 
+    public void finishAppointment(Appointment appointment) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(KEY_FINISHED, appointment.finished);
+
+        db.update(TABLE_CALENDAR, contentValues, KEY_CALENDAR_ID + "=" + appointment.id, null);
+
+    }
+
+    public void deleteAppointment(Appointment appointment) {
+        deleteAppointment(appointment.id);
+    }
+
+    public void deleteAppointment(int id) {
+        Log.d(TAG, "deleteAppointment() called with: " + "id = [" + id + "]");
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        String Query = "DELETE FROM " + TABLE_CALENDAR + " WHERE " + KEY_CALENDAR_ID + " = " + id + "";
+        Log.d(TAG, "deleteAppointment: " + Query);
+        db.execSQL(Query);
+    }
+
     public void removeAll() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_CALENDAR, null, null);

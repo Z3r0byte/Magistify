@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,26 +19,26 @@ package net.ilexiconn.magister.container.type;
 import java.io.Serializable;
 
 public enum AppointmentType implements Serializable {
+    NONE(0),
     PERSONAL(1),
     GENERAL(2),
     SCHOOLWIDE(3),
     INTERNSHIP(4),
-    INTAKE(4),
-    SHEDULE_FREE(5),
-    KWT(6),
-    STANDBY(7),
-    BLOCK(8),
-    MISCELLANEOUS(9),
-    LOCAL_BLOCK(10),
-    CLASS_BLOCK(11),
-    //12?
+    INTAKE(5),
+    SCHEDULE_FREE(6),
+    KWT(7),
+    STANDBY(8),
+    BLOCK(9),
+    MISCELLANEOUS(10),
+    LOCAL_BLOCK(11),
+    CLASS_BLOCK(12),
     LESSON(13),
-    SHEDULE_FREE_STUDY(14),
-    //15?
+    STUDYHOUSE(14),
+    SCHEDULE_FREE_STUDY(15),
     PLANNING(16),
     ACTIONS(101),
     PRESENCES(102),
-    EXAM_SHUDULE(103);
+    EXAM_SCHEDULE(103);
 
     private int id;
 

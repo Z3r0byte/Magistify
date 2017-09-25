@@ -526,6 +526,10 @@ public class BackgroundService extends Service {
         timer.schedule(gradeStack, 6000, 120 * 1000);
     }
 
+    /*
+    Schedule change Notifications
+     */
+
     private void scheduleChangeTimer(){
         Log.d(TAG, "scheduleChangeTimer: Starting background service...");
         TimerTask scheduleChangeTask = new TimerTask() {

@@ -86,7 +86,7 @@ public class NavigationDrawer {
             .withIcon(GoogleMaterial.Icon.gmd_event);
     static PrimaryDrawerItem newGradesItem = new PrimaryDrawerItem().withName(R.string.title_new_grades)
             .withIcon(GoogleMaterial.Icon.gmd_inbox);
-    static PrimaryDrawerItem sheduleChangeItem = new PrimaryDrawerItem().withName(R.string.title_shedule_changes)
+    static PrimaryDrawerItem scheduleChangeItem = new PrimaryDrawerItem().withName(R.string.title_shedule_changes)
             .withIcon(GoogleMaterial.Icon.gmd_warning);
     static SecondaryDrawerItem statusItem = new SecondaryDrawerItem().withName(R.string.drawer_status)
             .withIcon(GoogleMaterial.Icon.gmd_dns).withSelectable(false)
@@ -129,7 +129,7 @@ public class NavigationDrawer {
                         appointmentItem,
                         autoSilentItem,
                         newGradesItem,
-                        sheduleChangeItem,
+                        scheduleChangeItem,
                         new SectionDrawerItem().withName(R.string.drawer_tools),
                         statusItem,
                         aboutItem,
@@ -154,7 +154,7 @@ public class NavigationDrawer {
                             activity.startActivity(new Intent(activity, AppointmentActivity.class));
                             closeActivity();
                             drawer.closeDrawer();
-                        } else if (drawerItem == sheduleChangeItem && selection != "SheduleChanges") {
+                        } else if (drawerItem == scheduleChangeItem && selection != "ScheduleChanges") {
                             activity.startActivity(new Intent(activity, ScheduleChangeActivity.class));
                             closeActivity();
                             drawer.closeDrawer();
@@ -162,7 +162,8 @@ public class NavigationDrawer {
                             new LibsBuilder()
                                     .withActivityTitle(activity.getString(R.string.title_about))
                                     .withAboutDescription("Magistify: alle tools voor Magister.<br/><b>Broncode:</b>" +
-                                            "<br /><a href=\"https://github.com/z3r0byte/magistify\">https://github.com/z3r0byte/magistify</a><br />" +
+                                            "<br /><a href=\"https://github.com/z3r0byte/magistify\">https://github.com/z3r0byte/magistify</a><br/><b>Website:</b>" +
+                                            "<br /><a href=\"https://magistify.nl\">https://magistify.nl</a><br />" +
                                             "<b>Licentie:</b><br /><a href=\"https://github.com/Z3r0byte/Magistify/blob/master/LICENSE\">Apache 2.0</a>" +
                                             "<br /><br /> Magistify maakt gebruik van de volgende libraries (De magister.java library is aangepast):")
                                     .withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
@@ -198,8 +199,8 @@ public class NavigationDrawer {
             case "Appointment":
                 drawer.setSelection(appointmentItem);
                 break;
-            case "SheduleChanges":
-                drawer.setSelection(sheduleChangeItem);
+            case "ScheduleChanges":
+                drawer.setSelection(scheduleChangeItem);
                 break;
             case "":
                 drawer.setSelection(-1);

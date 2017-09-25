@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -32,13 +32,11 @@ import net.ilexiconn.magister.container.Study;
 import net.ilexiconn.magister.container.Subject;
 import net.ilexiconn.magister.container.User;
 import net.ilexiconn.magister.container.Version;
-import net.ilexiconn.magister.container.sub.Privilege;
 import net.ilexiconn.magister.exeption.PrivilegeException;
 import net.ilexiconn.magister.handler.AppointmentHandler;
 import net.ilexiconn.magister.handler.ContactHandler;
 import net.ilexiconn.magister.handler.ELOHandler;
 import net.ilexiconn.magister.handler.GradeHandler;
-import net.ilexiconn.magister.handler.Handler;
 import net.ilexiconn.magister.handler.IHandler;
 import net.ilexiconn.magister.handler.MessageHandler;
 import net.ilexiconn.magister.handler.PresenceHandler;
@@ -138,7 +136,7 @@ public class Magister {
             return null;
         }
         magister.loginTime = System.currentTimeMillis();
-        HttpUtil.httpGet(url.getCurrentSessionUrl()); // more mimicing the magister client
+        HttpUtil.httpGet(url.getCurrentSessionUrl()); // more mimicking the magister client
         String profile = LogUtil.getStringFromInputStream(HttpUtil.httpGet(url.getAccountUrl())); //Logging
         Log.d(TAG, "login: Profile: " + profile);
         magister.profile = magister.gson.fromJson(profile, Profile.class);
@@ -196,14 +194,14 @@ public class Magister {
      * @param privilege the privilege name.
      * @return true if the profile has the privilege.
      */
-    public boolean hasPrivilege(String privilege) {
+    /*public boolean hasPrivilege(String privilege) {
         for (Privilege p : profile.privileges) {
             if (p.name.equals(privilege)) {
                 return true;
             }
         }
         return false;
-    }
+    }*/
 
     /**
      * Get the current profile picture in the default size.
@@ -251,10 +249,10 @@ public class Magister {
      * @throws PrivilegeException        if the profile doesn't have the privilege to perform this action.
      * @deprecated use the password handler instead.
      */
-    @Deprecated
+    /*@Deprecated
     public String changePassword(String oldPassword, String newPassword, String newPassword2) throws IOException, InvalidParameterException, PrivilegeException {
         return getHandler(Handler.PASSWORD).changePassword(oldPassword, newPassword, newPassword2);
-    }
+    }*/
 
     public Subject[] getSubjectsOfStudy(Study study) throws IOException {
         return gson.fromJson(HttpUtil.httpGet(schoolUrl.getApiUrl() + "personen/" + profile.id + "/aanmeldingen/" + study.id + "/vakken"), Subject[].class);
@@ -268,7 +266,7 @@ public class Magister {
      * @return the {@link IHandler} instance, null if it can't be found.
      * @throws PrivilegeException if the profile doesn't have the privilege to perform this action.
      */
-    public <T extends IHandler> T getHandler(Class<T> type) throws PrivilegeException {
+    /*public <T extends IHandler> T getHandler(Class<T> type) throws PrivilegeException {
         for (IHandler handler : handlerList) {
             if (handler.getClass() == type) {
                 if (!hasPrivilege(handler.getPrivilege())) {
@@ -291,4 +289,5 @@ public class Magister {
         }
         return null;
     }
+    */
 }

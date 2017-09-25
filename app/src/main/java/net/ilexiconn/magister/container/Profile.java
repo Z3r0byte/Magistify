@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@
 package net.ilexiconn.magister.container;
 
 import com.google.gson.annotations.SerializedName;
-
-import net.ilexiconn.magister.container.sub.Privilege;
 
 import java.io.Serializable;
 
@@ -58,6 +56,4 @@ public class Profile implements Serializable {
 
     @SerializedName("GebruikGeboortenaam")
     public boolean useBirthName;
-
-    public Privilege[] privileges;
 }

@@ -132,7 +132,7 @@ public class AppointmentHandler implements IHandler {
             responseBuilder.append(line);
         }
         String result = responseBuilder.toString();
-        if (result.equals("{\"Url\":\"/api/personen/" + magister.profile.id + "/afspraken/" + appointment.id + "\",\"UriKind\":0}")) {
+        if (result.contains("{\"Uri\":\"/api/personen/" + magister.profile.id + "/afspraken/" + appointment.id + "\"}")) {
             return true;
         } else {
             return false;

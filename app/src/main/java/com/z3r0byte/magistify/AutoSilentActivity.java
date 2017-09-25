@@ -35,9 +35,13 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.z3r0byte.magistify.GUI.NavigationDrawer;
 import com.z3r0byte.magistify.Services.BackgroundService;
 import com.z3r0byte.magistify.Util.ConfigUtil;
+
+import net.ilexiconn.magister.container.Profile;
+import net.ilexiconn.magister.container.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,12 +68,16 @@ public class AutoSilentActivity extends AppCompatActivity implements AdapterView
         mToolbar.setTitle(R.string.title_auto_silent);
         setSupportActionBar(mToolbar);
 
+        ConfigUtil configUtil = new ConfigUtil(this);
+        User user = new Gson().fromJson(configUtil.getString("User"), User.class);
+        Profile profile = new Gson().fromJson(configUtil.getString("Profile"), Profile.class);
+
         NavigationDrawer navigationDrawer = new NavigationDrawer(this, mToolbar,
-                GlobalAccount.PROFILE, GlobalAccount.USER, "Auto-silent");
+                profile, user, "Auto-silent");
         navigationDrawer.SetupNavigationDrawer();
 
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
-        collapsingToolbarLayout.setTitle("Auto-silent");
+        collapsingToolbarLayout.setTitle(getString(R.string.title_auto_silent));
         collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(android.R.color.transparent));
 
         enableSwitch = (Switch) findViewById(R.id.enable);

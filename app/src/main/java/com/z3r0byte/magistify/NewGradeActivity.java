@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,9 +25,14 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import com.google.gson.Gson;
 import com.z3r0byte.magistify.Fragments.NewGradesFragment;
 import com.z3r0byte.magistify.Fragments.NewGradesSettingsFragment;
 import com.z3r0byte.magistify.GUI.NavigationDrawer;
+import com.z3r0byte.magistify.Util.ConfigUtil;
+
+import net.ilexiconn.magister.container.Profile;
+import net.ilexiconn.magister.container.User;
 
 import it.neokree.materialtabs.MaterialTab;
 import it.neokree.materialtabs.MaterialTabHost;
@@ -51,8 +56,13 @@ public class NewGradeActivity extends AppCompatActivity implements MaterialTabLi
         mToolbar.setTitle(R.string.title_new_grades);
         setSupportActionBar(mToolbar);
 
+        ConfigUtil configUtil = new ConfigUtil(this);
+
+        User user = new Gson().fromJson(configUtil.getString("User"), User.class);
+        Profile profile = new Gson().fromJson(configUtil.getString("Profile"), Profile.class);
+
         NavigationDrawer navigationDrawer = new NavigationDrawer(this, mToolbar,
-                GlobalAccount.PROFILE, GlobalAccount.USER, "New-grades");
+                profile, user, "New-grades");
         navigationDrawer.SetupNavigationDrawer();
 
         tabHost = (MaterialTabHost) findViewById(R.id.materialTabHost);

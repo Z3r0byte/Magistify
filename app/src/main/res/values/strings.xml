@@ -88,11 +88,26 @@
     <string name="hint_search_school">Een deel van de naam/url van de school</string>
     <string name="hint_username">Gebruikersnaam</string>
 
+    <string name="menu_delete">Verwijderen</string>
+
     <string name="msg_amount_found_part_1">Er zijn </string>
     <string name="msg_amount_found_part_2"> resultaten gevonden.</string>
+    <string name="msg_annotation">Aantekening</string>
     <string name="msg_cancel">Annuleren</string>
+    <string name="msg_deleted">Verwijderd</string>
+    <string name="msg_description">Beschrijving</string>
+    <string name="msg_details">Details</string>
+    <string name="msg_duration">Duur</string>
+    <string name="msg_exam">Examen</string>
+    <string name="msg_finish">Afronden</string>
+    <string name="msg_finished">Afgerond</string>
     <string name="msg_fix_login">Tik om op te lossen</string>
+    <string name="msg_homework">Huiswerk</string>
+    <string name="msg_info">Informatie</string>
+    <string name="msg_last_edited">Laatst aangepast om: %1$s</string>
+    <string name="msg_loading">Laden...</string>
     <string name="msg_loading_purchases">Aankopen inladen...</string>
+    <string name="msg_location">Lokatie</string>
     <string name="msg_logged_in">Ingelogd</string>
     <string name="msg_logging_in">Inloggen…</string>
     <string name="msg_login_on_Magister">Log in op Magister</string>
@@ -105,14 +120,19 @@
     <string name="msg_no_grade">Geen nieuw cijfer</string>
     <string name="msg_no_grade_short">-,-</string>
     <string name="msg_old_version">De data-structuur van Magistify is veranderd, we laten je daarom de login-stappen opnieuw doorlopen.</string>
+    <string name="msg_oral">Mondeling</string>
     <string name="msg_patience">Even geduld aub</string>
+    <string name="msg_period">Lesuur</string>
     <string name="msg_purchase_successful">Aankoop successvol</string>
+    <string name="msg_quiz">SO</string>
     <string name="msg_relogin">Opnieuw inloggen</string>
     <string name="msg_restart_app_to_apply">Herstart de app om de wijzigingen door te voeren</string>
     <string name="msg_school_selected">Naam van geselcteerde school: </string>
     <string name="msg_search_school">School zoeken</string>
     <string name="msg_search">Zoek</string>
     <string name="msg_searching">Zoeken…</string>
+    <string name="msg_teacher">Docent</string>
+    <string name="msg_test">Proefwerk</string>
     <string name="msg_to_today">Naar vandaag</string>
 
     <string name="setup_desc_1">Let op: Ouder-accounts zijn op dit moment nog niet ondersteund.</string>

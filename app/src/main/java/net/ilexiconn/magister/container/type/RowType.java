@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,11 +19,24 @@ package net.ilexiconn.magister.container.type;
 import java.io.Serializable;
 
 public enum RowType implements Serializable {
-    NULL(0),
-    UNKNOWN(1),
+    UNKNOWN(0),
+    GRADE(1),
     AVERAGE(2),
-    NORMAL(3),
-    ACTUAL(6);
+    MAXIMUM(3),
+    FORMULA(4),
+    MINIMUM(5),
+    ACTUAL(6),
+    COUNT(7),
+    CEVO(8),
+    TEXT(9),
+    CEVOCPE(10),
+    CEVOCIE(11),
+    WEIGHT(12),
+    ENDGRADE(13),
+    FAILS(14),
+    TREETOP(15),
+    SUBJECTCONDITION(16);
+
 
     private int id;
 
