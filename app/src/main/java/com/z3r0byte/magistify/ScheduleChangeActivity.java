@@ -25,9 +25,14 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import com.google.gson.Gson;
 import com.z3r0byte.magistify.Fragments.ScheduleChangeFragment;
 import com.z3r0byte.magistify.Fragments.ScheduleChangeSettingsFragment;
 import com.z3r0byte.magistify.GUI.NavigationDrawer;
+import com.z3r0byte.magistify.Util.ConfigUtil;
+
+import net.ilexiconn.magister.container.Profile;
+import net.ilexiconn.magister.container.User;
 
 public class ScheduleChangeActivity extends AppCompatActivity {
 
@@ -66,8 +71,13 @@ public class ScheduleChangeActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(mViewPager);
 
 
-        NavigationDrawer navigationDrawer = new NavigationDrawer(this, toolbar, GlobalAccount.PROFILE,
-                GlobalAccount.USER, "SheduleChanges");
+        ConfigUtil configUtil = new ConfigUtil(this);
+
+        User user = new Gson().fromJson(configUtil.getString("User"), User.class);
+        Profile profile = new Gson().fromJson(configUtil.getString("Profile"), Profile.class);
+
+        NavigationDrawer navigationDrawer = new NavigationDrawer(this, toolbar,
+                profile, user, "ScheduleChanges");
         navigationDrawer.SetupNavigationDrawer();
 
 

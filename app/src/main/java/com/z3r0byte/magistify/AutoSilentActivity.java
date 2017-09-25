@@ -73,7 +73,7 @@ public class AutoSilentActivity extends AppCompatActivity implements AdapterView
         Profile profile = new Gson().fromJson(configUtil.getString("Profile"), Profile.class);
 
         NavigationDrawer navigationDrawer = new NavigationDrawer(this, mToolbar,
-                profile, user, "Dashboard");
+                profile, user, "Auto-silent");
         navigationDrawer.SetupNavigationDrawer();
 
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);

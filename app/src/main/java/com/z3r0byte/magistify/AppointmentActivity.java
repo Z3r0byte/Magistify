@@ -61,7 +61,7 @@ public class AppointmentActivity extends AppCompatActivity implements MaterialTa
         Profile profile = new Gson().fromJson(configUtil.getString("Profile"), Profile.class);
 
         NavigationDrawer navigationDrawer = new NavigationDrawer(this, mToolbar,
-                profile, user, "Dashboard");
+                profile, user, "Appointment");
         navigationDrawer.SetupNavigationDrawer();
 
         tabHost = (MaterialTabHost) findViewById(R.id.materialTabHost);

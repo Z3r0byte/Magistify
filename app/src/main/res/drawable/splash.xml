@@ -20,6 +20,6 @@
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@drawable/magistify_splash" />
+            android:src="@mipmap/ic_launcher" />
     </item>
 </layer-list>

@@ -62,7 +62,7 @@ public class NewGradeActivity extends AppCompatActivity implements MaterialTabLi
         Profile profile = new Gson().fromJson(configUtil.getString("Profile"), Profile.class);
 
         NavigationDrawer navigationDrawer = new NavigationDrawer(this, mToolbar,
-                profile, user, "Dashboard");
+                profile, user, "New-grades");
         navigationDrawer.SetupNavigationDrawer();
 
         tabHost = (MaterialTabHost) findViewById(R.id.materialTabHost);

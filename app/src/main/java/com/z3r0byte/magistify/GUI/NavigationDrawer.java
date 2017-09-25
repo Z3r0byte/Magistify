@@ -86,7 +86,7 @@ public class NavigationDrawer {
             .withIcon(GoogleMaterial.Icon.gmd_event);
     static PrimaryDrawerItem newGradesItem = new PrimaryDrawerItem().withName(R.string.title_new_grades)
             .withIcon(GoogleMaterial.Icon.gmd_inbox);
-    static PrimaryDrawerItem sheduleChangeItem = new PrimaryDrawerItem().withName(R.string.title_shedule_changes)
+    static PrimaryDrawerItem scheduleChangeItem = new PrimaryDrawerItem().withName(R.string.title_shedule_changes)
             .withIcon(GoogleMaterial.Icon.gmd_warning);
     static SecondaryDrawerItem statusItem = new SecondaryDrawerItem().withName(R.string.drawer_status)
             .withIcon(GoogleMaterial.Icon.gmd_dns).withSelectable(false)
@@ -129,7 +129,7 @@ public class NavigationDrawer {
                         appointmentItem,
                         autoSilentItem,
                         newGradesItem,
-                        sheduleChangeItem,
+                        scheduleChangeItem,
                         new SectionDrawerItem().withName(R.string.drawer_tools),
                         statusItem,
                         aboutItem,
@@ -154,7 +154,7 @@ public class NavigationDrawer {
                             activity.startActivity(new Intent(activity, AppointmentActivity.class));
                             closeActivity();
                             drawer.closeDrawer();
-                        } else if (drawerItem == sheduleChangeItem && selection != "SheduleChanges") {
+                        } else if (drawerItem == scheduleChangeItem && selection != "ScheduleChanges") {
                             activity.startActivity(new Intent(activity, ScheduleChangeActivity.class));
                             closeActivity();
                             drawer.closeDrawer();
@@ -199,8 +199,8 @@ public class NavigationDrawer {
             case "Appointment":
                 drawer.setSelection(appointmentItem);
                 break;
-            case "SheduleChanges":
-                drawer.setSelection(sheduleChangeItem);
+            case "ScheduleChanges":
+                drawer.setSelection(scheduleChangeItem);
                 break;
             case "":
                 drawer.setSelection(-1);
