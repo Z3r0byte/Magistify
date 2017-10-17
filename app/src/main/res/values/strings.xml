@@ -182,4 +182,8 @@
     <string name="msg_upcoming_changes">Komende roosterwijzigingen</string>
     <string name="msg_no_upcoming_schedulechanges">Geen roosterwijzigingen de komende tijd</string>
     <string name="err_failed_login_dashboard">Kon niet inloggen, gebruikersnaam/wachtwoord mogelijk verkeerd.</string>
+    <string name="title_activity_homework">Huiswerk</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
