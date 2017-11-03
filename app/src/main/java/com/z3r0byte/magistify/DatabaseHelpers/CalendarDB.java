@@ -296,7 +296,7 @@ public class CalendarDB extends SQLiteOpenHelper {
         Integer startdateInt = parseInt(formatDate(addMinutes(getToday(), margin), "1MMddHHmm"));
         Integer enddateInt = parseInt(formatDate(addMinutes(getToday(), -margin), "1MMddHHmm"));
         String Query = "SELECT * FROM " + TABLE_CALENDAR + " WHERE " + KEY_FORMATTED_START_2 + " <= " + startdateInt + " AND "
-                + KEY_FORMATTED_END_2 + " >= " + enddateInt;
+                + KEY_FORMATTED_END_2 + " >= " + enddateInt + " AND " + KEY_TAKES_ALL_DAY + " = false";
         Cursor cursor = db.rawQuery(Query, null);
 
 
@@ -320,6 +320,10 @@ public class CalendarDB extends SQLiteOpenHelper {
         return results;
     }
 
+    public Appointment[] getAppointmentsWithHomework() {
+        return null;
+    }
+
     public void finishAppointment(Appointment appointment) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -340,6 +344,7 @@ public class CalendarDB extends SQLiteOpenHelper {
         String Query = "DELETE FROM " + TABLE_CALENDAR + " WHERE " + KEY_CALENDAR_ID + " = " + id + "";
         Log.d(TAG, "deleteAppointment: " + Query);
         db.execSQL(Query);
+        db.close();
     }
 
     public void removeAll() {

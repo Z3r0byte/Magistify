@@ -65,6 +65,8 @@
     <string name="dialog_manual_school_title">Handmatig invoeren</string>
     <string name="dialog_manual_school_desc">Voer de url van de school handmatig in. Voer alleen het gedeelte voor .magister.net
         in.\nVb: Als de url van je school https://commanderij.magister.net is, voer je alleen commanderij in.</string>
+    <string name="dialog_pro_title">Magistify PRO functies</string>
+    <string name="dialog_pro_body">Binnen magistify zijn er een aantal functies die pas beschikbaar zijn na aankoop. Waarom? Omdat het ontwikkelen van apps nou eenmaal geld en tijd kost. (Dat laatste vind ik zo erg nog niet :D) Die kosten moeten dus terug verdiend worden. Nou probeer ik om de belangrijkste functies gratis te houden en een paar extra functies betaald, maar \'belangrijk\' is natuurlijk voor iedereen anders. Nou snap ik dat je dit misschien irritant vindt, maar de andere optie zou zijn om de app vol advertenties te stoppen, maar daar zit ook niemand op te wachten. Mocht je deze PRO functies dus willen gebruiken, druk dan op \'doneren\' hieronder ;)\n\nBedankt!</string>
 
     <string name="drawer_logout">Log uit</string>
     <string name="drawer_refresh_session">Sessie verversen</string>
@@ -123,6 +125,7 @@
     <string name="msg_oral">Mondeling</string>
     <string name="msg_patience">Even geduld aub</string>
     <string name="msg_period">Lesuur</string>
+    <string name="msg_pro_functions">Deze instellingen horen bij de PRO functies, klik voor meer info</string>
     <string name="msg_purchase_successful">Aankoop successvol</string>
     <string name="msg_quiz">SO</string>
     <string name="msg_relogin">Opnieuw inloggen</string>
@@ -161,6 +164,8 @@
     <string name="switch_toggle_ads">Advertenties uitschakelen</string>
     <string name="switch_toggle_appointment_notification">Melding voor volgende afspraak\n(25 min. van te voren)</string>
     <string name="switch_toggle_new_grades">Melding bij nieuw cijfer inschakelen</string>
+    <string name="switch_toggle_new_homework">Melding bij nieuw huiswerk</string>
+    <string name="switch_toggle_unfinished_homework">Melding als je huiswerk voor de\nvolgende dag nog niet af hebt</string>
 
 
     <string name="title_activity_auto_silent">Magistify</string>
@@ -183,7 +188,6 @@
     <string name="msg_no_upcoming_schedulechanges">Geen roosterwijzigingen de komende tijd</string>
     <string name="err_failed_login_dashboard">Kon niet inloggen, gebruikersnaam/wachtwoord mogelijk verkeerd.</string>
     <string name="title_activity_homework">Huiswerk</string>
+    <string name="symbol_click">{gmd-chevron-right}</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

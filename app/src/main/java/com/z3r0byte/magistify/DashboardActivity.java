@@ -527,6 +527,7 @@ public class DashboardActivity extends AppCompatActivity {
 
                             if (boughtSKU.contains(SKU_FIFTY_CENTS)) {
                                 configUtil.setBoolean("disable_ads", true);
+                                configUtil.setString("token_fifty_cents", token);
                             } else if (boughtSKU.contains(SKU_ONE_EURO)) {
                                 configUtil.setBoolean("disable_ads", true);
                                 configUtil.setBoolean("pro_unlocked", true);
@@ -540,9 +541,6 @@ public class DashboardActivity extends AppCompatActivity {
                                 configUtil.setBoolean("pro_unlocked", true);
                                 configUtil.setString("token_five_euro", token);
                             }
-
-                            // do something with this purchase information
-                            // e.g. display the updated list of products owned by user
                         }
                     }
 

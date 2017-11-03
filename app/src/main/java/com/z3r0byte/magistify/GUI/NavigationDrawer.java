@@ -133,7 +133,7 @@ public class NavigationDrawer {
                         autoSilentItem,
                         newGradesItem,
                         scheduleChangeItem,
-                        homeworkItem,
+                        //homeworkItem,
                         new SectionDrawerItem().withName(R.string.drawer_tools),
                         statusItem,
                         aboutItem,

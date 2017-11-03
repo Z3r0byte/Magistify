@@ -28,6 +28,7 @@ import android.support.v7.widget.Toolbar;
 
 import com.google.gson.Gson;
 import com.z3r0byte.magistify.Fragments.HomeworkFragment;
+import com.z3r0byte.magistify.Fragments.HomeworkSettingsFragment;
 import com.z3r0byte.magistify.GUI.NavigationDrawer;
 import com.z3r0byte.magistify.Util.ConfigUtil;
 
@@ -104,14 +105,13 @@ public class HomeworkActivity extends AppCompatActivity {
             if (position == 0) {
                 return new HomeworkFragment();
             } else {
-                return new HomeworkFragment();
+                return new HomeworkSettingsFragment();
             }
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
-            return 1;
+            return 2;
         }
 
         @Override
