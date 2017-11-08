@@ -17,12 +17,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion '25.0.0'
+    compileSdkVersion 26
+    buildToolsVersion '26.0.1'
     defaultConfig {
         applicationId "com.z3r0byte.magistify"
         minSdkVersion 16
-        targetSdkVersion 24
+        targetSdkVersion 26
         versionCode 999
         versionName "9.9.9"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -50,27 +50,28 @@ dependencies {
     }
     //compile 'com.pnikosis:materialish-progress:1.7'
     //compile 'com.afollestad:digitus:0.2.11'
-    //compile 'com.wdullaer:materialdatetimepicker:2.3.0'
     //compile 'com.codevscolor.materialpreference:mp:0.2.1'
     //compile 'com.github.stkent:bugshaker:1.3.0'
 
 
-    compile 'com.android.support:appcompat-v7:24.2.1'
-    compile 'com.mikepenz:iconics-core:2.5.11@aar'
+    //compile 'com.wdullaer:materialdatetimepicker:3.3.1'
+    compile 'co.infinum:materialdatetimepicker-support:3.3.1'
+    compile 'com.android.support:appcompat-v7:26.1.0'
+    compile 'com.mikepenz:iconics-core:2.8.2@aar'
     compile 'com.mikepenz:google-material-typeface:2.2.0.1.original@aar'
     compile 'com.heinrichreimersoftware:material-intro:1.4'
-    compile 'com.squareup.okhttp3:okhttp:3.2.0'
-    compile 'com.android.support:support-v4:24.2.1'
-    compile 'com.google.code.gson:gson:2.7'
+    compile 'com.squareup.okhttp3:okhttp:3.7.0'
+    compile 'com.android.support:support-v4:26.1.0'
+    compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.github.xiprox.errorview:library:2.+'
     compile 'com.github.gabrielemariotti.cards:cardslib-core:2.1.0'
     compile 'com.github.gabrielemariotti.cards:cardslib-cards:2.1.0'
     compile 'it.neokree:MaterialTabs:0.11'
-    compile 'com.android.support.constraint:constraint-layout:1.0.0-beta4'
-    compile 'com.google.firebase:firebase-ads:10.0.1'
-    compile 'com.google.firebase:firebase-messaging:10.0.1'
-    compile 'com.google.firebase:firebase-core:10.0.1'
-    compile 'com.google.firebase:firebase-crash:10.0.1'
+    compile 'com.android.support.constraint:constraint-layout:1.1.0-beta3'
+    compile 'com.google.firebase:firebase-ads:11.4.2'
+    compile 'com.google.firebase:firebase-messaging:11.4.2'
+    compile 'com.google.firebase:firebase-core:11.4.2'
+    compile 'com.google.firebase:firebase-crash:11.4.2'
     testCompile 'junit:junit:4.12'
 }
 

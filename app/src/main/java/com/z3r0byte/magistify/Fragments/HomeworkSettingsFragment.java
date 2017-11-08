@@ -30,6 +30,7 @@ import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.z3r0byte.magistify.DonationActivity;
 import com.z3r0byte.magistify.R;
 import com.z3r0byte.magistify.Util.ConfigUtil;
@@ -37,7 +38,7 @@ import com.z3r0byte.magistify.Util.ConfigUtil;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HomeworkSettingsFragment extends Fragment {
+public class HomeworkSettingsFragment extends Fragment implements TimePickerDialog.OnTimeSetListener {
 
 
     public HomeworkSettingsFragment() {
@@ -51,7 +52,7 @@ public class HomeworkSettingsFragment extends Fragment {
     ConfigUtil configUtil;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_homework_settings, container, false);
 
@@ -64,32 +65,64 @@ public class HomeworkSettingsFragment extends Fragment {
         newHomework.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
+                configUtil.setBoolean("new_homework_notification", b);
             }
         });
 
         unfinishedHomework.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
+                configUtil.setBoolean("unfinished_homework_notification", b);
+                if (b) {
+                    TimePickerDialog timePickerDialog = TimePickerDialog.newInstance(
+                            HomeworkSettingsFragment.this,
+                            configUtil.getInteger("unfinished_homework_hour"),
+                            configUtil.getInteger("unfinished_homework_minute"),
+                            true
+                    );
+                    if (configUtil.getInteger("unfinished_homework_hour") != 0) {
+                        timePickerDialog.setInitialSelection(configUtil.getInteger("unfinished_homework_hour"),
+                                configUtil.getInteger("unfinished_homework_minute"));
+                    }
+                    timePickerDialog.dismissOnPause(true);
+                    timePickerDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialogInterface) {
+                            if (configUtil.getInteger("unfinished_homework_hour") == 0) {
+                                unfinishedHomework.setChecked(false);
+                                configUtil.setBoolean("unfinished_homework_notification", false);
+                            }
+                        }
+                    });
+                    timePickerDialog.show(getFragmentManager(), "Unfinished Homework Time Picker");
+                }
             }
         });
 
-        proFunctions.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                proFunctionsInfo();
-            }
-        });
-
+        getSettings();
         checkPro();
         return view;
+    }
+
+    private void getSettings() {
+        newHomework.setChecked(configUtil.getBoolean("new_homework_notification"));
+        unfinishedHomework.setChecked(configUtil.getBoolean("unfinished_homework_notification"));
     }
 
     private void checkPro() {
         Boolean pro = configUtil.getBoolean("pro_unlocked");
         newHomework.setEnabled(pro);
         unfinishedHomework.setEnabled(pro);
+        if (!pro) {
+            proFunctions.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    proFunctionsInfo();
+                }
+            });
+        } else {
+            proFunctions.setVisibility(View.GONE);
+        }
     }
 
     private void proFunctionsInfo() {
@@ -111,6 +144,18 @@ public class HomeworkSettingsFragment extends Fragment {
         });
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkPro();
+    }
+
+    @Override
+    public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
+        configUtil.setInteger("unfinished_homework_hour", hourOfDay);
+        configUtil.setInteger("unfinished_homework_minute", minute);
     }
 
 }
