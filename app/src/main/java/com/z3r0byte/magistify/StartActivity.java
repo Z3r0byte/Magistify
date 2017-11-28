@@ -16,12 +16,15 @@
 
 package com.z3r0byte.magistify;
 
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.z3r0byte.magistify.Services.BackgroundService;
+import com.z3r0byte.magistify.Services.NewBackgroundService;
 import com.z3r0byte.magistify.Util.ServiceUtil;
 
 
@@ -48,7 +51,7 @@ public class StartActivity extends AppCompatActivity {
             finish();
         } else if (!relogin) {
             if (!ServiceUtil.isServiceRunning(BackgroundService.class, this)) {
-                startService(new Intent(this, BackgroundService.class));
+                //startService(new Intent(this, BackgroundService.class));
             }
 
             /*
@@ -56,6 +59,18 @@ public class StartActivity extends AppCompatActivity {
                 startService(new Intent(this, WatchdogService.class));
             }
             */
+
+            boolean serviceRunning = (PendingIntent.getBroadcast(this, 0,
+                    new Intent("com.z3r0byte.magistify.Services.NewBackgroundService"),
+                    PendingIntent.FLAG_NO_CREATE) != null);
+            if (!serviceRunning) {
+                Log.d(TAG, "onCreate: Starting background service");
+                NewBackgroundService backgroundService = new NewBackgroundService();
+                backgroundService.setAlarm(getApplicationContext());
+            } else {
+                Log.d(TAG, "onCreate: Not starting background service");
+            }
+
             startActivity(new Intent(this, DashboardActivity.class));
             finish();
         }

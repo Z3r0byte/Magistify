@@ -18,13 +18,13 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion '26.0.1'
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "com.z3r0byte.magistify"
         minSdkVersion 16
         targetSdkVersion 26
-        versionCode 999
-        versionName "9.9.9"
+        versionCode 152
+        versionName "1.5.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -60,12 +60,13 @@ dependencies {
     compile 'com.mikepenz:iconics-core:2.8.2@aar'
     compile 'com.mikepenz:google-material-typeface:2.2.0.1.original@aar'
     compile 'com.heinrichreimersoftware:material-intro:1.4'
-    compile 'com.squareup.okhttp3:okhttp:3.7.0'
+    compile 'com.squareup.okhttp3:okhttp:3.9.0'
+    compile 'com.squareup.okio:okio:1.12.0'
     compile 'com.android.support:support-v4:26.1.0'
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.github.xiprox.errorview:library:2.+'
-    compile 'com.github.gabrielemariotti.cards:cardslib-core:2.1.0'
-    compile 'com.github.gabrielemariotti.cards:cardslib-cards:2.1.0'
+    //compile 'com.github.gabrielemariotti.cards:cardslib-core:2.1.0'
+    //compile 'com.github.gabrielemariotti.cards:cardslib-cards:2.1.0'
     compile 'it.neokree:MaterialTabs:0.11'
     compile 'com.android.support.constraint:constraint-layout:1.1.0-beta3'
     compile 'com.google.firebase:firebase-ads:11.4.2'

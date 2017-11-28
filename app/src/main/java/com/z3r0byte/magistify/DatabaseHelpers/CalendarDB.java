@@ -296,7 +296,7 @@ public class CalendarDB extends SQLiteOpenHelper {
         Integer startdateInt = parseInt(formatDate(addMinutes(getToday(), margin), "1MMddHHmm"));
         Integer enddateInt = parseInt(formatDate(addMinutes(getToday(), -margin), "1MMddHHmm"));
         String Query = "SELECT * FROM " + TABLE_CALENDAR + " WHERE " + KEY_FORMATTED_START_2 + " <= " + startdateInt + " AND "
-                + KEY_FORMATTED_END_2 + " >= " + enddateInt + " AND " + KEY_TAKES_ALL_DAY + " = false";
+                + KEY_FORMATTED_END_2 + " >= " + enddateInt + " AND " + KEY_TAKES_ALL_DAY + " = 0";
         Cursor cursor = db.rawQuery(Query, null);
 
 
