@@ -16,8 +16,6 @@
 
 package net.ilexiconn.magister.util;
 
-import android.util.Log;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -141,33 +139,6 @@ public class HttpUtil {
     }
 
     public static InputStreamReader httpPost(String url, String data) throws IOException {
-        Log.d(TAG, "httpPost() called with: url = [" + url + "], data = [" + data.substring(0, 10) + "..." + "]");
-        /*HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
-        connection.setDoOutput(true);
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Accept", "application/json");
-        connection.setRequestProperty("X-API-Client-ID", ApiKey.getKey());
-        connection.setRequestProperty("Cookie", getCurrentCookies());
-        connection.setRequestProperty("Content-Type", "application/json");
-
-        OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
-        wr.write(data);
-        wr.flush();
-
-        //byte[] data_url = convertToDataString(data).getBytes("UTF-8");
-        //DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-        //outputStream.write(data);
-        //outputStream.flush();
-        //outputStream.close();
-
-
-        storeCookies(connection);
-        if (connection.getResponseCode() >= 200 && connection.getResponseCode() < 400) {
-            return new InputStreamReader(connection.getInputStream());
-        } else {
-            return new InputStreamReader(connection.getErrorStream());
-        }*/
-
         RequestBody body = RequestBody.create(JSON, data);
 
         Request request = new Request.Builder()
@@ -245,49 +216,6 @@ public class HttpUtil {
     }
 
     public static InputStreamReader httpGet(String url) throws IOException {
-        Log.d(TAG, "httpGet() called with: url = [" + url + "]");
-        /*TrustManager[] trustAllCerts = new TrustManager[]{
-                new X509TrustManager() {
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
-                    public void checkClientTrusted(
-                            java.security.cert.X509Certificate[] certs, String authType) {
-                    }
-                    public void checkServerTrusted(
-                            java.security.cert.X509Certificate[] certs, String authType) {
-                    }
-                }
-        };
-
-        //Potential Security Risk!!!
-        //Enable this for Development purposes ONLY!
-        try {
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        } catch (Exception e) {
-        }*/
-
-
-        /*HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("Cookie", getCurrentCookies());
-        if (AndroidUtil.getAndroidSupportCache()) {
-            connection.setUseCaches(true);
-        }
-        connection.setRequestProperty("X-API-Client-ID", ApiKey.getKey());
-        connection.connect();
-        storeCookies(connection);
-
-
-        if (connection.getResponseCode() >= 200 && connection.getResponseCode() < 400) {
-            return new InputStreamReader(connection.getInputStream());
-        } else {
-            return new InputStreamReader(connection.getErrorStream());
-        }
-        */
-
         Request request = new Request.Builder()
                 .addHeader("X-API-Client-ID", ApiKey.getKey())
                 .url(url)

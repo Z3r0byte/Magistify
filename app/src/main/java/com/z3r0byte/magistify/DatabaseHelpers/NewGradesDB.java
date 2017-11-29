@@ -77,7 +77,6 @@ public class NewGradesDB extends SQLiteOpenHelper {
 
     public void addGrades(Grade[] grades) {
         if (grades == null || grades.length == 0) {
-            Log.d(TAG, "addGrades: No Grades!");
             return;
         }
         Collections.reverse(Arrays.asList(grades));

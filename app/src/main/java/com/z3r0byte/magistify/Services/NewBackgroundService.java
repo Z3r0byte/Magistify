@@ -64,9 +64,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Created by basva on 21-11-2017.
- */
 
 public class NewBackgroundService extends BroadcastReceiver {
     private static final String TAG = "Magistify";
@@ -81,6 +78,7 @@ public class NewBackgroundService extends BroadcastReceiver {
     private static final int NEW_GRADE_NOTIFICATION_ID = 9992;
     private static final int NEW_SCHEDULE_CHANGE_NOTIFICATION_ID = 9993;
     private static final int NEXT_APPOINTMENT_CHANGED_NOTIFICATION_ID = 9994;
+
 
 
     @Override
@@ -112,6 +110,10 @@ public class NewBackgroundService extends BroadcastReceiver {
                     appointmentNotification();
                 }
 
+                if (configUtil.getBoolean("silent_enabled")) {
+                    autoSilent();
+                }
+
                 if (configUtil.getBoolean("new_grade_enabled")) {
                     newGradeNotification();
                 }
@@ -124,7 +126,8 @@ public class NewBackgroundService extends BroadcastReceiver {
                     nextAppointmentChangedNotification();
                 }
 
-                wakeLock.release();
+                if (wakeLock.isHeld())
+                    wakeLock.release();
             }
         }).start();
     }
@@ -133,10 +136,7 @@ public class NewBackgroundService extends BroadcastReceiver {
     //Retrieving Data
 
     private void manageSession(final User user, final School school) {
-        Log.d(TAG, "manageSession: Refreshing session");
-        if (!allowDataTransfer()) {
-            return;
-        } else {
+        if (allowDataTransfer()) {
             if (GlobalAccount.MAGISTER == null) {
                 if (configUtil.getInteger("failed_auth") >= 2) {
                     Log.w(TAG, "run: Warning! 2 Failed authentications, aborting for user's safety!");
@@ -162,8 +162,7 @@ public class NewBackgroundService extends BroadcastReceiver {
                 } else {
                     try {
                         Log.d(TAG, "SessionManager: initiating session");
-                        Magister magister = Magister.login(school, user.username, user.password);
-                        GlobalAccount.MAGISTER = magister;
+                        GlobalAccount.MAGISTER = Magister.login(school, user.username, user.password);
                         configUtil.setInteger("failed_auth", 0);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -176,7 +175,7 @@ public class NewBackgroundService extends BroadcastReceiver {
                         Log.w(TAG, "SessionManager: Amount of failed Authentications: " + fails);
                     }
                 }
-            } else {
+            } else if (GlobalAccount.MAGISTER.isExpired()) {
                 try {
                     GlobalAccount.MAGISTER.login();
                     Log.d(TAG, "SessionManager: refreshing session");
@@ -190,6 +189,8 @@ public class NewBackgroundService extends BroadcastReceiver {
                     configUtil.setInteger("failed_auth", fails);
                     Log.w(TAG, "SessionManager: Amount of failed Authentications: " + fails);
                 }
+            } else {
+                Log.d(TAG, "manageSession: Session still valid");
             }
         }
     }
@@ -263,11 +264,7 @@ public class NewBackgroundService extends BroadcastReceiver {
     }
 
     private boolean isCandidate(Appointment appointment) {
-        if (configUtil.getBoolean("show_own_appointments")) {
-            return true;
-        } else {
-            return appointment.type != AppointmentType.PERSONAL;
-        }
+        return configUtil.getBoolean("show_own_appointments") || appointment.type != AppointmentType.PERSONAL;
     }
 
 
@@ -278,6 +275,7 @@ public class NewBackgroundService extends BroadcastReceiver {
         if (doSilent(appointments)) {
             setSilenced(true);
             AudioManager audiomanager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            if (audiomanager == null) return;
             configUtil.setInteger("previous_silent_state", audiomanager.getRingerMode());
             if (audiomanager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
                 audiomanager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
@@ -285,6 +283,7 @@ public class NewBackgroundService extends BroadcastReceiver {
         } else {
             if (isSilencedByApp()) {
                 AudioManager audiomanager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                if (audiomanager == null) return;
                 if (configUtil.getBoolean("reverse_silent_state")) {
                     audiomanager.setRingerMode(configUtil.getInteger("previous_silent_state"));
                 } else {
@@ -351,7 +350,6 @@ public class NewBackgroundService extends BroadcastReceiver {
         Magister magister = GlobalAccount.MAGISTER;
         if (magister == null || magister.isExpired()) {
             Log.e(TAG, "New Grade Notification: Invalid magister");
-            return;
         } else {
             NewGradesDB gradesdb = new NewGradesDB(context);
 
@@ -392,7 +390,7 @@ public class NewBackgroundService extends BroadcastReceiver {
                 return;
             }
             String GradesNotification = new Gson().toJson(gradeList);
-            if (gradeList != null && gradeList.size() > 0
+            if (gradeList.size() > 0
                     && !configUtil.getString("lastGradesNotification").equals(GradesNotification)) {
 
                 Log.d(TAG, "New Grade Notification: Some grades to show: " + gradeList.size());
@@ -446,9 +444,7 @@ public class NewBackgroundService extends BroadcastReceiver {
     // Schedule Changes Notifications
 
     private void newScheduleChangeNotification() {
-        if (!allowDataTransfer()) {
-            return;
-        } else {
+        if (allowDataTransfer()) {
             Magister magister = GlobalAccount.MAGISTER;
             if (magister == null || magister.isExpired()) {
                 Log.d(TAG, "ScheduleChangeNotification: No valid Magister");
@@ -544,7 +540,6 @@ public class NewBackgroundService extends BroadcastReceiver {
                 NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 mNotificationManager.notify(NEXT_APPOINTMENT_CHANGED_NOTIFICATION_ID, mBuilder.build());
 
-                previousChangedAppointment = appointment.startDateString;
                 configUtil.setString("previous_changed_appointment", appointment.startDateString);
             }
         } else {
@@ -557,7 +552,7 @@ public class NewBackgroundService extends BroadcastReceiver {
     private Boolean usingWifi() {
         final ConnectivityManager connMgr = (ConnectivityManager)
                 context.getSystemService(Context.CONNECTIVITY_SERVICE);
-
+        if (connMgr == null) return false;
         NetworkInfo activeNetwork = connMgr.getActiveNetworkInfo();
         return activeNetwork != null && activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
     }
@@ -569,6 +564,7 @@ public class NewBackgroundService extends BroadcastReceiver {
     }
 
     public void setAlarm(Context context) {
+        cancelAlarm(context);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, NewBackgroundService.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
@@ -581,4 +577,6 @@ public class NewBackgroundService extends BroadcastReceiver {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(sender);
     }
+
+
 }

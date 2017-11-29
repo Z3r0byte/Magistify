@@ -625,8 +625,6 @@ public class DashboardActivity extends AppCompatActivity {
                     String offset = response.substring(response.indexOf(",") + 1, response.length());
                     configUtil.setString("nextChange", date);
                     configUtil.setInteger("nextOffset", Integer.parseInt(offset));
-                    Log.d(TAG, "run: date:" + date);
-                    Log.d(TAG, "run: offset" + offset);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

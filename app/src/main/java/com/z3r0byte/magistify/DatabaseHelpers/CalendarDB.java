@@ -196,6 +196,7 @@ public class CalendarDB extends SQLiteOpenHelper {
             db.insert(TABLE_CALENDAR, null, contentValues);
 
         }
+        db.close();
 
     }
 
@@ -228,7 +229,6 @@ public class CalendarDB extends SQLiteOpenHelper {
         Integer enddateInt = parseInt(formatDate(end, "1MMddHHmm"));
         String Query = "SELECT * FROM " + TABLE_CALENDAR + " WHERE " + KEY_FORMATTED_START_2 + " <= " + startdateInt + " AND "
                 + KEY_FORMATTED_END_2 + " >= " + startdateInt + " AND " + KEY_FORMATTED_START_2 + " >= " + enddateInt;
-        Log.d(TAG, "getNotificationAppointments: Query: " + Query);
         Cursor cursor = db.rawQuery(Query, null);
 
         Appointment[] results = new Appointment[cursor.getCount()];
@@ -338,11 +338,9 @@ public class CalendarDB extends SQLiteOpenHelper {
     }
 
     public void deleteAppointment(int id) {
-        Log.d(TAG, "deleteAppointment() called with: " + "id = [" + id + "]");
 
         SQLiteDatabase db = this.getWritableDatabase();
         String Query = "DELETE FROM " + TABLE_CALENDAR + " WHERE " + KEY_CALENDAR_ID + " = " + id + "";
-        Log.d(TAG, "deleteAppointment: " + Query);
         db.execSQL(Query);
         db.close();
     }
