@@ -534,7 +534,7 @@ public class DashboardActivity extends AppCompatActivity {
 
             final float scale = this.getResources().getDisplayMetrics().density;
             if (appointments.length != 0) {
-                int pixels = (int) (90 * appointments.length * scale + 0.5f);
+                int pixels = (int) (90 * appointments.length * scale + 70.5f);
                 rootView.getLayoutParams().height = pixels;
             }
 

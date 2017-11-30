@@ -262,6 +262,7 @@
 
 
                         <RelativeLayout
+                            android:layout_marginTop="32dp"
                             android:id="@+id/layout_schedule_changes"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
