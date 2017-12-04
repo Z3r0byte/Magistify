@@ -72,6 +72,9 @@ public class NewBackgroundService extends BroadcastReceiver {
     Context context;
     CalendarDB calendarDB;
     PowerManager.WakeLock wakeLock;
+    Gson mGson;
+    ScheduleChangeDB scheduleChangeDB;
+    NewGradesDB gradesdb;
 
     private static final int LOGIN_FAILED_ID = 9990;
     private static final int APPOINTMENT_NOTIFICATION_ID = 9991;
@@ -85,49 +88,57 @@ public class NewBackgroundService extends BroadcastReceiver {
     public void onReceive(final Context context, Intent intent) {
         PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-        wakeLock.acquire(20000);
+        wakeLock.acquire(60 * 1000);
 
         Bundle extras = intent.getExtras();
 
+        mGson = new Gson();
+        calendarDB = new CalendarDB(context);
+        scheduleChangeDB = new ScheduleChangeDB(context);
+        gradesdb = new NewGradesDB(context);
 
         this.context = context;
         configUtil = new ConfigUtil(context);
-        final User user = new Gson().fromJson(configUtil.getString("User"), User.class);
-        final School school = new Gson().fromJson(configUtil.getString("School"), School.class);
+        final User user = mGson.fromJson(configUtil.getString("User"), User.class);
+        final School school = mGson.fromJson(configUtil.getString("School"), School.class);
 
 
-        calendarDB = new CalendarDB(context);
 
         new Thread(new Runnable() {
             @Override
             public void run() {
-                manageSession(user, school);
-                if (configUtil.getBoolean("silent_enabled") || configUtil.getBoolean("appointment_enabled")) {
-                    getAppointments();
-                }
+                try {
+                    manageSession(user, school);
+                    if (configUtil.getBoolean("silent_enabled") || configUtil.getBoolean("appointment_enabled")) {
+                        getAppointments();
+                    }
 
-                if (configUtil.getBoolean("appointment_enabled")) {
-                    appointmentNotification();
-                }
+                    if (configUtil.getBoolean("appointment_enabled")) {
+                        appointmentNotification();
+                    }
 
-                if (configUtil.getBoolean("silent_enabled")) {
-                    autoSilent();
-                }
+                    if (configUtil.getBoolean("silent_enabled")) {
+                        autoSilent();
+                    }
 
-                if (configUtil.getBoolean("new_grade_enabled")) {
-                    newGradeNotification();
-                }
+                    if (configUtil.getBoolean("new_grade_enabled")) {
+                        newGradeNotification();
+                    }
 
-                if (configUtil.getBoolean("notificationOnNewChanges")) {
-                    newScheduleChangeNotification();
-                }
+                    if (configUtil.getBoolean("notificationOnNewChanges")) {
+                        newScheduleChangeNotification();
+                    }
 
-                if (configUtil.getBoolean("notificationOnChangedLesson")) {
-                    nextAppointmentChangedNotification();
+                    if (configUtil.getBoolean("notificationOnChangedLesson")) {
+                        nextAppointmentChangedNotification();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    Log.d(TAG, "onReceive: Cleaning up and releasing wakelock!");
+                    if (wakeLock.isHeld())
+                        wakeLock.release();
                 }
-
-                if (wakeLock.isHeld())
-                    wakeLock.release();
             }
         }).start();
     }
@@ -224,13 +235,12 @@ public class NewBackgroundService extends BroadcastReceiver {
     //Appointment Notification
 
     private void appointmentNotification() {
-        Gson gson = new Gson();
         Appointment[] appointments = calendarDB.getNotificationAppointments();
         Log.d(TAG, "AppointmentNotifications: amount of appointments that should be shown: " + appointments.length);
         String previousAppointment = configUtil.getString("previous_appointment");
         if (appointments.length >= 1) {
             Appointment appointment = appointments[0];
-            if (!gson.toJson(appointment).equals(previousAppointment) && isCandidate(appointment)) {
+            if (!mGson.toJson(appointment).equals(previousAppointment) && isCandidate(appointment)) {
                 NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
                 mBuilder.setSmallIcon(R.drawable.ic_appointment);
 
@@ -254,7 +264,7 @@ public class NewBackgroundService extends BroadcastReceiver {
                 NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 mNotificationManager.notify(APPOINTMENT_NOTIFICATION_ID, mBuilder.build());
 
-                previousAppointment = gson.toJson(appointment);
+                previousAppointment = mGson.toJson(appointment);
                 configUtil.setString("previous_appointment", previousAppointment);
             }
         } else {
@@ -351,7 +361,7 @@ public class NewBackgroundService extends BroadcastReceiver {
         if (magister == null || magister.isExpired()) {
             Log.e(TAG, "New Grade Notification: Invalid magister");
         } else {
-            NewGradesDB gradesdb = new NewGradesDB(context);
+
 
             GradeHandler gradeHandler = new GradeHandler(magister);
             Grade[] gradeArray;
@@ -389,7 +399,7 @@ public class NewBackgroundService extends BroadcastReceiver {
                 e.printStackTrace();
                 return;
             }
-            String GradesNotification = new Gson().toJson(gradeList);
+            String GradesNotification = mGson.toJson(gradeList);
             if (gradeList.size() > 0
                     && !configUtil.getString("lastGradesNotification").equals(GradesNotification)) {
 
@@ -450,7 +460,7 @@ public class NewBackgroundService extends BroadcastReceiver {
                 Log.d(TAG, "ScheduleChangeNotification: No valid Magister");
             } else {
 
-                ScheduleChangeDB scheduleChangeDB = new ScheduleChangeDB(context);
+
                 AppointmentHandler appointmentHandler = new AppointmentHandler(magister);
                 Appointment[] appointments;
                 try {
@@ -506,8 +516,6 @@ public class NewBackgroundService extends BroadcastReceiver {
     }
 
     private void nextAppointmentChangedNotification() {
-        ScheduleChangeDB scheduleChangeDB = new ScheduleChangeDB(context);
-
         Appointment[] appointments = scheduleChangeDB.getNotificationAppointments();
         String previousChangedAppointment = configUtil.getString("previous_changed_appointment");
         if (appointments.length > 0) {

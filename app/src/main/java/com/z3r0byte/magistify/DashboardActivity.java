@@ -195,6 +195,23 @@ public class DashboardActivity extends AppCompatActivity {
         retrieveGrades();
 
         getPurchases();
+        showUpdateMessage();
+    }
+
+    private void showUpdateMessage() {
+        if (configUtil.getInteger("last_update_message") != 200 && configUtil.getInteger("login_version") < BuildConfig.VERSION_CODE) {
+            android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(this);
+            alertDialogBuilder.setTitle(R.string.title_magistify_2_0);
+            alertDialogBuilder.setMessage(R.string.desc_magistify_2_0);
+            alertDialogBuilder.setPositiveButton("Oké", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    configUtil.setInteger("last_update_message", 200);
+                }
+            });
+            android.app.AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
+        }
     }
 
     private void relogin() {

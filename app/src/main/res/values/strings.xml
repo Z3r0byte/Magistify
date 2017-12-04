@@ -189,5 +189,7 @@
     <string name="err_failed_login_dashboard">Kon niet inloggen, gebruikersnaam/wachtwoord mogelijk verkeerd.</string>
     <string name="title_activity_homework">Huiswerk</string>
     <string name="symbol_click">{gmd-chevron-right}</string>
+    <string name="title_magistify_2_0">Belangrijk: Magistify 2.0</string>
+    <string name="desc_magistify_2_0">Welkom bij Magistify 2.0!\n\nHet lijkt misschien alsof er weinig veranderd is, en dat klopt ook wel voor de functies en layout. In de achtergrondservice (wat voor de meldingen, etc. zorgt) is echter veel veranderd. De service wordt nu beheerd door het systeem in plaats van de app zelf. Dit betekent dat de achtergrondservice stabieler en betrouwbaarder zou moeten zijn. Wel is er een nadeel: de auto-stil functie controleert nu nog maar elke minuut of de telefoon op stil moet gaan in plaats van elke tien seconden. Het kan dus zijn dat je de marge iets groter in moet stellen.\n\nDit is natuurlijk nog de beta versie, dus het verzoek aan iedereen om dit nieuwe systeem te testen en eventuele problemen te melden. Het kan zijn dat op sommige OnePlus telefoons de service na een tijdje wordt afgebroken, maar dit probleem is al bij mij bekend.\n\nBedankt voor het lezen!</string>
 
 </resources>

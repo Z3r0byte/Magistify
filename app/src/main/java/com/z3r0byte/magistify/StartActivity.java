@@ -47,6 +47,7 @@ public class StartActivity extends AppCompatActivity {
         }
 
         if (!getSharedPreferences("data", MODE_PRIVATE).getBoolean("LoggedIn", false) || relogin) {
+            getSharedPreferences("data", MODE_PRIVATE).edit().putInt("login_version", BuildConfig.VERSION_CODE).apply();
             startActivity(new Intent(this, SetupActivity.class));
             finish();
         } else if (!relogin) {
