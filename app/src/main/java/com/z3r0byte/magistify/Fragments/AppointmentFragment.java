@@ -43,15 +43,19 @@ import com.z3r0byte.magistify.Listeners.FinishInitiator;
 import com.z3r0byte.magistify.Listeners.FinishResponder;
 import com.z3r0byte.magistify.Listeners.SharedListener;
 import com.z3r0byte.magistify.R;
+import com.z3r0byte.magistify.Util.ConfigUtil;
 import com.z3r0byte.magistify.Util.DateUtils;
 import com.z3r0byte.magistify.Util.ErrorViewConfigs;
 
 import net.ilexiconn.magister.Magister;
 import net.ilexiconn.magister.container.Appointment;
+import net.ilexiconn.magister.container.School;
+import net.ilexiconn.magister.container.User;
 import net.ilexiconn.magister.handler.AppointmentHandler;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.text.ParseException;
 import java.util.Date;
 
 import tr.xip.errorview.ErrorView;
@@ -80,6 +84,7 @@ public class AppointmentFragment extends Fragment {
     Date selectedDate;
 
     Thread refreshThread;
+    ConfigUtil configUtil;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -145,6 +150,7 @@ public class AppointmentFragment extends Fragment {
         });
 
         selectedDate = DateUtils.getToday();
+        configUtil = new ConfigUtil(getActivity());
 
         refresh();
 
@@ -183,16 +189,23 @@ public class AppointmentFragment extends Fragment {
                         return;
                     }
                 } else if (magister == null) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            listView.setVisibility(View.GONE);
-                            errorView.setVisibility(View.VISIBLE);
-                            errorView.setConfig(ErrorViewConfigs.NoConnectionConfig);
-                            mSwipeRefreshLayout.setRefreshing(false);
-                        }
-                    });
-                    return;
+                    User user = new Gson().fromJson(configUtil.getString("User"), User.class);
+                    School school = new Gson().fromJson(configUtil.getString("School"), School.class);
+                    try {
+                        GlobalAccount.MAGISTER = Magister.login(school, user.username, user.password);
+                        magister = GlobalAccount.MAGISTER;
+                    } catch (IOException | ParseException e) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                listView.setVisibility(View.GONE);
+                                errorView.setVisibility(View.VISIBLE);
+                                errorView.setConfig(ErrorViewConfigs.NoConnectionConfig);
+                                mSwipeRefreshLayout.setRefreshing(false);
+                            }
+                        });
+                        return;
+                    }
                 }
 
                 if (Thread.interrupted()) {
