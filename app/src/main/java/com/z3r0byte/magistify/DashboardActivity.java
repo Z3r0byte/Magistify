@@ -503,8 +503,8 @@ public class DashboardActivity extends AppCompatActivity {
         rawAppointments[3].startDate = new Date();
         rawAppointments[3].endDate = rawAppointments[3].startDate;
         rawAppointments[3].location = "Lokatie 4";
-        rawAppointments[3].periodFrom = 9;
-        */
+        rawAppointments[3].periodFrom = 9;*/
+
 
 
         Appointment[] appointments = null;
@@ -550,10 +550,7 @@ public class DashboardActivity extends AppCompatActivity {
             });
 
             final float scale = this.getResources().getDisplayMetrics().density;
-            if (appointments.length != 0) {
-                int pixels = (int) (90 * appointments.length * scale + 70.5f);
-                rootView.getLayoutParams().height = pixels;
-            }
+            rootView.getLayoutParams().height = (int) (90 * appointments.length * scale + 160f);
 
         } else {
             findViewById(R.id.layout_schedule_changes).setVisibility(View.GONE);
