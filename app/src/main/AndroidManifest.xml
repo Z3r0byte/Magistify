@@ -83,12 +83,12 @@
             android:name=".Services.NewBackgroundService"
             android:process=":remote" />
 
-        <!--<activity
+        <activity
             android:name=".AutoSilentActivity"
             android:label="@string/title_activity_auto_silent"
             android:theme="@style/AppTheme" />
 
-        <service
+        <!--<service
             android:name=".Services.AppointmentService"
             android:enabled="true"
             android:exported="true" />-->
