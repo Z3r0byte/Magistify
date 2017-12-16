@@ -123,6 +123,16 @@ public class HttpUtil {
 
     public static InputStreamReader httpPut(String url, String json) throws IOException {
         //todo Use OkHTTP
+        RequestBody body = RequestBody.create(JSON, json);
+        Request request = new Request.Builder()
+                .addHeader("X-API-Client-ID", ApiKey.getKey())
+                .url(url)
+                .put(body)
+                .build();
+        Response response = okHttpClient.newCall(request).execute();
+        return new InputStreamReader(response.body().byteStream());
+        /*
+
         HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
         connection.setDoOutput(true);
         connection.setRequestMethod("PUT");
@@ -135,7 +145,7 @@ public class HttpUtil {
         outputStream.flush();
         outputStream.close();
         storeCookies(connection);
-        return new InputStreamReader(connection.getInputStream());
+        return new InputStreamReader(connection.getInputStream());*/
     }
 
     public static InputStreamReader httpPost(String url, String data) throws IOException {
