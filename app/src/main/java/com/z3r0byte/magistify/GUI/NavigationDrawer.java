@@ -130,10 +130,10 @@ public class NavigationDrawer {
                 .addDrawerItems(
                         dashboardItem,
                         appointmentItem,
-                        autoSilentItem,
+                        homeworkItem,
                         newGradesItem,
                         scheduleChangeItem,
-                        homeworkItem,
+                        autoSilentItem,
                         new SectionDrawerItem().withName(R.string.drawer_tools),
                         statusItem,
                         aboutItem,

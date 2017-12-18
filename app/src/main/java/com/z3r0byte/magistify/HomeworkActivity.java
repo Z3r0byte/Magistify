@@ -120,7 +120,7 @@ public class HomeworkActivity extends AppCompatActivity {
                 case 0:
                     return "Huiswerk";
                 case 1:
-                    return "Instellingen";
+                    return "Instellingen (werkt nog niet)";
             }
             return null;
         }
