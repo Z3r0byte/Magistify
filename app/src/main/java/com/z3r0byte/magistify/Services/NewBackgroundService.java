@@ -27,7 +27,6 @@ import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Bundle;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -90,7 +89,7 @@ public class NewBackgroundService extends BroadcastReceiver {
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
         wakeLock.acquire(60 * 1000);
 
-        Bundle extras = intent.getExtras();
+        //Bundle extras = intent.getExtras();
 
         mGson = new Gson();
         calendarDB = new CalendarDB(context);
@@ -131,6 +130,14 @@ public class NewBackgroundService extends BroadcastReceiver {
 
                     if (configUtil.getBoolean("notificationOnChangedLesson")) {
                         nextAppointmentChangedNotification();
+                    }
+
+                    if (configUtil.getBoolean("unfinished_homework_notification")) {
+
+                    }
+
+                    if (configUtil.getBoolean("new_homework_notification")) {
+                        newHomeworkNotification();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -554,6 +561,12 @@ public class NewBackgroundService extends BroadcastReceiver {
             NotificationManager notifManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             notifManager.cancel(NEXT_APPOINTMENT_CHANGED_NOTIFICATION_ID);
         }
+    }
+
+    // New Homework Notification
+
+    private void newHomeworkNotification() {
+
     }
 
 
