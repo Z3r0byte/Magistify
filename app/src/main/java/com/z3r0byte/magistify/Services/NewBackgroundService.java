@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import com.z3r0byte.magistify.DatabaseHelpers.CalendarDB;
 import com.z3r0byte.magistify.DatabaseHelpers.NewGradesDB;
 import com.z3r0byte.magistify.DatabaseHelpers.ScheduleChangeDB;
 import com.z3r0byte.magistify.GlobalAccount;
+import com.z3r0byte.magistify.HomeworkActivity;
 import com.z3r0byte.magistify.NewGradeActivity;
 import com.z3r0byte.magistify.R;
 import com.z3r0byte.magistify.ScheduleChangeActivity;
@@ -74,12 +75,14 @@ public class NewBackgroundService extends BroadcastReceiver {
     Gson mGson;
     ScheduleChangeDB scheduleChangeDB;
     NewGradesDB gradesdb;
+    Appointment[] currentHomework;
 
     private static final int LOGIN_FAILED_ID = 9990;
     private static final int APPOINTMENT_NOTIFICATION_ID = 9991;
     private static final int NEW_GRADE_NOTIFICATION_ID = 9992;
     private static final int NEW_SCHEDULE_CHANGE_NOTIFICATION_ID = 9993;
     private static final int NEXT_APPOINTMENT_CHANGED_NOTIFICATION_ID = 9994;
+    private static final int NEW_HOMEWORK_NOTIFICATION_ID = 9995;
 
 
 
@@ -108,7 +111,7 @@ public class NewBackgroundService extends BroadcastReceiver {
             public void run() {
                 try {
                     manageSession(user, school);
-                    if (configUtil.getBoolean("silent_enabled") || configUtil.getBoolean("appointment_enabled")) {
+                    if (configUtil.getBoolean("silent_enabled") || configUtil.getBoolean("appointment_enabled") || configUtil.getBoolean("new_homework_notification")) {
                         getAppointments();
                     }
 
@@ -566,7 +569,28 @@ public class NewBackgroundService extends BroadcastReceiver {
     // New Homework Notification
 
     private void newHomeworkNotification() {
+        Appointment[] newhomework = calendarDB.getAppointmentsWithHomework();
+        if (currentHomework != null && newhomework.length > currentHomework.length) {
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
+            mBuilder.setSmallIcon(R.drawable.ic_new_homework);
 
+            mBuilder.setContentTitle("Nieuw huiswerk");
+            mBuilder.setContentText("Tik om je huiswerk te bekijken");
+            mBuilder.setAutoCancel(true);
+            mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+            mBuilder.setDefaults(Notification.DEFAULT_ALL);
+
+            Intent resultIntent = new Intent(context, HomeworkActivity.class);
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+            stackBuilder.addParentStack(ScheduleChangeActivity.class);
+            stackBuilder.addNextIntent(resultIntent);
+            PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+            mBuilder.setContentIntent(resultPendingIntent);
+
+            NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(NEW_HOMEWORK_NOTIFICATION_ID, mBuilder.build());
+        }
+        currentHomework = newhomework;
     }
 
 
