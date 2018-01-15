@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.z3r0byte.magistify.Services.BackgroundService;
 import com.z3r0byte.magistify.Services.NewBackgroundService;
+import com.z3r0byte.magistify.Services.WatchdogService;
 import com.z3r0byte.magistify.Util.ServiceUtil;
 
 
@@ -55,11 +56,10 @@ public class StartActivity extends AppCompatActivity {
                 //startService(new Intent(this, BackgroundService.class));
             }
 
-            /*
+
             if (!ServiceUtil.isServiceRunning(WatchdogService.class, this)) {
                 startService(new Intent(this, WatchdogService.class));
             }
-            */
 
             boolean serviceRunning = (PendingIntent.getBroadcast(this, 0,
                     new Intent("com.z3r0byte.magistify.Services.NewBackgroundService"),

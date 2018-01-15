@@ -151,6 +151,8 @@ public class NewBackgroundService extends BroadcastReceiver {
                 }
             }
         }).start();
+
+        configUtil.setString("last_service_run", DateUtils.formatDate(new Date(), "dd-MM HH:mm"));
     }
 
 
