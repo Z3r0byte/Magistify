@@ -76,6 +76,7 @@ public class NewBackgroundService extends BroadcastReceiver {
     ScheduleChangeDB scheduleChangeDB;
     NewGradesDB gradesdb;
     Appointment[] currentHomework;
+    int random = 0;
 
     private static final int LOGIN_FAILED_ID = 9990;
     private static final int APPOINTMENT_NOTIFICATION_ID = 9991;
@@ -90,7 +91,7 @@ public class NewBackgroundService extends BroadcastReceiver {
     public void onReceive(final Context context, Intent intent) {
         PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-        wakeLock.acquire(60 * 1000);
+        wakeLock.acquire(15 * 1000);
 
         //Bundle extras = intent.getExtras();
 
@@ -104,6 +105,8 @@ public class NewBackgroundService extends BroadcastReceiver {
         final User user = mGson.fromJson(configUtil.getString("User"), User.class);
         final School school = mGson.fromJson(configUtil.getString("School"), School.class);
 
+        Date lastrun = DateUtils.parseDate(configUtil.getString("last_service_run"), "dd-MM-YYYY HH:mm:ss");
+        Log.i(TAG, "Time since last run: " + Math.abs(new Date().getTime() - lastrun.getTime()) / 1000 + " seconds");
 
 
         new Thread(new Runnable() {
@@ -152,7 +155,23 @@ public class NewBackgroundService extends BroadcastReceiver {
             }
         }).start();
 
-        configUtil.setString("last_service_run", DateUtils.formatDate(new Date(), "dd-MM HH:mm"));
+        configUtil.setString("last_service_run", DateUtils.formatDate(new Date(), "dd-MM-YYYY HH:mm:ss"));
+
+        //Checking if another process is running
+        Log.d(TAG, "Random: " + random);
+        if (random != 0) {
+            if (configUtil.getInteger("suicide_check") != random - 1) {
+                //killing this alarm
+                Log.e(TAG, "I am an unwanted process.... I will now terminate", new RuntimeException("Redundant alarm"));
+                cancelAlarm(context);
+            } else {
+                random = (int) (Math.random() * 50 + 1);
+                configUtil.setInteger("suicide_check", random);
+            }
+        } else {
+            random = (int) (Math.random() * 50 + 1);
+            configUtil.setInteger("suicide_check", random);
+        }
     }
 
 

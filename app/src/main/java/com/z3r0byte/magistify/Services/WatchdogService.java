@@ -40,7 +40,6 @@ public class WatchdogService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "Woof!");
-        configUtil = new ConfigUtil(getApplicationContext());
         setupWatchdog();
         return START_STICKY;
     }
@@ -49,8 +48,11 @@ public class WatchdogService extends Service {
         TimerTask checkServices = new TimerTask() {
             @Override
             public void run() {
-                Date lastrun = DateUtils.parseDate(configUtil.getString("last_service_run"), "dd-MM HH:mm");
-                if (Math.abs(lastrun.compareTo(new Date())) > 120000) {
+                configUtil = new ConfigUtil(getApplicationContext());
+                Date lastrun = DateUtils.parseDate(configUtil.getString("last_service_run"), "dd-MM-YYYY HH:mm:ss");
+                Log.d(TAG, "Date from last run: " + configUtil.getString("last_service_run"));
+                Log.i(TAG, "Time since last run: " + Math.abs(new Date().getTime() - lastrun.getTime()) / 1000 + " seconds");
+                if (Math.abs(new Date().getTime() - lastrun.getTime()) / 1000 > 120) {
                     Log.e(TAG, "Oh boi, something isn't right...");
                     Log.d(TAG, "Lemme fix this real quick");
                     NewBackgroundService backgroundService = new NewBackgroundService();

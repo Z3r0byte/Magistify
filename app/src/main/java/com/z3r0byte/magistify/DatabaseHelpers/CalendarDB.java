@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -331,7 +331,7 @@ public class CalendarDB extends SQLiteOpenHelper {
         Integer dateStart = Integer.parseInt(formatDate(now, "yyyyMMdd"));
         Integer dateEnd = Integer.parseInt(formatDate(DateUtils.addDays(now, 14), "yyyyMMdd"));
         String Query = "SELECT * FROM " + TABLE_CALENDAR + " WHERE " + KEY_FORMATTED_START + " <= " + dateEnd + " AND "
-                + KEY_FORMATTED_END + " >= " + dateStart + " AND " + KEY_CONTENT + " IS NOT NULL";
+                + KEY_FORMATTED_END + " >= " + dateStart + " AND " + KEY_CONTENT + " IS NOT NULL AND " + KEY_INFO_TYPE + " IS NOT 0";
 
         Cursor cursor = db.rawQuery(Query, null);
         Appointment[] results = new Appointment[cursor.getCount()];
