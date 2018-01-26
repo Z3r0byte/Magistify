@@ -25,7 +25,6 @@ import android.widget.Toast;
 
 import com.z3r0byte.magistify.Services.BackgroundService;
 import com.z3r0byte.magistify.Services.NewBackgroundService;
-import com.z3r0byte.magistify.Services.WatchdogService;
 import com.z3r0byte.magistify.Util.ServiceUtil;
 
 
@@ -57,9 +56,9 @@ public class StartActivity extends AppCompatActivity {
             }
 
 
-            if (!ServiceUtil.isServiceRunning(WatchdogService.class, this)) {
+            /*if (!ServiceUtil.isServiceRunning(WatchdogService.class, this)) {
                 startService(new Intent(this, WatchdogService.class));
-            }
+            }*/
 
             boolean serviceRunning = (PendingIntent.getBroadcast(this, 0,
                     new Intent("com.z3r0byte.magistify.Services.NewBackgroundService"),

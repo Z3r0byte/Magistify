@@ -60,11 +60,11 @@
         <service
             android:name=".Services.AutoSilentService"
             android:enabled="true"
-            android:exported="true" /> -->
+            android:exported="true" />
         <service
             android:name=".Services.WatchdogService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true" />-->
 
         <service
             android:name="com.google.android.gms.measurement.AppMeasurementService"
