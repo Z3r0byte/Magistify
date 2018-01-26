@@ -111,7 +111,8 @@ public class HomeworkSettingsFragment extends Fragment implements TimePickerDial
     }
 
     private void checkPro() {
-        Boolean pro = configUtil.getBoolean("pro_unlocked");
+        Boolean pro = configUtil.getBoolean("pro_unlocked"); //TODO check when stable
+        pro = true;
         newHomework.setEnabled(pro);
         unfinishedHomework.setEnabled(pro);
         if (!pro) {
