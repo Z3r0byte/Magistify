@@ -83,6 +83,7 @@ public class NewBackgroundService extends BroadcastReceiver {
     private static final int NEW_SCHEDULE_CHANGE_NOTIFICATION_ID = 9993;
     private static final int NEXT_APPOINTMENT_CHANGED_NOTIFICATION_ID = 9994;
     private static final int NEW_HOMEWORK_NOTIFICATION_ID = 9995;
+    private static final int UNFINISHED_HOMEWORK_NOTIFICATION_ID = 9996;
 
 
 
@@ -135,7 +136,7 @@ public class NewBackgroundService extends BroadcastReceiver {
                     }
 
                     if (configUtil.getBoolean("unfinished_homework_notification")) {
-
+                        unFinishedHomeworkNotification();
                     }
 
                     if (configUtil.getBoolean("new_homework_notification")) {
@@ -565,7 +566,7 @@ public class NewBackgroundService extends BroadcastReceiver {
         }
     }
 
-    // New Homework Notification
+    //Homework Notifications
 
     private void newHomeworkNotification() {
         Appointment[] newhomework = calendarDB.getAppointmentsWithHomework();
@@ -590,6 +591,64 @@ public class NewBackgroundService extends BroadcastReceiver {
             mNotificationManager.notify(NEW_HOMEWORK_NOTIFICATION_ID, mBuilder.build());
         }
         currentHomework = newhomework;
+    }
+
+    private void unFinishedHomeworkNotification() {
+        String lastCheck = configUtil.getString("last_unfinished_homework_check");
+        if (lastCheck.equals(""))
+            lastCheck = DateUtils.formatDate(DateUtils.addDays(new Date(), -1), "yyyyMMdd");
+
+        Date lastCheckDate = DateUtils.parseDate(lastCheck, "yyyyMMdd");
+        Date now = DateUtils.parseDate(DateUtils.formatDate(new Date(), "yyyyMMdd"), "yyyyMMdd");
+        Integer hours = configUtil.getInteger("unfinished_homework_hour");
+        Integer minutes = configUtil.getInteger("unfinished_homework_minute");
+        if (lastCheckDate.before(now)) {
+            lastCheckDate = DateUtils.addHours(lastCheckDate, 24 + hours);
+            lastCheckDate = DateUtils.addMinutes(lastCheckDate, minutes);
+            if (new Date().after(lastCheckDate)) {
+                Appointment[] appointments = calendarDB.getUnfinishedAppointments(DateUtils.addDays(now, 1));
+
+                if (appointments.length > 0) {
+
+                    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
+                    mBuilder.setSmallIcon(R.drawable.ic_unfinished_homework);
+                    mBuilder.setContentTitle("Huiswerk waarschuwing");
+
+                    if (appointments.length == 1) {
+                        mBuilder.setContentText(appointments[0].description);
+                    } else {
+                        String content = "Je hebt je huiswerk voor de volgende lessen van morgen nog niet afgerond:";
+                        for (Appointment appointment : appointments) {
+                            String string = appointment.description;
+                            if (content.length() > 1) {
+                                content = content + "\n" + string;
+                            } else {
+                                content = string;
+                            }
+                        }
+                        mBuilder.setStyle(new NotificationCompat.BigTextStyle(mBuilder).bigText(content));
+                        mBuilder.setContentText(content);
+                    }
+                    mBuilder.setAutoCancel(true);
+                    mBuilder.setVisibility(NotificationCompat.VISIBILITY_PRIVATE);
+                    mBuilder.setDefaults(Notification.DEFAULT_ALL);
+                    mBuilder.setLights(Color.RED, 300, 200);
+
+                    Intent resultIntent = new Intent(context, HomeworkActivity.class);
+                    TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+                    stackBuilder.addParentStack(NewGradeActivity.class);
+                    stackBuilder.addNextIntent(resultIntent);
+                    PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                    mBuilder.setContentIntent(resultPendingIntent);
+
+
+                    NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    mNotificationManager.notify(UNFINISHED_HOMEWORK_NOTIFICATION_ID, mBuilder.build());
+                }
+
+                configUtil.setString("last_unfinished_homework_check", DateUtils.formatDate(new Date(), "yyyyMMdd"));
+            }
+        }
     }
 
 

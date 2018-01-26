@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -62,6 +62,8 @@ public class HomeworkSettingsFragment extends Fragment implements TimePickerDial
         unfinishedHomework = (Switch) view.findViewById(R.id.unfinished_homework);
         proFunctions = (RelativeLayout) view.findViewById(R.id.pro_functions_button);
 
+        getSettings();
+
         newHomework.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -99,7 +101,6 @@ public class HomeworkSettingsFragment extends Fragment implements TimePickerDial
             }
         });
 
-        getSettings();
         checkPro();
         return view;
     }
