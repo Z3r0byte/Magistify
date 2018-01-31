@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+  ~ Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~  you may not use this file except in compliance with the License.
@@ -173,7 +173,7 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_new_grade">Magistify</string>
     <string name="title_activity_appointment">Magistify</string>
-    <string name="msg_donations_desc">De genoemde bedragen zijn de bedragen die IK ontvang, de echte prijs zal hoger liggen in verband met belasting.\nBij elke donatie worden advertenties verwijderd. Donaties vanaf €1.00 ontgrendelen ook alle toekomstige PRO-functies.\nPrijzen zijn onder voorbehoud en excl. BTW.</string>
+    <string name="msg_donations_desc">De genoemde bedragen zijn de bedragen die IK ontvang, de echte prijs zal hoger liggen in verband met belasting.\nBij elke donatie worden advertenties verwijderd. Donaties vanaf €1.00 ontgrendelen ook alle (toekomstige) PRO-functies.\nPrijzen zijn onder voorbehoud en excl. BTW.</string>
     <string name="msg_donate">Doneren</string>
     <string name="title_activity_shedule_change">Magistify</string>
     <string name="section_format">Hello World from section: %1$d</string>
@@ -190,6 +190,6 @@
     <string name="title_activity_homework">Huiswerk</string>
     <string name="symbol_click">{gmd-chevron-right}</string>
     <string name="title_magistify_2_0">Belangrijk: Magistify 2.0</string>
-    <string name="desc_magistify_2_0">Welkom bij Magistify 2.0!\n\nHet lijkt misschien alsof er weinig veranderd is, en dat klopt ook wel voor de functies en layout. In de achtergrondservice (wat voor de meldingen, etc. zorgt) is echter veel veranderd. De service wordt nu beheerd door het systeem in plaats van de app zelf. Dit betekent dat de achtergrondservice stabieler en betrouwbaarder zou moeten zijn. Wel is er een nadeel: de auto-stil functie controleert nu nog maar elke minuut of de telefoon op stil moet gaan in plaats van elke tien seconden. Het kan dus zijn dat je de marge iets groter in moet stellen.\n\nDit is natuurlijk nog de beta versie, dus het verzoek aan iedereen om dit nieuwe systeem te testen en eventuele problemen te melden. Het kan zijn dat op sommige OnePlus telefoons de service na een tijdje wordt afgebroken, maar dit probleem is al bij mij bekend.\n\nBedankt voor het lezen!</string>
+    <string name="desc_magistify_2_0">Welkom bij Magistify 2.0!\n\nHet lijkt misschien alsof er weinig veranderd is, en dat klopt ook wel voor de functies en layout. In de achtergrondservice (wat voor de meldingen, etc. zorgt) is echter veel veranderd. De service wordt nu beheerd door het systeem in plaats van de app zelf. Dit betekent dat de achtergrondservice stabieler en betrouwbaarder zou moeten zijn. Wel is er een nadeel: de auto-stil functie controleert nu nog maar elke minuut of de telefoon op stil moet gaan in plaats van elke tien seconden. Het kan dus zijn dat je de marge iets groter in moet stellen.\n\nSommige Android-versies van sommige fabrikanten (o.a. OnePlus) hebben de neiging de achtergrondservice af te sluiten, ik kan hier helaas weinig aan doen. Mocht je toch ideeën hebben voor een oplossing hiervoor, laat me dat dan gerust weten :)</string>
 
 </resources>

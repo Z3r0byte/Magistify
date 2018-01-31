@@ -75,7 +75,6 @@ public class NewBackgroundService extends BroadcastReceiver {
     Gson mGson;
     ScheduleChangeDB scheduleChangeDB;
     NewGradesDB gradesdb;
-    Appointment[] currentHomework;
 
     private static final int LOGIN_FAILED_ID = 9990;
     private static final int APPOINTMENT_NOTIFICATION_ID = 9991;
@@ -570,7 +569,8 @@ public class NewBackgroundService extends BroadcastReceiver {
 
     private void newHomeworkNotification() {
         Appointment[] newhomework = calendarDB.getAppointmentsWithHomework();
-        if (currentHomework != null && newhomework.length > currentHomework.length) {
+        Integer currentHomework = configUtil.getInteger("current_amount_of_homework", 999);
+        if (currentHomework != 999 && newhomework.length > currentHomework) {
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
             mBuilder.setSmallIcon(R.drawable.ic_new_homework);
 
@@ -590,7 +590,7 @@ public class NewBackgroundService extends BroadcastReceiver {
             NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(NEW_HOMEWORK_NOTIFICATION_ID, mBuilder.build());
         }
-        currentHomework = newhomework;
+        configUtil.setInteger("current_amount_of_homework", newhomework.length);
     }
 
     private void unFinishedHomeworkNotification() {
