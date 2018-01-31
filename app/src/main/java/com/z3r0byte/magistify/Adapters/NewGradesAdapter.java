@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -62,7 +62,11 @@ public class NewGradesAdapter extends ArrayAdapter<Grade> {
 
 
         TextView subject = (TextView) rowView.findViewById(R.id.list_text_subject);
-        subject.setText(grades[position].subject.name);
+        if (grades[position].description != null) {
+            subject.setText(grades[position].subject.name + " - " + grades[position].description);
+        } else {
+            subject.setText(grades[position].subject.name);
+        }
         TextView date = (TextView) rowView.findViewById(R.id.list_text_date);
         date.setText(DateUtils.formatDate(grades[position].filledInDate, "dd-MM-yyyy"));
 

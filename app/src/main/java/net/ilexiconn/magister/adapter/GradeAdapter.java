@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -51,6 +51,8 @@ public class GradeAdapter extends TypeAdapter<Grade[]> {
 
         if (object.has("Items")) {
             array = object.get("Items").getAsJsonArray();
+        } else if (object.has("items")) {
+            array = object.get("items").getAsJsonArray();
         } else {
             return new Grade[]{};
         }

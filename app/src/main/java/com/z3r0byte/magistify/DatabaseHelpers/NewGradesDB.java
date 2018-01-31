@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -35,13 +35,14 @@ import java.util.Collections;
 public class NewGradesDB extends SQLiteOpenHelper {
     private static final String TAG = "NewGradesDB";
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     private static final String DATABASE_NAME = "newGradesDB";
     private static final String TABLE_GRADES = "new_grades";
 
     private static final String KEY_DB_ID = "dbID";
     private static final String KEY_DATE_ADDED = "dateAdded";
+    private static final String KEY_DESCRIPTION = "description";
     private static final String KEY_GRADE = "grade";
     private static final String KEY_IS_SEEN = "isSeen";
     private static final String KEY_PASS_GRADE = "passGrade";
@@ -59,6 +60,7 @@ public class NewGradesDB extends SQLiteOpenHelper {
                 + TABLE_GRADES + "("
                 + KEY_DB_ID + " INTEGER PRIMARY KEY,"
                 + KEY_DATE_ADDED + " TEXT,"
+                + KEY_DESCRIPTION + " TEXT,"
                 + KEY_GRADE + " TEXT,"
                 + KEY_IS_SEEN + " BOOLEAN,"
                 + KEY_PASS_GRADE + " BOOLEAN,"
@@ -73,7 +75,6 @@ public class NewGradesDB extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_GRADES);
         onCreate(db);
     }
-
 
     public void addGrades(Grade[] grades) {
         if (grades == null || grades.length == 0) {
@@ -90,6 +91,7 @@ public class NewGradesDB extends SQLiteOpenHelper {
                 contentValues.put(KEY_GRADE, grade.grade);
                 contentValues.put(KEY_SUBJECT, grade.subject.name);
                 contentValues.put(KEY_PASS_GRADE, grade.isSufficient);
+                contentValues.put(KEY_DESCRIPTION, grade.description);
                 db.insert(TABLE_GRADES, null, contentValues);
             }
         }
@@ -100,7 +102,7 @@ public class NewGradesDB extends SQLiteOpenHelper {
     public Boolean hasBeenSeen(Grade grade, Boolean setSeen) {
         SQLiteDatabase db = this.getWritableDatabase();
         String Query = "Select * from " + TABLE_GRADES + " where " + KEY_DATE_ADDED + " = '" + grade.filledInDateString + "' AND "
-                + KEY_GRADE + " = '" + grade.grade + "'";
+                + KEY_GRADE + " = '" + grade.grade + "' AND " + KEY_DESCRIPTION + " = '" + grade.description + "'";
         Cursor cursor = db.rawQuery(Query, null);
         if (cursor.getCount() == 1) {
             if (cursor.moveToFirst()) {
@@ -137,6 +139,7 @@ public class NewGradesDB extends SQLiteOpenHelper {
                     grade.subject.name = cursor.getString(cursor.getColumnIndex(KEY_SUBJECT));
                     grade.isSufficient = Boolean.parseBoolean(cursor.getInt(cursor.getColumnIndex(KEY_PASS_GRADE)) + "");
                     grade.filledInDateString = cursor.getString(cursor.getColumnIndex(KEY_DATE_ADDED));
+                    grade.description = cursor.getString(cursor.getColumnIndex(KEY_DESCRIPTION));
 
                     results[i] = grade;
                     i++;
@@ -153,12 +156,12 @@ public class NewGradesDB extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_IS_SEEN, true);
         db.update(TABLE_GRADES, contentValues, KEY_DATE_ADDED + " = '" + grade.filledInDateString + "' AND "
-                + KEY_GRADE + " = '" + grade.grade + "'", null);
+                + KEY_GRADE + " = '" + grade.grade + "' AND " + KEY_DESCRIPTION + " = '" + grade.description + "'", null);
     }
 
     private Boolean isInDataBase(Grade grade, SQLiteDatabase db) {
         String Query = "Select * from " + TABLE_GRADES + " where " + KEY_DATE_ADDED + " = '" + grade.filledInDateString + "' AND "
-                + KEY_GRADE + " = '" + grade.grade + "'";
+                + KEY_GRADE + " = '" + grade.grade + "' AND " + KEY_DESCRIPTION + " = '" + grade.description + "'";
         Cursor cursor = db.rawQuery(Query, null);
         if (cursor.getCount() >= 1) {
             cursor.close();

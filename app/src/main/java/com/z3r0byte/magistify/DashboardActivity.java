@@ -95,6 +95,7 @@ public class DashboardActivity extends AppCompatActivity {
     Bundle ownedItems;
     ArrayList<String> boughtSKU = new ArrayList<>();
     ArrayList<String> boughtToken = new ArrayList<>();
+    Grade[] Grades;
 
     ServiceConnection mServiceConn = new ServiceConnection() {
         @Override
@@ -364,8 +365,12 @@ public class DashboardActivity extends AppCompatActivity {
         TextView gradeTxt = (TextView) findViewById(R.id.grade);
         TextView subjectTxt = (TextView) findViewById(R.id.subject);
         if (grade != null) {
+            if (grade.description != null) {
+                subjectTxt.setText(grade.subject.name + " - " + grade.description);
+            } else {
+                subjectTxt.setText(grade.subject.name);
+            }
             gradeTxt.setText(grade.grade);
-            subjectTxt.setText(grade.subject.name);
         } else {
             gradeTxt.setText(R.string.msg_no_grade_short);
             subjectTxt.setText(R.string.msg_no_grade);
@@ -427,7 +432,7 @@ public class DashboardActivity extends AppCompatActivity {
                     }
                 }
                 GradeHandler gradeHandler = new GradeHandler(magister);
-                Grade[] Grades;
+                //Grade[] Grades;
                 try {
                     Grades = gradeHandler.getRecentGrades();
                 } catch (IOException e) {

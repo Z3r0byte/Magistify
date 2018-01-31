@@ -30,6 +30,7 @@ import android.net.NetworkInfo;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.text.Html;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -396,7 +397,6 @@ public class NewBackgroundService extends BroadcastReceiver {
                     gradeArray = new Grade[2];
                     gradeArray[0] = sampleGrade;
                     gradeArray[1] = sampleGrade2;*/
-
                 for (Grade grade : gradeArray) {
                     if (!gradesdb.hasBeenSeen(grade, false)
                             && (grade.isSufficient || !configUtil.getBoolean("pass_grades_only"))) {
@@ -419,13 +419,22 @@ public class NewBackgroundService extends BroadcastReceiver {
 
                 if (gradeList.size() == 1) {
                     Grade grade = gradeList.get(0);
-                    mBuilder.setContentTitle("Nieuw cijfer voor " + grade.subject.name);
+                    if (grade.description != null) {
+                        mBuilder.setContentTitle("Nieuw cijfer voor " + grade.subject.name + " - " + grade.description);
+                    } else {
+                        mBuilder.setContentTitle("Nieuw cijfer voor " + grade.subject.name);
+                    }
                     //mBuilder.setStyle(new NotificationCompat.BigTextStyle(mBuilder).bigText())
                     mBuilder.setContentText("Een " + grade.grade);
                 } else {
-                    String content = "";
+                    CharSequence content = "";
                     for (Grade grade : gradeList) {
-                        String string = grade.subject.name + ", een " + grade.grade;
+                        CharSequence string;
+                        if (grade.description != null) {
+                            string = grade.subject.name + " - " + grade.description + ": " + Html.fromHtml("<strong>" + grade.grade + "</strong>");
+                        } else {
+                            string = grade.subject.name + ", een " + grade.grade;
+                        }
                         if (content.length() > 1) {
                             content = content + "\n" + string;
                         } else {
@@ -590,7 +599,9 @@ public class NewBackgroundService extends BroadcastReceiver {
             NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(NEW_HOMEWORK_NOTIFICATION_ID, mBuilder.build());
         }
-        configUtil.setInteger("current_amount_of_homework", newhomework.length);
+        if (newhomework != null) {
+            configUtil.setInteger("current_amount_of_homework", newhomework.length);
+        }
     }
 
     private void unFinishedHomeworkNotification() {
