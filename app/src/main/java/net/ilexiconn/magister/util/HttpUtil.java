@@ -37,19 +37,62 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.CookieManager;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import okhttp3.CipherSuite;
+import okhttp3.ConnectionSpec;
+import okhttp3.Cookie;
+import okhttp3.CookieJar;
+import okhttp3.HttpUrl;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.TlsVersion;
+
 public class HttpUtil {
+
+    private static ConnectionSpec spec = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+            .tlsVersions(TlsVersion.TLS_1_2, TlsVersion.TLS_1_1, TlsVersion.TLS_1_0)
+            .cipherSuites(
+                    CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+                    CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                    CipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256)
+            .build();
+
+    private static OkHttpClient okHttpClient = new OkHttpClient.Builder()
+            .connectionSpecs(Collections.singletonList(spec))
+            .cookieJar(new CookieJar() {
+                private final HashMap<String, List<Cookie>> cookieStore = new HashMap<>();
+
+                @Override
+                public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
+                    cookieStore.put(url.host(), cookies);
+                }
+
+                @Override
+                public List<Cookie> loadForRequest(HttpUrl url) {
+                    List<Cookie> cookies = cookieStore.get(url.host());
+                    return cookies != null ? cookies : new ArrayList<Cookie>();
+                }
+            })
+            .build();
+    private static final MediaType JSON
+            = MediaType.parse("application/json; charset=utf-8");
+
     public Gson gson = new GsonBuilder()
             .registerTypeAdapter(Profile.class, new ProfileAdapter())
             .registerTypeAdapter(Study[].class, new StudyAdapter())
@@ -59,6 +102,7 @@ public class HttpUtil {
     private static CookieManager cookieManager = new CookieManager();
 
     public static InputStreamReader httpDelete(String url) throws IOException {
+        /*
         HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
         connection.setRequestMethod("DELETE");
         connection.setRequestProperty("Cookie", getCurrentCookies());
@@ -66,10 +110,29 @@ public class HttpUtil {
         connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         connection.connect();
         storeCookies(connection);
-        return new InputStreamReader(connection.getInputStream());
+        return new InputStreamReader(connection.getInputStream());*/
+
+        Request request = new Request.Builder()
+                .addHeader("X-API-Client-ID", ApiKey.getKey())
+                .url(url)
+                .delete()
+                .build();
+        Response response = okHttpClient.newCall(request).execute();
+        return new InputStreamReader(response.body().byteStream());
     }
 
     public static InputStreamReader httpPut(String url, String json) throws IOException {
+        //todo Use OkHTTP
+        RequestBody body = RequestBody.create(JSON, json);
+        Request request = new Request.Builder()
+                .addHeader("X-API-Client-ID", ApiKey.getKey())
+                .url(url)
+                .put(body)
+                .build();
+        Response response = okHttpClient.newCall(request).execute();
+        return new InputStreamReader(response.body().byteStream());
+        /*
+
         HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
         connection.setDoOutput(true);
         connection.setRequestMethod("PUT");
@@ -82,35 +145,19 @@ public class HttpUtil {
         outputStream.flush();
         outputStream.close();
         storeCookies(connection);
-        return new InputStreamReader(connection.getInputStream());
+        return new InputStreamReader(connection.getInputStream());*/
     }
 
     public static InputStreamReader httpPost(String url, String data) throws IOException {
-        HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
-        connection.setDoOutput(true);
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Accept", "application/json");
-        connection.setRequestProperty("X-API-Client-ID", ApiKey.getKey());
-        connection.setRequestProperty("Cookie", getCurrentCookies());
-        connection.setRequestProperty("Content-Type", "application/json");
+        RequestBody body = RequestBody.create(JSON, data);
 
-        OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
-        wr.write(data);
-        wr.flush();
-
-        //byte[] data_url = convertToDataString(data).getBytes("UTF-8");
-        //DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-        //outputStream.write(data);
-        //outputStream.flush();
-        //outputStream.close();
-
-
-        storeCookies(connection);
-        if (connection.getResponseCode() >= 200 && connection.getResponseCode() < 400) {
-            return new InputStreamReader(connection.getInputStream());
-        } else {
-            return new InputStreamReader(connection.getErrorStream());
-        }
+        Request request = new Request.Builder()
+                .addHeader("X-API-Client-ID", ApiKey.getKey())
+                .url(url)
+                .post(body)
+                .build();
+        Response response = okHttpClient.newCall(request).execute();
+        return new InputStreamReader(response.body().byteStream());
     }
 
     public static InputStreamReader httpPostRaw(String url, String json) throws IOException {
@@ -130,6 +177,7 @@ public class HttpUtil {
     }
 
     public static InputStreamReader httpPostFile(Magister m, File file) throws IOException {
+        //todo Use OkHTTP
         HttpsURLConnection connection = (HttpsURLConnection) new URL(m.school.url + "/api/file").openConnection();
 
         String boundary = Long.toHexString(System.currentTimeMillis());
@@ -178,49 +226,17 @@ public class HttpUtil {
     }
 
     public static InputStreamReader httpGet(String url) throws IOException {
-        /*TrustManager[] trustAllCerts = new TrustManager[]{
-                new X509TrustManager() {
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
-                    public void checkClientTrusted(
-                            java.security.cert.X509Certificate[] certs, String authType) {
-                    }
-                    public void checkServerTrusted(
-                            java.security.cert.X509Certificate[] certs, String authType) {
-                    }
-                }
-        };
+        Request request = new Request.Builder()
+                .addHeader("X-API-Client-ID", ApiKey.getKey())
+                .url(url)
+                .build();
+        Response response = okHttpClient.newCall(request).execute();
+        return new InputStreamReader(response.body().byteStream());
 
-        //Potential Security Risk!!!
-        //Enable this for Development purposes ONLY!
-        try {
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        } catch (Exception e) {
-        }*/
-
-
-        HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("Cookie", getCurrentCookies());
-        if (AndroidUtil.getAndroidSupportCache()) {
-            connection.setUseCaches(true);
-        }
-        connection.setRequestProperty("X-API-Client-ID", ApiKey.getKey());
-        connection.connect();
-        storeCookies(connection);
-
-
-        if (connection.getResponseCode() >= 200 && connection.getResponseCode() < 400) {
-            return new InputStreamReader(connection.getInputStream());
-        } else {
-            return new InputStreamReader(connection.getErrorStream());
-        }
     }
 
     public static File httpGetFile(String url, File downloadDir) throws IOException {
+        //todo Use OkHTTP
         HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
         connection.setRequestMethod("GET");
         connection.setRequestProperty("Cookie", getCurrentCookies());

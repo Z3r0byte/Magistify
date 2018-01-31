@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,12 +16,15 @@
 
 package com.z3r0byte.magistify;
 
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.z3r0byte.magistify.Services.BackgroundService;
+import com.z3r0byte.magistify.Services.NewBackgroundService;
 import com.z3r0byte.magistify.Util.ServiceUtil;
 
 
@@ -44,18 +47,30 @@ public class StartActivity extends AppCompatActivity {
         }
 
         if (!getSharedPreferences("data", MODE_PRIVATE).getBoolean("LoggedIn", false) || relogin) {
+            getSharedPreferences("data", MODE_PRIVATE).edit().putInt("login_version", BuildConfig.VERSION_CODE).apply();
             startActivity(new Intent(this, SetupActivity.class));
             finish();
         } else if (!relogin) {
             if (!ServiceUtil.isServiceRunning(BackgroundService.class, this)) {
-                startService(new Intent(this, BackgroundService.class));
+                //startService(new Intent(this, BackgroundService.class));
             }
 
-            /*
-            if (!ServiceUtil.isServiceRunning(WatchdogService.class, this)) {
+
+            /*if (!ServiceUtil.isServiceRunning(WatchdogService.class, this)) {
                 startService(new Intent(this, WatchdogService.class));
+            }*/
+
+            boolean serviceRunning = (PendingIntent.getBroadcast(this, 0,
+                    new Intent("com.z3r0byte.magistify.Services.NewBackgroundService"),
+                    PendingIntent.FLAG_NO_CREATE) != null);
+            if (!serviceRunning) {
+                Log.d(TAG, "onCreate: Starting background service");
+                NewBackgroundService backgroundService = new NewBackgroundService();
+                backgroundService.setAlarm(getApplicationContext());
+            } else {
+                Log.d(TAG, "onCreate: Not starting background service");
             }
-            */
+
             startActivity(new Intent(this, DashboardActivity.class));
             finish();
         }

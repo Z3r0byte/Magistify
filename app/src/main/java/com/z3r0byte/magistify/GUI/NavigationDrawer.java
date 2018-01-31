@@ -42,6 +42,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.z3r0byte.magistify.AppointmentActivity;
 import com.z3r0byte.magistify.AutoSilentActivity;
 import com.z3r0byte.magistify.DonationActivity;
+import com.z3r0byte.magistify.HomeworkActivity;
 import com.z3r0byte.magistify.Networking.GetRequest;
 import com.z3r0byte.magistify.NewGradeActivity;
 import com.z3r0byte.magistify.R;
@@ -88,6 +89,8 @@ public class NavigationDrawer {
             .withIcon(GoogleMaterial.Icon.gmd_inbox);
     static PrimaryDrawerItem scheduleChangeItem = new PrimaryDrawerItem().withName(R.string.title_shedule_changes)
             .withIcon(GoogleMaterial.Icon.gmd_warning);
+    static PrimaryDrawerItem homeworkItem = new PrimaryDrawerItem().withName(R.string.title_activity_homework)
+            .withIcon(GoogleMaterial.Icon.gmd_chrome_reader_mode);
     static SecondaryDrawerItem statusItem = new SecondaryDrawerItem().withName(R.string.drawer_status)
             .withIcon(GoogleMaterial.Icon.gmd_dns).withSelectable(false)
             .withBadgeStyle(new BadgeStyle(Color.GRAY, Color.GRAY).withTextColor(Color.WHITE)).withBadge("?").withIdentifier(123);
@@ -127,9 +130,10 @@ public class NavigationDrawer {
                 .addDrawerItems(
                         dashboardItem,
                         appointmentItem,
-                        autoSilentItem,
+                        homeworkItem,
                         newGradesItem,
                         scheduleChangeItem,
+                        autoSilentItem,
                         new SectionDrawerItem().withName(R.string.drawer_tools),
                         statusItem,
                         aboutItem,
@@ -156,6 +160,10 @@ public class NavigationDrawer {
                             drawer.closeDrawer();
                         } else if (drawerItem == scheduleChangeItem && selection != "ScheduleChanges") {
                             activity.startActivity(new Intent(activity, ScheduleChangeActivity.class));
+                            closeActivity();
+                            drawer.closeDrawer();
+                        } else if (drawerItem == homeworkItem && selection != "Homework") {
+                            activity.startActivity(new Intent(activity, HomeworkActivity.class));
                             closeActivity();
                             drawer.closeDrawer();
                         } else if (drawerItem == aboutItem) {
@@ -201,6 +209,9 @@ public class NavigationDrawer {
                 break;
             case "ScheduleChanges":
                 drawer.setSelection(scheduleChangeItem);
+                break;
+            case "Homework":
+                drawer.setSelection(homeworkItem);
                 break;
             case "":
                 drawer.setSelection(-1);

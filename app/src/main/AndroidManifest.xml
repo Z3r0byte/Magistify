@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+  ~ Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~  you may not use this file except in compliance with the License.
@@ -13,8 +13,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.z3r0byte.magistify">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -24,6 +24,7 @@
     <uses-permission android:name="com.android.vending.BILLING" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -31,6 +32,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <!--android:networkSecurityConfig="@xml/network_security_config">-->
         <activity
             android:name=".StartActivity"
             android:theme="@style/SplashTheme">
@@ -46,11 +48,11 @@
             android:theme="@style/Theme.Intro" />
         <activity android:name=".DashboardActivity" />
 
-        <service
+        <!--<service
             android:name=".Services.BackgroundService"
             android:enabled="true"
             android:exported="true" />
-        <!--
+
         <service
             android:name=".Services.NewGradeService"
             android:enabled="true"
@@ -62,8 +64,13 @@
         <service
             android:name=".Services.WatchdogService"
             android:enabled="true"
-            android:exported="true" />
-        -->
+            android:exported="true" />-->
+
+        <service
+            android:name="com.google.android.gms.measurement.AppMeasurementService"
+            tools:replace="android:enabled"
+            android:enabled="false"
+            android:exported="false" />
 
         <receiver android:name=".Services.BootListener">
             <intent-filter>
@@ -71,37 +78,45 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".Services.NewBackgroundService"
+            android:process=":remote" />
+
         <activity
             android:name=".AutoSilentActivity"
             android:label="@string/title_activity_auto_silent"
             android:theme="@style/AppTheme" />
 
-        <service
+        <!--<service
             android:name=".Services.AppointmentService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true" />-->
 
         <activity
             android:name=".NewGradeActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_new_grade"
-            android:theme="@style/AppTheme"
-            android:parentActivityName=".DashboardActivity" />
+            android:parentActivityName=".DashboardActivity"
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".AppointmentActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_appointment"
-            android:theme="@style/AppTheme"
-            android:parentActivityName=".DashboardActivity" />
+            android:parentActivityName=".DashboardActivity"
+            android:theme="@style/AppTheme" />
         <activity android:name=".SettingsActivity" />
         <activity android:name=".DonationActivity" />
         <activity
             android:name=".ScheduleChangeActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_shedule_change"
-            android:theme="@style/AppTheme"
-            android:parentActivityName=".DashboardActivity" />
+            android:parentActivityName=".DashboardActivity"
+            android:theme="@style/AppTheme" />
         <activity android:name=".AppointmentDetailsActivity" />
+        <activity
+            android:name=".HomeworkActivity"
+            android:label="@string/title_activity_homework"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

@@ -1,0 +1,88 @@
+<!--
+  ~ Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.z3r0byte.magistify.AppointmentActivity">
+
+    <RelativeLayout
+        android:padding="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Switch
+            android:enabled="false"
+            android:textSize="14sp"
+            android:text="@string/switch_toggle_new_homework"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="27dp"
+            android:id="@+id/new_homework"
+            android:switchPadding="12dp" />
+
+        <Switch
+            android:enabled="false"
+            android:layout_below="@+id/new_homework"
+            android:textSize="14sp"
+            android:text="@string/switch_toggle_unfinished_homework"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="27dp"
+            android:id="@+id/unfinished_homework"
+            android:switchPadding="12dp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:background="@color/colorPrimary"
+        android:clickable="true"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:id="@+id/pro_functions_button"
+        android:foreground="?attr/selectableItemBackground">
+
+        <TextView
+            android:padding="8dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textAlignment="center"
+            android:text="@string/msg_pro_functions"
+            android:textAppearance="@style/TextAppearance.AppCompat.Inverse" />
+
+        <com.mikepenz.iconics.view.IconicsTextView
+            android:textColor="@color/md_white_1000"
+            android:layout_centerVertical="true"
+            android:textSize="24sp"
+            android:layout_marginRight="24dp"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/symbol_click" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

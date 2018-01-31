@@ -25,17 +25,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.google.gson.Gson;
 import com.z3r0byte.magistify.Adapters.ScheduleChangeAdapter;
 import com.z3r0byte.magistify.DatabaseHelpers.ScheduleChangeDB;
 import com.z3r0byte.magistify.GlobalAccount;
 import com.z3r0byte.magistify.R;
+import com.z3r0byte.magistify.Util.ConfigUtil;
 import com.z3r0byte.magistify.Util.DateUtils;
 import com.z3r0byte.magistify.Util.ErrorViewConfigs;
 
+import net.ilexiconn.magister.Magister;
 import net.ilexiconn.magister.container.Appointment;
+import net.ilexiconn.magister.container.School;
+import net.ilexiconn.magister.container.User;
 import net.ilexiconn.magister.handler.AppointmentHandler;
 
 import java.io.IOException;
+import java.text.ParseException;
 
 import tr.xip.errorview.ErrorView;
 
@@ -49,6 +55,7 @@ public class ScheduleChangeFragment extends Fragment {
     ListView listView;
     ErrorView errorView;
     SwipeRefreshLayout swipeRefreshLayout;
+    ConfigUtil configUtil;
 
 
     public ScheduleChangeFragment() {
@@ -75,6 +82,7 @@ public class ScheduleChangeFragment extends Fragment {
             }
         });
 
+        configUtil = new ConfigUtil(getActivity());
         getScheduleChanges();
 
 
@@ -85,17 +93,37 @@ public class ScheduleChangeFragment extends Fragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                if (GlobalAccount.MAGISTER == null || GlobalAccount.MAGISTER.isExpired()) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            errorView.setVisibility(View.VISIBLE);
-                            errorView.setConfig(ErrorViewConfigs.NoConnectionConfig);
-                            listView.setVisibility(View.GONE);
-                        }
-                    });
-
-                    return;
+                if (GlobalAccount.MAGISTER != null && GlobalAccount.MAGISTER.isExpired()) {
+                    try {
+                        GlobalAccount.MAGISTER.login();
+                    } catch (IOException e) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                errorView.setVisibility(View.VISIBLE);
+                                errorView.setConfig(ErrorViewConfigs.NoConnectionConfig);
+                                listView.setVisibility(View.GONE);
+                            }
+                        });
+                        return;
+                    }
+                } else if (GlobalAccount.MAGISTER == null) {
+                    User user = new Gson().fromJson(configUtil.getString("User"), User.class);
+                    School school = new Gson().fromJson(configUtil.getString("School"), School.class);
+                    try {
+                        GlobalAccount.MAGISTER = Magister.login(school, user.username, user.password);
+                    } catch (IOException | ParseException | IllegalArgumentException e) {
+                        e.printStackTrace();
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                errorView.setVisibility(View.VISIBLE);
+                                errorView.setConfig(ErrorViewConfigs.NoConnectionConfig);
+                                listView.setVisibility(View.GONE);
+                            }
+                        });
+                        return;
+                    }
                 }
                 AppointmentHandler appointmentHandler = new AppointmentHandler(GlobalAccount.MAGISTER);
                 try {

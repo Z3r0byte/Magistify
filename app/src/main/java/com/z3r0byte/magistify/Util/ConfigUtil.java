@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -46,6 +46,11 @@ public class ConfigUtil {
     public int getInteger(String name) {
         SharedPreferences sharedPreferences = context.getSharedPreferences("data", Context.MODE_PRIVATE);
         return sharedPreferences.getInt(name, 0);
+    }
+
+    public int getInteger(String name, Integer nullValue) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("data", Context.MODE_PRIVATE);
+        return sharedPreferences.getInt(name, nullValue);
     }
 
     public String getString(String name) {

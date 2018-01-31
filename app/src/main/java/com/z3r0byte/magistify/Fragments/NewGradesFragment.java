@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.google.gson.Gson;
 import com.z3r0byte.magistify.Adapters.NewGradesAdapter;
 import com.z3r0byte.magistify.DatabaseHelpers.NewGradesDB;
 import com.z3r0byte.magistify.GlobalAccount;
@@ -34,9 +35,12 @@ import com.z3r0byte.magistify.Util.ErrorViewConfigs;
 
 import net.ilexiconn.magister.Magister;
 import net.ilexiconn.magister.container.Grade;
+import net.ilexiconn.magister.container.School;
+import net.ilexiconn.magister.container.User;
 import net.ilexiconn.magister.handler.GradeHandler;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -114,16 +118,23 @@ public class NewGradesFragment extends Fragment {
                         return;
                     }
                 } else if (magister == null) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            listView.setVisibility(View.GONE);
-                            errorView.setVisibility(View.VISIBLE);
-                            errorView.setConfig(ErrorViewConfigs.NoConnectionConfig);
-                            mSwipeRefreshLayout.setRefreshing(false);
-                        }
-                    });
-                    return;
+                    User user = new Gson().fromJson(configUtil.getString("User"), User.class);
+                    School school = new Gson().fromJson(configUtil.getString("School"), School.class);
+                    try {
+                        GlobalAccount.MAGISTER = Magister.login(school, user.username, user.password);
+                        magister = GlobalAccount.MAGISTER;
+                    } catch (IOException | ParseException e) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                listView.setVisibility(View.GONE);
+                                errorView.setVisibility(View.VISIBLE);
+                                errorView.setConfig(ErrorViewConfigs.NoConnectionConfig);
+                                mSwipeRefreshLayout.setRefreshing(false);
+                            }
+                        });
+                        return;
+                    }
                 }
                 GradeHandler gradeHandler = new GradeHandler(magister);
                 try {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ public class GetRequest {
     private static final String TAG = "GetRequest";
 
     public static String getRequest(String url, String cookie) throws IOException {
-        Log.d(TAG, "getRequest() called with: " + "url = [" + url + "], cookie = [" + cookie + "]");
 
         OkHttpClient client = new OkHttpClient.Builder()
                 .build();

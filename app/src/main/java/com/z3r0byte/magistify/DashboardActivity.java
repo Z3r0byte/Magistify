@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,11 +29,16 @@ import android.os.RemoteException;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.vending.billing.IInAppBillingService;
@@ -41,15 +46,14 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.gson.Gson;
+import com.z3r0byte.magistify.Adapters.ScheduleChangeAdapter;
 import com.z3r0byte.magistify.DatabaseHelpers.CalendarDB;
 import com.z3r0byte.magistify.DatabaseHelpers.NewGradesDB;
 import com.z3r0byte.magistify.DatabaseHelpers.ScheduleChangeDB;
 import com.z3r0byte.magistify.GUI.NavigationDrawer;
-import com.z3r0byte.magistify.GUI.NewGradeCard;
-import com.z3r0byte.magistify.GUI.NextAppointmentCard;
-import com.z3r0byte.magistify.GUI.ScheduleChangeCard;
 import com.z3r0byte.magistify.GUI.ScrollRefreshLayout;
 import com.z3r0byte.magistify.Util.ConfigUtil;
+import com.z3r0byte.magistify.Util.DateUtils;
 
 import net.ilexiconn.magister.Magister;
 import net.ilexiconn.magister.container.Appointment;
@@ -70,16 +74,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import it.gmariotti.cardslib.library.internal.CardHeader;
-import it.gmariotti.cardslib.library.view.CardViewNative;
 
 public class DashboardActivity extends AppCompatActivity {
     private static final String TAG = "DashboardActivity";
 
     Toolbar mToolbar;
-    CardViewNative appointmentMain;
-    CardViewNative gradeMain;
-    CardViewNative scheduleChangeMain;
+    CardView appointmentMain;
+    CardView gradeMain;
+    CardView scheduleChangeMain;
     ScrollRefreshLayout mSwipeRefreshLayout;
     ConfigUtil configUtil;
 
@@ -182,10 +184,10 @@ public class DashboardActivity extends AppCompatActivity {
         serviceIntent.setPackage("com.android.vending");
         bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
 
-        appointmentMain = (CardViewNative) findViewById(R.id.card_next_appointment);
-        scheduleChangeMain = (CardViewNative) findViewById(R.id.card_schedulechanges);
+        appointmentMain = (CardView) findViewById(R.id.card_next_appointment);
+        scheduleChangeMain = (CardView) findViewById(R.id.card_schedulechanges);
 
-        gradeMain = (CardViewNative) findViewById(R.id.card_new_grade);
+        gradeMain = (CardView) findViewById(R.id.card_new_grade);
         gradeMain.setVisibility(View.GONE);
 
         setupAppointmentCard();
@@ -193,6 +195,23 @@ public class DashboardActivity extends AppCompatActivity {
         retrieveGrades();
 
         getPurchases();
+        showUpdateMessage();
+    }
+
+    private void showUpdateMessage() {
+        if (configUtil.getInteger("last_update_message") != 200 && configUtil.getInteger("login_version") < BuildConfig.VERSION_CODE) {
+            android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(this);
+            alertDialogBuilder.setTitle(R.string.title_magistify_2_0);
+            alertDialogBuilder.setMessage(R.string.desc_magistify_2_0);
+            alertDialogBuilder.setPositiveButton("Oké", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    configUtil.setInteger("last_update_message", 200);
+                }
+            });
+            android.app.AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
+        }
     }
 
     private void relogin() {
@@ -234,7 +253,7 @@ public class DashboardActivity extends AppCompatActivity {
                                 }
                             });
                             return;
-                        } catch (final InvalidParameterException e) {
+                        } catch (InvalidParameterException e) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -269,20 +288,45 @@ public class DashboardActivity extends AppCompatActivity {
 
         if (appointments != null && appointments.length > 0) {
             appointment = appointments[0];
+        } else {
         }
 
-        NextAppointmentCard mainCardContent = new NextAppointmentCard(this, appointment);
-        CardHeader cardHeader = new CardHeader(this);
-        cardHeader.setTitle(getString(R.string.msg_next_appointment));
 
-        mainCardContent.addCardHeader(cardHeader);
-        appointmentMain.setCard(mainCardContent);
         appointmentMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getApplicationContext(), AppointmentActivity.class));
             }
         });
+
+        if (appointment != null) {
+            findViewById(R.id.layout_no_appointment).setVisibility(View.GONE);
+            TextView period = (TextView) findViewById(R.id.text_list_period);
+            TextView lesson = (TextView) findViewById(R.id.text_lesson);
+            TextView classroom = (TextView) findViewById(R.id.text_classroom);
+            TextView time = (TextView) findViewById(R.id.text_time);
+
+
+            if (appointment.periodFrom == 0) {
+                Log.d(TAG, "nextAppointmentCard: No valid period");
+                period.setText("");
+                findViewById(R.id.layout_list_calendar_period).setVisibility(View.GONE);
+            } else {
+                findViewById(R.id.layout_list_calendar_period).setVisibility(View.VISIBLE);
+                period.setText(appointment.periodFrom + "");
+            }
+            lesson.setText(appointment.description);
+            classroom.setText(appointment.location);
+
+            if (appointment.startDate != null && appointment.endDate != null) {
+                time.setText(DateUtils.formatDate(appointment.startDate, "HH:mm") + " - "
+                        + DateUtils.formatDate(appointment.endDate, "HH:mm"));
+            } else {
+                time.setText("");
+            }
+        } else {
+            findViewById(R.id.layout_appointment).setVisibility(View.GONE);
+        }
     }
 
     private void setupGradeCard() {
@@ -307,13 +351,8 @@ public class DashboardActivity extends AppCompatActivity {
         sampleGrade.subject.name = "Latijn";
         grade = sampleGrade;*/
 
-        NewGradeCard mainCardContent = new NewGradeCard(this, grade);
-        CardHeader cardHeader = new CardHeader(this);
-        cardHeader.setTitle(getString(R.string.msg_newest_grade));
 
-        mainCardContent.addCardHeader(cardHeader);
         gradeMain.setVisibility(View.VISIBLE);
-        gradeMain.setCard(mainCardContent);
         gradeMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -321,9 +360,18 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
 
-        mSwipeRefreshLayout.setRefreshing(false);
 
+        TextView gradeTxt = (TextView) findViewById(R.id.grade);
+        TextView subjectTxt = (TextView) findViewById(R.id.subject);
+        if (grade != null) {
+            gradeTxt.setText(grade.grade);
+            subjectTxt.setText(grade.subject.name);
+        } else {
+            gradeTxt.setText(R.string.msg_no_grade_short);
+            subjectTxt.setText(R.string.msg_no_grade);
+        }
         getDaylightSaving();
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     private void retrieveGrades() {
@@ -364,7 +412,7 @@ public class DashboardActivity extends AppCompatActivity {
                     try {
                         GlobalAccount.MAGISTER = Magister.login(school, user.username, user.password);
                         magister = GlobalAccount.MAGISTER;
-                    } catch (IOException | ParseException e) {
+                    } catch (IOException | ParseException | IllegalArgumentException e) {
                         e.printStackTrace();
                     }
                     runOnUiThread(new Runnable() {
@@ -455,8 +503,8 @@ public class DashboardActivity extends AppCompatActivity {
         rawAppointments[3].startDate = new Date();
         rawAppointments[3].endDate = rawAppointments[3].startDate;
         rawAppointments[3].location = "Lokatie 4";
-        rawAppointments[3].periodFrom = 9;
-        */
+        rawAppointments[3].periodFrom = 9;*/
+
 
 
         Appointment[] appointments = null;
@@ -477,18 +525,37 @@ public class DashboardActivity extends AppCompatActivity {
             }
         }
 
-        ScheduleChangeCard mainCardContent = new ScheduleChangeCard(this, appointments);
-        CardHeader cardHeader = new CardHeader(this);
-        cardHeader.setTitle(getString(R.string.msg_upcoming_changes));
 
-        mainCardContent.addCardHeader(cardHeader);
-        scheduleChangeMain.setCard(mainCardContent);
         scheduleChangeMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getApplicationContext(), ScheduleChangeActivity.class));
             }
         });
+
+        if (appointments != null && appointments.length > 0) {
+            findViewById(R.id.layout_no_schedule_changes).setVisibility(View.GONE);
+
+            ListView listView = (ListView) findViewById(R.id.list_scheduleChanges);
+            ScheduleChangeAdapter adapter = new ScheduleChangeAdapter(this, appointments);
+            RelativeLayout rootView = (RelativeLayout) findViewById(R.id.card_schedulechanges_layout);
+
+            listView.setVisibility(View.VISIBLE);
+            listView.setAdapter(adapter);
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    startActivity(new Intent(DashboardActivity.this, ScheduleChangeActivity.class));
+                }
+            });
+
+            final float scale = this.getResources().getDisplayMetrics().density;
+            rootView.getLayoutParams().height = (int) (90 * appointments.length * scale + 160f);
+
+        } else {
+            findViewById(R.id.layout_schedule_changes).setVisibility(View.GONE);
+            findViewById(R.id.layout_no_schedule_changes).setVisibility(View.VISIBLE);
+        }
     }
 
     private void getPurchases() {
@@ -527,6 +594,7 @@ public class DashboardActivity extends AppCompatActivity {
 
                             if (boughtSKU.contains(SKU_FIFTY_CENTS)) {
                                 configUtil.setBoolean("disable_ads", true);
+                                configUtil.setString("token_fifty_cents", token);
                             } else if (boughtSKU.contains(SKU_ONE_EURO)) {
                                 configUtil.setBoolean("disable_ads", true);
                                 configUtil.setBoolean("pro_unlocked", true);
@@ -540,9 +608,6 @@ public class DashboardActivity extends AppCompatActivity {
                                 configUtil.setBoolean("pro_unlocked", true);
                                 configUtil.setString("token_five_euro", token);
                             }
-
-                            // do something with this purchase information
-                            // e.g. display the updated list of products owned by user
                         }
                     }
 
@@ -574,8 +639,6 @@ public class DashboardActivity extends AppCompatActivity {
                     String offset = response.substring(response.indexOf(",") + 1, response.length());
                     configUtil.setString("nextChange", date);
                     configUtil.setInteger("nextOffset", Integer.parseInt(offset));
-                    Log.d(TAG, "run: date:" + date);
-                    Log.d(TAG, "run: offset" + offset);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

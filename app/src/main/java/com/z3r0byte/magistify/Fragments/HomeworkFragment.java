@@ -19,25 +19,21 @@ package com.z3r0byte.magistify.Fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.mikepenz.google_material_typeface_library.GoogleMaterial;
-import com.mikepenz.iconics.IconicsDrawable;
-import com.z3r0byte.magistify.Adapters.AppointmentsAdapter;
+import com.z3r0byte.magistify.Adapters.HomeworkAdapter;
 import com.z3r0byte.magistify.AppointmentDetailsActivity;
+import com.z3r0byte.magistify.DatabaseHelpers.CalendarDB;
 import com.z3r0byte.magistify.GlobalAccount;
 import com.z3r0byte.magistify.Listeners.FinishInitiator;
 import com.z3r0byte.magistify.Listeners.FinishResponder;
@@ -53,8 +49,9 @@ import net.ilexiconn.magister.container.School;
 import net.ilexiconn.magister.container.User;
 import net.ilexiconn.magister.handler.AppointmentHandler;
 
+import org.json.JSONException;
+
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -63,40 +60,31 @@ import tr.xip.errorview.ErrorView;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class AppointmentFragment extends Fragment {
-    private static final String TAG = "AppointmentFragment";
+public class HomeworkFragment extends Fragment {
+    private static final String TAG = "HomeworkFragment";
 
+    HomeworkAdapter homeworkAdapter;
+    ListView listView;
+    SwipeRefreshLayout swipeRefreshLayout;
+    Appointment[] homework;
+    ErrorView errorView;
+    ConfigUtil configUtil;
 
-    public AppointmentFragment() {
-        // Required empty public constructor
+    public HomeworkFragment() {
     }
 
-    View view;
-    SwipeRefreshLayout mSwipeRefreshLayout;
-    ErrorView errorView;
-    ListView listView;
-    TextView currentDay;
-    ImageView nextDay;
-    ImageView previousDay;
-    AppointmentsAdapter mAppointmentsAdapter;
-
-    Appointment[] Appointments;
-    Date selectedDate;
-
-    Thread refreshThread;
-    ConfigUtil configUtil;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_appointment, container, false);
-
-        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.layout_refresh);
-        mSwipeRefreshLayout.setColorSchemeResources(
+        View view = inflater.inflate(R.layout.fragment_homework, container, false);
+        listView = view.findViewById(R.id.list_homework);
+        swipeRefreshLayout = view.findViewById(R.id.layout_refresh);
+        swipeRefreshLayout.setColorSchemeResources(
                 R.color.colorPrimary,
                 R.color.setup_color_3,
                 R.color.setup_color_5);
-        mSwipeRefreshLayout.setOnRefreshListener(
+        swipeRefreshLayout.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
                     public void onRefresh() {
@@ -105,76 +93,84 @@ public class AppointmentFragment extends Fragment {
                     }
                 }
         );
-        errorView = (ErrorView) view.findViewById(R.id.error_view_appointments);
+        errorView = view.findViewById(R.id.error_view_homework);
 
-        Appointments = new Appointment[0];
+        homework = new Appointment[0];
+        homeworkAdapter = new HomeworkAdapter(getActivity(), homework);
+        listView.setAdapter(homeworkAdapter);
 
-        listView = (ListView) view.findViewById(R.id.list_appointments);
-        mAppointmentsAdapter = new AppointmentsAdapter(getActivity(), Appointments);
-        listView.setAdapter(mAppointmentsAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(getActivity(), AppointmentDetailsActivity.class);
-                intent.putExtra("Appointment", new Gson().toJson(Appointments[i]));
+                intent.putExtra("Appointment", new Gson().toJson(homework[i]));
                 startActivity(intent);
             }
         });
-
-        currentDay = (TextView) view.findViewById(R.id.current_day);
-        nextDay = (ImageView) view.findViewById(R.id.nextDay);
-        previousDay = (ImageView) view.findViewById(R.id.previousDay);
-
-        IconicsDrawable previousDayIcon = new IconicsDrawable(getActivity(), GoogleMaterial.Icon.gmd_navigate_before)
-                .color(getResources().getColor(R.color.md_white_1000))
-                .sizeDp(25);
-        IconicsDrawable nextDayIcon = new IconicsDrawable(getActivity(), GoogleMaterial.Icon.gmd_navigate_next)
-                .color(getResources().getColor(R.color.md_white_1000))
-                .sizeDp(25);
-        nextDay.setImageDrawable(nextDayIcon);
-        previousDay.setImageDrawable(previousDayIcon);
-
-        nextDay.setOnClickListener(new View.OnClickListener() {
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public void onClick(View view) {
-                selectedDate = DateUtils.addDays(selectedDate, 1);
-                refresh();
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, final int i, long l) {
+                swipeRefreshLayout.setRefreshing(true);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Looper.prepare();
+                        Appointment appointment = homework[i];
+                        AppointmentHandler appointmentHandler = new AppointmentHandler(GlobalAccount.MAGISTER);
+                        try {
+                            appointment.finished = !appointment.finished;
+                            Boolean finished = appointmentHandler.finishAppointment(appointment);
+                            Log.d(TAG, "run: Gelukt: " + finished);
+                            if (finished) {
+                                SharedListener.finishInitiator.finished();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    swipeRefreshLayout.setRefreshing(false);
+                                    Toast.makeText(getActivity(), R.string.err_no_connection, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getActivity(), R.string.err_unknown, Toast.LENGTH_SHORT).show();
+                                    swipeRefreshLayout.setRefreshing(false);
+                                }
+                            });
+                        }
+                    }
+                }).start();
+
+                return true;
             }
         });
-        previousDay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                selectedDate = DateUtils.addDays(selectedDate, -1);
-                refresh();
-            }
-        });
 
-        selectedDate = DateUtils.getToday();
+
         configUtil = new ConfigUtil(getActivity());
-
-        refresh();
 
         SharedListener.finishInitiator = new FinishInitiator();
         FinishResponder responder = new FinishResponder(this);
         SharedListener.finishInitiator.addListener(responder);
 
+        swipeRefreshLayout.setRefreshing(true);
+        refresh();
+
         return view;
     }
 
     public void refresh() {
-        if (refreshThread != null) {
-            refreshThread.interrupt();
-        }
-        mSwipeRefreshLayout.setRefreshing(true);
-        currentDay.setText(DateUtils.formatDate(selectedDate, "EEE dd MMM"));
-        refreshThread = new Thread(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
                 Magister magister = GlobalAccount.MAGISTER;
                 if (magister != null && magister.isExpired()) {
                     try {
                         magister.login();
-                        GlobalAccount.MAGISTER = magister;
                     } catch (IOException e) {
                         Log.e(TAG, "run: No connection during login", e);
                         getActivity().runOnUiThread(new Runnable() {
@@ -183,7 +179,7 @@ public class AppointmentFragment extends Fragment {
                                 listView.setVisibility(View.GONE);
                                 errorView.setVisibility(View.VISIBLE);
                                 errorView.setConfig(ErrorViewConfigs.NoConnectionConfig);
-                                mSwipeRefreshLayout.setRefreshing(false);
+                                swipeRefreshLayout.setRefreshing(false);
                             }
                         });
                         return;
@@ -201,51 +197,44 @@ public class AppointmentFragment extends Fragment {
                                 listView.setVisibility(View.GONE);
                                 errorView.setVisibility(View.VISIBLE);
                                 errorView.setConfig(ErrorViewConfigs.NoConnectionConfig);
-                                mSwipeRefreshLayout.setRefreshing(false);
+                                swipeRefreshLayout.setRefreshing(false);
                             }
                         });
                         return;
                     }
                 }
-
-                if (Thread.interrupted()) {
-                    return;
-                }
-
-                AppointmentHandler appointmentHandler = new AppointmentHandler(magister);
+                AppointmentHandler appointmentHandler = new AppointmentHandler(GlobalAccount.MAGISTER);
+                Appointment[] appointments;
                 try {
-                    Appointments = appointmentHandler.getAppointments(selectedDate, selectedDate);
-                } catch (InterruptedIOException e) {
-                    e.printStackTrace();
-                    return;
+                    Date start = DateUtils.getToday();
+                    Date end = DateUtils.addDays(start, 14);
+                    appointments = appointmentHandler.getAppointments(start, end);
                 } catch (IOException e) {
-                    Appointments = null;
+                    appointments = null;
                     Log.e(TAG, "run: No connection...", e);
                 }
-
-                if (Thread.interrupted()) {
-                    return;
-                }
-
-                if (Appointments != null && Appointments.length != 0) {
+                if (appointments != null && appointments.length != 0) {
+                    CalendarDB calendarDB = new CalendarDB(getActivity());
+                    calendarDB.addItems(appointments);
+                    homework = calendarDB.getAppointmentsWithHomework();
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            mAppointmentsAdapter = new AppointmentsAdapter(getActivity(), Appointments);
-                            listView.setAdapter(mAppointmentsAdapter);
+                            homeworkAdapter = new HomeworkAdapter(getActivity(), homework);
+                            listView.setAdapter(homeworkAdapter);
                             listView.setVisibility(View.VISIBLE);
                             errorView.setVisibility(View.GONE);
-                            mSwipeRefreshLayout.setRefreshing(false);
+                            swipeRefreshLayout.setRefreshing(false);
                         }
                     });
-                } else if (Appointments != null && Appointments.length < 1) {
+                } else if (homework != null && homework.length < 1) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             listView.setVisibility(View.GONE);
                             errorView.setVisibility(View.VISIBLE);
-                            errorView.setConfig(ErrorViewConfigs.NoLessonConfig);
-                            mSwipeRefreshLayout.setRefreshing(false);
+                            errorView.setConfig(ErrorViewConfigs.NoHomeworkConfig);
+                            swipeRefreshLayout.setRefreshing(false);
                         }
                     });
                 } else {
@@ -255,40 +244,12 @@ public class AppointmentFragment extends Fragment {
                             listView.setVisibility(View.GONE);
                             errorView.setVisibility(View.VISIBLE);
                             errorView.setConfig(ErrorViewConfigs.NoConnectionConfig);
-                            mSwipeRefreshLayout.setRefreshing(false);
+                            swipeRefreshLayout.setRefreshing(false);
                         }
                     });
                 }
             }
-        });
-        refreshThread.start();
+        }).start();
     }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_appointments, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_today) {
-            selectedDate = new Date();
-            refresh();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
 
 }

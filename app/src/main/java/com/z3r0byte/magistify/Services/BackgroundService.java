@@ -22,6 +22,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -69,7 +70,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class BackgroundService extends Service {
-    private static final String TAG = "BackgroundService";
+    private static final String TAG = "Magistify";
 
     Timer timer = new Timer();
 
@@ -99,8 +100,8 @@ public class BackgroundService extends Service {
 
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(getApplicationContext());
 
-        sessionTimer(user, school);
-        loadAppointmentTimer();
+        //sessionTimer(user, school);
+        //loadAppointmentTimer();
 
         if (configUtil.getBoolean("appointment_enabled")) {
             notifyAppointmentTimer();
@@ -130,14 +131,13 @@ public class BackgroundService extends Service {
      */
 
     private void sessionTimer(final User user, final School school) {
-        Log.d(TAG, "sessionTimer: Starting session timer");
+        Log.d(TAG, "sessionTimer: Starting session refreshing timer");
         TimerTask refreshSession = new TimerTask() {
             @Override
             public void run() {
                 if (!allowDataTransfer()) {
                     return;
-                }
-                try {
+                } else {
                     if (GlobalAccount.MAGISTER == null) {
                         if (configUtil.getInteger("failed_auth") >= 2) {
                             Log.w(TAG, "run: Warning! 2 Failed authentications, aborting for user's safety!");
@@ -160,50 +160,43 @@ public class BackgroundService extends Service {
 
                             NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                             mNotificationManager.notify(666, mBuilder.build());
-                            return;
-                        }
-                        try {
-                            Log.d(TAG, "run: initiating session");
-                            Magister magister = Magister.login(school, user.username, user.password);
-                            GlobalAccount.MAGISTER = magister;
-                            configUtil.setInteger("failed_auth", 0);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        } catch (InvalidParameterException e) {
-                            int fails = configUtil.getInteger("failed_auth");
-                            fails++;
-                            configUtil.setInteger("failed_auth", fails);
-                            Log.w(TAG, "run: Amount of failed Authentications: " + fails);
+                        } else {
+                            try {
+                                Log.d(TAG, "SessionManager: initiating session");
+                                Magister magister = Magister.login(school, user.username, user.password);
+                                GlobalAccount.MAGISTER = magister;
+                                configUtil.setInteger("failed_auth", 0);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            } catch (InvalidParameterException e) {
+                                int fails = configUtil.getInteger("failed_auth");
+                                fails++;
+                                configUtil.setInteger("failed_auth", fails);
+                                Log.w(TAG, "SessionManager: Amount of failed Authentications: " + fails);
+                            }
                         }
                     } else {
                         try {
                             GlobalAccount.MAGISTER.login();
-                            Log.d(TAG, "run: refreshing session");
+                            Log.d(TAG, "SessionManager: refreshing session");
                             configUtil.setInteger("failed_auth", 0);
                         } catch (IOException e) {
                             e.printStackTrace();
                         } catch (InvalidParameterException e) {
+                            e.printStackTrace();
                             int fails = configUtil.getInteger("failed_auth");
                             fails++;
                             configUtil.setInteger("failed_auth", fails);
-                            Log.w(TAG, "run: Amount of failed Authentications: " + fails);
+                            Log.w(TAG, "SessionManager: Amount of failed Authentications: " + fails);
                         }
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Bundle bundle = new Bundle();
-                    bundle.putString(FirebaseAnalytics.Param.ORIGIN, "SessionManager");
-                    bundle.putString("error", getStackTrace(e));
-
-                    bundle.putString("stacktrace", e.getMessage());
-                    mFirebaseAnalytics.logEvent("error_in_background", bundle);
                 }
 
             }
         };
-        timer.schedule(refreshSession, 0, 120 * 1000);
+        timer.schedule(refreshSession, 120 * 1000, 120 * 1000);
 
 
     }
@@ -216,32 +209,24 @@ public class BackgroundService extends Service {
                 if (!allowDataTransfer()) {
                     return;
                 }
-                try {
-                    Magister magister = GlobalAccount.MAGISTER;
-                    if (magister != null && !magister.isExpired()) {
-                        Date start = DateUtils.addDays(DateUtils.getToday(), -2);
-                        Date end = DateUtils.addDays(DateUtils.getToday(), 7);
-                        AppointmentHandler appointmentHandler = new AppointmentHandler(magister);
-                        try {
-                            Appointment[] appointments = appointmentHandler.getAppointments(start, end);
-                            calendarDB.removeAll();
-                            calendarDB.addItems(appointments);
-                            Log.d(TAG, "run: New items added");
-                        } catch (IOException e) {
-                            Log.w(TAG, "run: Failed to get appointments.");
-                        } catch (AssertionError e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        Log.e(TAG, "run: Invalid Magister!");
+                Magister magister = GlobalAccount.MAGISTER;
+                if (magister != null && !magister.isExpired()) {
+                    Date start = DateUtils.addDays(DateUtils.getToday(), -2);
+                    Date end = DateUtils.addDays(DateUtils.getToday(), 7);
+                    AppointmentHandler appointmentHandler = new AppointmentHandler(magister);
+                    try {
+                        Appointment[] appointments = appointmentHandler.getAppointments(start, end);
+                        calendarDB.removeAll();
+                        calendarDB.addItems(appointments);
+                        Log.d(TAG, "AppointmentData: New items added");
+                    } catch (IOException e) {
+                        Log.w(TAG, "AppointmentData: Failed to get appointments.");
+                        e.printStackTrace();
+                    } catch (AssertionError e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    Bundle bundle = new Bundle();
-                    bundle.putString(FirebaseAnalytics.Param.ORIGIN, "AppointmentLoader");
-                    bundle.putString("error", getStackTrace(e));
-
-                    bundle.putString("stacktrace", e.getMessage());
-                    mFirebaseAnalytics.logEvent("error_in_background", bundle);
+                } else {
+                    Log.e(TAG, "run: Invalid Magister!");
                 }
             }
         };
@@ -257,10 +242,10 @@ public class BackgroundService extends Service {
         TimerTask notificationTask = new TimerTask() {
             @Override
             public void run() {
-                try {
+
                     Gson gson = new Gson();
                     Appointment[] appointments = calendarDB.getNotificationAppointments();
-                    Log.d(TAG, "run: amount " + appointments.length);
+                Log.d(TAG, "AppointmentNotifications: amount of appointments that should be shown: " + appointments.length);
                     previousAppointment = configUtil.getString("previous_appointment");
                     if (appointments.length >= 1) {
                         Appointment appointment = appointments[0];
@@ -295,14 +280,6 @@ public class BackgroundService extends Service {
                         NotificationManager notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                         notifManager.cancel(9991);
                     }
-                } catch (Exception e) {
-                    Bundle bundle = new Bundle();
-                    bundle.putString(FirebaseAnalytics.Param.ORIGIN, "AppointmentNotification");
-                    bundle.putString("error", getStackTrace(e));
-
-                    bundle.putString("stacktrace", e.getMessage());
-                    mFirebaseAnalytics.logEvent("error_in_background", bundle);
-                }
             }
         };
         timer.schedule(notificationTask, 20000, 30 * 1000);
@@ -312,11 +289,7 @@ public class BackgroundService extends Service {
         if (configUtil.getBoolean("show_own_appointments")) {
             return true;
         } else {
-            if (appointment.type == AppointmentType.PERSONAL) {
-                return false;
-            } else {
-                return true;
-            }
+            return appointment.type != AppointmentType.PERSONAL;
         }
     }
 
@@ -330,33 +303,24 @@ public class BackgroundService extends Service {
         TimerTask silentTask = new TimerTask() {
             @Override
             public void run() {
-                try {
-                    appointments = calendarDB.getSilentAppointments(getMargin());
-                    if (doSilent(appointments)) {
-                        silenced(true);
-                        AudioManager audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                        configUtil.setInteger("previous_silent_state", audiomanager.getRingerMode());
-                        if (audiomanager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
-                            audiomanager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                        }
-                    } else {
-                        if (isSilencedByApp()) {
-                            AudioManager audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                            if (configUtil.getBoolean("reverse_silent_state")) {
-                                audiomanager.setRingerMode(configUtil.getInteger("previous_silent_state"));
-                            } else {
-                                audiomanager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-                            }
-                            silenced(false);
-                        }
+                appointments = calendarDB.getSilentAppointments(getMargin());
+                if (doSilent(appointments)) {
+                    silenced(true);
+                    AudioManager audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                    configUtil.setInteger("previous_silent_state", audiomanager.getRingerMode());
+                    if (audiomanager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
+                        audiomanager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
                     }
-                } catch (Exception e) {
-                    Bundle bundle = new Bundle();
-                    bundle.putString(FirebaseAnalytics.Param.ORIGIN, "AutoSilent");
-                    bundle.putString("error", getStackTrace(e));
-
-                    bundle.putString("stacktrace", e.getMessage());
-                    mFirebaseAnalytics.logEvent("error_in_background", bundle);
+                } else {
+                    if (isSilencedByApp()) {
+                        AudioManager audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                        if (configUtil.getBoolean("reverse_silent_state")) {
+                            audiomanager.setRingerMode(configUtil.getInteger("previous_silent_state"));
+                        } else {
+                            audiomanager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                        }
+                        silenced(false);
+                    }
                 }
             }
         };
@@ -421,13 +385,11 @@ public class BackgroundService extends Service {
                 if (!allowDataTransfer()) {
                     return;
                 }
-                try {
                     Magister magister = GlobalAccount.MAGISTER;
                     if (magister == null || magister.isExpired()) {
-                        Log.e(TAG, "run: Invalid magister");
+                        Log.e(TAG, "New Grade Notification: Invalid magister");
                         return;
-                    }
-
+                    } else {
                     NewGradesDB gradesdb = new NewGradesDB(getApplicationContext());
 
                     GradeHandler gradeHandler = new GradeHandler(magister);
@@ -462,7 +424,7 @@ public class BackgroundService extends Service {
                             }
                         }
 
-                    } catch (IOException e) {
+                    } catch (IOException | AssertionError | NullPointerException e) {
                         e.printStackTrace();
                         return;
                     }
@@ -470,7 +432,7 @@ public class BackgroundService extends Service {
                     if (gradeList != null && gradeList.size() > 0
                             && !configUtil.getString("lastGradesNotification").equals(GradesNotification)) {
 
-                        Log.d(TAG, "run: Some grades to show: " + gradeList.size());
+                        Log.d(TAG, "New Grade Notification: Some grades to show: " + gradeList.size());
 
                         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
                         mBuilder.setSmallIcon(R.drawable.ic_grade_notification);
@@ -497,6 +459,7 @@ public class BackgroundService extends Service {
                         mBuilder.setAutoCancel(true);
                         mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
                         mBuilder.setDefaults(Notification.DEFAULT_ALL);
+                        mBuilder.setLights(Color.LTGRAY, 300, 200);
 
                         Intent resultIntent = new Intent(getApplicationContext(), NewGradeActivity.class);
                         TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
@@ -511,15 +474,8 @@ public class BackgroundService extends Service {
 
                         configUtil.setString("lastGradesNotification", GradesNotification);
                     } else {
-                        Log.w(TAG, "run: No grades!");
+                        Log.w(TAG, "New Grade Notification: No grades!");
                     }
-                } catch (Exception e) {
-                    Bundle bundle = new Bundle();
-                    bundle.putString(FirebaseAnalytics.Param.ORIGIN, "GradeNotification");
-                    bundle.putString("error", getStackTrace(e));
-
-                    bundle.putString("stacktrace", e.getMessage());
-                    mFirebaseAnalytics.logEvent("error_in_background", bundle);
                 }
             }
         };
@@ -537,76 +493,71 @@ public class BackgroundService extends Service {
             public void run() {
                 if (!allowDataTransfer()) {
                     return;
-                }
-                try{
+                } else {
                     Magister magister = GlobalAccount.MAGISTER;
                     if (magister == null || magister.isExpired()){
-                        return;
-                    }
-
-                    ScheduleChangeDB scheduleChangeDB = new ScheduleChangeDB(getApplicationContext());
-                    AppointmentHandler appointmentHandler = new AppointmentHandler(magister);
-                    Appointment[] appointments;
-                    try {
-                        Log.d(TAG, "run: Requesting schedule changes....");
-                        appointments = appointmentHandler.getScheduleChanges(
-                                DateUtils.getToday(), DateUtils.addDays(DateUtils.getToday(), 3)
-                        );
-                    } catch (IOException | AssertionError e) {
-                        Bundle bundle = new Bundle();
-                        bundle.putString(FirebaseAnalytics.Param.ORIGIN, "scheduleChangeTimer");
-                        bundle.putString("error", e.getMessage());
-
-                        bundle.putString("stacktrace", e.getMessage());
-                        mFirebaseAnalytics.logEvent("error_in_background_schedule", bundle);
-                        return;
-                    }
-
-                    Boolean newChanges = false;
-                    if (appointments == null || appointments.length < 1){
-                        return;
+                        Log.d(TAG, "ScheduleChangeNotification: No valid Magister");
                     } else {
-                        Log.d(TAG, "run: Checking for new changes....");
-                        for (Appointment appointment :
-                                appointments) {
-                            if (!scheduleChangeDB.isInDatabase(appointment)){
-                                newChanges = true;
-                            }
+
+                        ScheduleChangeDB scheduleChangeDB = new ScheduleChangeDB(getApplicationContext());
+                        AppointmentHandler appointmentHandler = new AppointmentHandler(magister);
+                        Appointment[] appointments;
+                        try {
+                            Log.d(TAG, "ScheduleChangeNotification: Requesting schedule changes....");
+                            appointments = appointmentHandler.getScheduleChanges(
+                                    DateUtils.getToday(), DateUtils.addDays(DateUtils.getToday(), 3)
+                            );
+                        } catch (IOException | AssertionError e) {
+                            Log.d(TAG, "ScheduleChangeNotification: Error while requesting schedule changes");
+                            e.printStackTrace();
+                            Bundle bundle = new Bundle();
+                            bundle.putString(FirebaseAnalytics.Param.ORIGIN, "scheduleChangeTimer");
+                            bundle.putString("error", e.getMessage());
+
+                            bundle.putString("stacktrace", e.getMessage());
+                            mFirebaseAnalytics.logEvent("error_in_background_schedule", bundle);
+                            return;
                         }
-                        scheduleChangeDB.addItems(appointments);
+
+                        Boolean newChanges = false;
+                        if (appointments == null || appointments.length < 1) {
+                            return;
+                        } else {
+                            Log.d(TAG, "ScheduleChangeNotification: Checking for new changes....");
+                            newChanges = false;
+                            for (Appointment appointment :
+                                    appointments) {
+                                if (!scheduleChangeDB.isInDatabase(appointment)) {
+                                    newChanges = true;
+                                }
+                            }
+                            scheduleChangeDB.addItems(appointments);
+                        }
+
+                        if (newChanges) {
+                            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
+                            mBuilder.setSmallIcon(R.drawable.ic_schedule_change);
+
+                            mBuilder.setContentTitle("Nieuwe roosterijziging(en)!");
+                            mBuilder.setContentText("Tik om te bekijken");
+                            mBuilder.setAutoCancel(true);
+                            mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+                            mBuilder.setDefaults(Notification.DEFAULT_ALL);
+
+                            Intent resultIntent = new Intent(getApplicationContext(), ScheduleChangeActivity.class);
+                            TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
+                            stackBuilder.addParentStack(ScheduleChangeActivity.class);
+                            stackBuilder.addNextIntent(resultIntent);
+                            PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                            mBuilder.setContentIntent(resultPendingIntent);
+
+
+                            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                            mNotificationManager.notify(9993, mBuilder.build());
+                        }
                     }
 
-                    if (newChanges){
-                        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
-                        mBuilder.setSmallIcon(R.drawable.ic_schedule_change);
 
-                        mBuilder.setContentTitle("Nieuwe roosterijziging(en)!");
-                        mBuilder.setContentText("Tik om te bekijken");
-                        mBuilder.setAutoCancel(true);
-                        mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-                        mBuilder.setDefaults(Notification.DEFAULT_ALL);
-
-                        Intent resultIntent = new Intent(getApplicationContext(), ScheduleChangeActivity.class);
-                        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
-                        stackBuilder.addParentStack(ScheduleChangeActivity.class);
-                        stackBuilder.addNextIntent(resultIntent);
-                        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-                        mBuilder.setContentIntent(resultPendingIntent);
-
-
-                        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                        mNotificationManager.notify(9993, mBuilder.build());
-                    }
-
-
-                } catch (Exception e){
-                    e.printStackTrace();
-                    Bundle bundle = new Bundle();
-                    bundle.putString(FirebaseAnalytics.Param.ORIGIN, "ScheduleChangeNotification");
-                    bundle.putString("error", getStackTrace(e));
-
-                    bundle.putString("stacktrace", e.getMessage());
-                    mFirebaseAnalytics.logEvent("error_in_background", bundle);
                 }
             }
         };
@@ -618,13 +569,12 @@ public class BackgroundService extends Service {
         TimerTask notificationTask = new TimerTask() {
             @Override
             public void run() {
-                try {
+
                     ScheduleChangeDB scheduleChangeDB = new ScheduleChangeDB(getApplicationContext());
-                    Gson gson = new Gson();
 
                     Appointment[] appointments = scheduleChangeDB.getNotificationAppointments();
                     previousChangedAppointment = configUtil.getString("previous_changed_appointment");
-                    if (appointments.length >= 1) {
+                if (appointments.length > 0) {
                         Appointment appointment = appointments[0];
                         if (!appointment.startDateString.equals(previousChangedAppointment)) {
                             String content;
@@ -661,14 +611,6 @@ public class BackgroundService extends Service {
                         NotificationManager notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                         notifManager.cancel(9994);
                     }
-                } catch (Exception e) {
-                    Bundle bundle = new Bundle();
-                    bundle.putString(FirebaseAnalytics.Param.ORIGIN, "ChangedAppointmentNotification");
-                    bundle.putString("error", getStackTrace(e));
-
-                    bundle.putString("stacktrace", e.getMessage());
-                    mFirebaseAnalytics.logEvent("error_in_background", bundle);
-                }
             }
         };
         timer.schedule(notificationTask, 20000, 30 * 1000);
@@ -680,21 +622,13 @@ public class BackgroundService extends Service {
                 this.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = connMgr.getActiveNetworkInfo();
-        if (activeNetwork != null && activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
-            return true;
-        } else {
-            return false;
-        }
+        return activeNetwork != null && activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
     }
 
     private Boolean allowDataTransfer() {
         Boolean isWifi = usingWifi();
         Boolean dataAllowed = !configUtil.getBoolean("wifi_only");
-        if (isWifi || dataAllowed) {
-            return true;
-        } else {
-            return false;
-        }
+        return isWifi || dataAllowed;
     }
 
     private String getStackTrace(Exception ex) {
@@ -706,6 +640,7 @@ public class BackgroundService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.i(TAG, "onDestroy: The service is getting destroyed!");
         getApplicationContext().startService(new Intent(getApplicationContext(), BackgroundService.class));
     }
 

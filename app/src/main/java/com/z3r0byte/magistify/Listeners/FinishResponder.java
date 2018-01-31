@@ -19,6 +19,7 @@ package com.z3r0byte.magistify.Listeners;
 import android.util.Log;
 
 import com.z3r0byte.magistify.Fragments.AppointmentFragment;
+import com.z3r0byte.magistify.Fragments.HomeworkFragment;
 
 /**
  * Created by bas on 3-10-16.
@@ -28,9 +29,14 @@ public class FinishResponder implements FinishListener {
     private static final String TAG = "Responder";
 
     AppointmentFragment appointmentFragment;
+    HomeworkFragment homeworkFragment;
 
     public FinishResponder(AppointmentFragment appointmentFragment) {
         this.appointmentFragment = appointmentFragment;
+    }
+
+    public FinishResponder(HomeworkFragment homeworkFragment) {
+        this.homeworkFragment = homeworkFragment;
     }
 
     @Override
@@ -41,6 +47,13 @@ public class FinishResponder implements FinishListener {
                 @Override
                 public void run() {
                     appointmentFragment.refresh();
+                }
+            });
+        } else if (homeworkFragment != null) {
+            homeworkFragment.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    homeworkFragment.refresh();
                 }
             });
 

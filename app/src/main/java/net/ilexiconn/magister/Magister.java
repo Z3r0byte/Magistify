@@ -137,8 +137,7 @@ public class Magister {
         }
         magister.loginTime = System.currentTimeMillis();
         HttpUtil.httpGet(url.getCurrentSessionUrl()); // more mimicking the magister client
-        String profile = LogUtil.getStringFromInputStream(HttpUtil.httpGet(url.getAccountUrl())); //Logging
-        Log.d(TAG, "login: Profile: " + profile);
+        String profile = LogUtil.getStringFromInputStream(HttpUtil.httpGet(url.getAccountUrl()));
         magister.profile = magister.gson.fromJson(profile, Profile.class);
         magister.studies = magister.gson.fromJson(HttpUtil.httpGet(url.getStudiesUrl(magister.profile.id)), Study[].class);
         Date now = new Date();
