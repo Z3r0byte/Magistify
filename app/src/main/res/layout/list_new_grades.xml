@@ -30,10 +30,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:paddingLeft="16dp"
-            android:paddingRight="100dp"
+            android:paddingRight="40dp"
+            android:layout_marginRight="60dp"
             android:singleLine="true"
             android:text="Engels - Heel erg lange omschrijving van een proefwerk"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Body2" />
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Body2"
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/list_text_date"
@@ -42,9 +44,10 @@
             android:layout_below="@+id/list_text_subject"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
+            android:singleLine="true"
             android:text="2-4-2016"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
-            android:singleLine="true" />
+            android:textSize="12sp" />
 
         <TextView
             android:layout_width="150dp"
@@ -71,6 +74,16 @@
             android:layout_marginRight="16dp"
             android:src="@drawable/magistify_512"
             android:layout_marginEnd="16dp" />
+
+        <TextView
+            android:id="@+id/wage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/list_text_grade"
+            android:layout_marginBottom="-15dp"
+            android:layout_marginLeft="-60dp"
+            android:layout_toRightOf="@id/list_text_grade"
+            android:text="x 100" />
 
     </RelativeLayout>
 

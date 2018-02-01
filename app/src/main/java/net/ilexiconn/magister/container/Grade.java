@@ -76,5 +76,8 @@ public class Grade implements Serializable {
     @SerializedName("omschrijving")
     public String description;
 
+    @SerializedName("weegfactor")
+    public Double wage;
+
     public SingleGrade singleGrade;
 }

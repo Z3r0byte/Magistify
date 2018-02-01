@@ -86,6 +86,17 @@ public class NewGradesAdapter extends ArrayAdapter<Grade> {
             newGrade.setImageDrawable(fullStar);
         }
 
+        TextView wage = rowView.findViewById(R.id.wage);
+        if (grades[position].wage > 0) {
+            if (Math.floor(grades[position].wage) == grades[position].wage) {
+                wage.setText("x " + grades[position].wage.intValue());
+            } else {
+                wage.setText("x " + grades[position].wage.toString());
+            }
+        } else {
+            wage.setText(null);
+        }
+
 
         return rowView;
     }
