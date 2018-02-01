@@ -296,7 +296,8 @@ public class NewBackgroundService extends BroadcastReceiver {
             setSilenced(true);
             AudioManager audiomanager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
             if (audiomanager == null) return;
-            configUtil.setInteger("previous_silent_state", audiomanager.getRingerMode());
+            if (!isSilencedByApp())
+                configUtil.setInteger("previous_silent_state", audiomanager.getRingerMode());
             if (audiomanager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
                 audiomanager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
             }
