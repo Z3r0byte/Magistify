@@ -51,7 +51,7 @@
 
         <!--
         <service
-            android:name=".Services.BackgroundService"
+            android:name=".ServiOldBackgroundServicevice"
             android:enabled="true"
             android:exported="true" />
 
@@ -81,7 +81,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".Services.NewBackgroundService"
+            android:name=".Services.BackgroundService"
             android:process=":remote" />
 
         <activity

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.z3r0byte.magistify.Fragments;
 
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -27,7 +26,6 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import com.z3r0byte.magistify.R;
-import com.z3r0byte.magistify.Services.BackgroundService;
 import com.z3r0byte.magistify.Util.ConfigUtil;
 
 /**
@@ -60,8 +58,8 @@ public class ScheduleChangeSettingsFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 configUtil.setBoolean("notificationOnNewChanges", b);
-                getActivity().stopService(new Intent(getActivity(), BackgroundService.class));
-                getActivity().startService(new Intent(getActivity(), BackgroundService.class));
+                //getActivity().stopService(new Intent(getActivity(), OldBackgroundService.class));
+                //getActivity().startService(new Intent(getActivity(), OldBackgroundService.class));
             }
         });
 
@@ -69,8 +67,8 @@ public class ScheduleChangeSettingsFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 configUtil.setBoolean("notificationOnChangedLesson", b);
-                getActivity().stopService(new Intent(getActivity(), BackgroundService.class));
-                getActivity().startService(new Intent(getActivity(), BackgroundService.class));
+                //getActivity().stopService(new Intent(getActivity(), OldBackgroundService.class));
+                //getActivity().startService(new Intent(getActivity(), OldBackgroundService.class));
             }
         });
 

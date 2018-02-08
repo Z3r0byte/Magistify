@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,23 +16,23 @@
 
 package com.z3r0byte.magistify.Services;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Bundle;
-import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.text.Html;
 import android.util.Log;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.gson.Gson;
 import com.z3r0byte.magistify.AppointmentActivity;
 import com.z3r0byte.magistify.DashboardActivity;
@@ -40,6 +40,7 @@ import com.z3r0byte.magistify.DatabaseHelpers.CalendarDB;
 import com.z3r0byte.magistify.DatabaseHelpers.NewGradesDB;
 import com.z3r0byte.magistify.DatabaseHelpers.ScheduleChangeDB;
 import com.z3r0byte.magistify.GlobalAccount;
+import com.z3r0byte.magistify.HomeworkActivity;
 import com.z3r0byte.magistify.NewGradeActivity;
 import com.z3r0byte.magistify.R;
 import com.z3r0byte.magistify.ScheduleChangeActivity;
@@ -49,7 +50,6 @@ import com.z3r0byte.magistify.Util.DateUtils;
 import net.ilexiconn.magister.Magister;
 import net.ilexiconn.magister.container.Appointment;
 import net.ilexiconn.magister.container.Grade;
-import net.ilexiconn.magister.container.Profile;
 import net.ilexiconn.magister.container.School;
 import net.ilexiconn.magister.container.User;
 import net.ilexiconn.magister.container.type.AppointmentType;
@@ -57,8 +57,6 @@ import net.ilexiconn.magister.handler.AppointmentHandler;
 import net.ilexiconn.magister.handler.GradeHandler;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -66,265 +64,258 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
-public class BackgroundService extends Service {
+
+public class BackgroundService extends BroadcastReceiver {
     private static final String TAG = "Magistify";
 
-    Timer timer = new Timer();
-
-    CalendarDB calendarDB;
     ConfigUtil configUtil;
+    Context context;
+    CalendarDB calendarDB;
+    PowerManager.WakeLock wakeLock;
+    Gson mGson;
+    ScheduleChangeDB scheduleChangeDB;
+    NewGradesDB gradesdb;
 
-    String previousAppointment;
-    String previousChangedAppointment;
+    private static final int LOGIN_FAILED_ID = 9990;
+    private static final int APPOINTMENT_NOTIFICATION_ID = 9991;
+    private static final int NEW_GRADE_NOTIFICATION_ID = 9992;
+    private static final int NEW_SCHEDULE_CHANGE_NOTIFICATION_ID = 9993;
+    private static final int NEXT_APPOINTMENT_CHANGED_NOTIFICATION_ID = 9994;
+    private static final int NEW_HOMEWORK_NOTIFICATION_ID = 9995;
+    private static final int UNFINISHED_HOMEWORK_NOTIFICATION_ID = 9996;
 
-    Appointment[] appointments;
 
-    private FirebaseAnalytics mFirebaseAnalytics;
-
-    public BackgroundService() {
-    }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "onStartCommand: Starting background service...");
-        configUtil = new ConfigUtil(getApplicationContext());
-        User user = new Gson().fromJson(configUtil.getString("User"), User.class);
-        School school = new Gson().fromJson(configUtil.getString("School"), School.class);
-        Profile profile = new Gson().fromJson(configUtil.getString("Profile"), Profile.class);
-        GlobalAccount.USER = user;
-        GlobalAccount.PROFILE = profile;
-        calendarDB = new CalendarDB(getApplicationContext());
+    public void onReceive(final Context context, Intent intent) {
+        PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+        wakeLock.acquire(15 * 1000);
 
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(getApplicationContext());
+        //Bundle extras = intent.getExtras();
 
-        //sessionTimer(user, school);
-        //loadAppointmentTimer();
+        mGson = new Gson();
+        calendarDB = new CalendarDB(context);
+        scheduleChangeDB = new ScheduleChangeDB(context);
+        gradesdb = new NewGradesDB(context);
 
-        if (configUtil.getBoolean("appointment_enabled")) {
-            notifyAppointmentTimer();
-        }
+        this.context = context;
+        configUtil = new ConfigUtil(context);
+        final User user = mGson.fromJson(configUtil.getString("User"), User.class);
+        final School school = mGson.fromJson(configUtil.getString("School"), School.class);
 
-        if (configUtil.getBoolean("silent_enabled")) {
-            autoSilentTimer();
-        }
 
-        if (configUtil.getBoolean("new_grade_enabled")) {
-            gradeTimer();
-        }
-
-        if (configUtil.getBoolean("notificationOnNewChanges")) {
-            scheduleChangeTimer();
-        }
-
-        if (configUtil.getBoolean("notificationOnChangedLesson")) {
-            notifyAppointmentChangedTimer();
-        }
-
-        return START_STICKY;
-    }
-
-    /*
-    Session management
-     */
-
-    private void sessionTimer(final User user, final School school) {
-        Log.d(TAG, "sessionTimer: Starting session refreshing timer");
-        TimerTask refreshSession = new TimerTask() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                if (!allowDataTransfer()) {
-                    return;
-                } else {
-                    if (GlobalAccount.MAGISTER == null) {
-                        if (configUtil.getInteger("failed_auth") >= 2) {
-                            Log.w(TAG, "run: Warning! 2 Failed authentications, aborting for user's safety!");
-                            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
-                            mBuilder.setSmallIcon(R.drawable.ic_error);
-
-                            Intent resultIntent = new Intent(getApplicationContext(), DashboardActivity.class);
-                            TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
-                            stackBuilder.addParentStack(DashboardActivity.class);
-                            stackBuilder.addNextIntent(resultIntent);
-                            PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,
-                                    PendingIntent.FLAG_UPDATE_CURRENT);
-
-                            mBuilder.setContentIntent(resultPendingIntent);
-                            mBuilder.setContentTitle(getString(R.string.dialog_login_failed_title));
-                            mBuilder.setContentText(getString(R.string.msg_fix_login));
-                            mBuilder.setAutoCancel(true);
-                            mBuilder.setSound(null);
-                            mBuilder.setVisibility(NotificationCompat.VISIBILITY_PRIVATE);
-
-                            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                            mNotificationManager.notify(666, mBuilder.build());
-                        } else {
-                            try {
-                                Log.d(TAG, "SessionManager: initiating session");
-                                Magister magister = Magister.login(school, user.username, user.password);
-                                GlobalAccount.MAGISTER = magister;
-                                configUtil.setInteger("failed_auth", 0);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            } catch (InvalidParameterException e) {
-                                int fails = configUtil.getInteger("failed_auth");
-                                fails++;
-                                configUtil.setInteger("failed_auth", fails);
-                                Log.w(TAG, "SessionManager: Amount of failed Authentications: " + fails);
-                            }
-                        }
-                    } else {
-                        try {
-                            GlobalAccount.MAGISTER.login();
-                            Log.d(TAG, "SessionManager: refreshing session");
-                            configUtil.setInteger("failed_auth", 0);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (InvalidParameterException e) {
-                            e.printStackTrace();
-                            int fails = configUtil.getInteger("failed_auth");
-                            fails++;
-                            configUtil.setInteger("failed_auth", fails);
-                            Log.w(TAG, "SessionManager: Amount of failed Authentications: " + fails);
-                        }
+                try {
+                    manageSession(user, school);
+                    if (configUtil.getBoolean("silent_enabled") || configUtil.getBoolean("appointment_enabled") || configUtil.getBoolean("new_homework_notification")) {
+                        getAppointments();
                     }
+
+                    if (configUtil.getBoolean("appointment_enabled")) {
+                        appointmentNotification();
+                    }
+
+                    if (configUtil.getBoolean("silent_enabled")) {
+                        autoSilent();
+                    }
+
+                    if (configUtil.getBoolean("new_grade_enabled")) {
+                        newGradeNotification();
+                    }
+
+                    if (configUtil.getBoolean("notificationOnNewChanges")) {
+                        newScheduleChangeNotification();
+                    }
+
+                    if (configUtil.getBoolean("notificationOnChangedLesson")) {
+                        nextAppointmentChangedNotification();
+                    }
+
+                    if (configUtil.getBoolean("unfinished_homework_notification")) {
+                        unFinishedHomeworkNotification();
+                    }
+
+                    if (configUtil.getBoolean("new_homework_notification")) {
+                        newHomeworkNotification();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    Log.d(TAG, "onReceive: Cleaning up and releasing wakelock!");
+                    if (wakeLock.isHeld())
+                        wakeLock.release();
+                    calendarDB.close();
+                    scheduleChangeDB.close();
+                    gradesdb.close();
                 }
-
             }
-        };
-        timer.schedule(refreshSession, 120 * 1000, 120 * 1000);
-
-
+        }).start();
     }
 
 
-    private void loadAppointmentTimer() {
-        TimerTask notificationTask = new TimerTask() {
-            @Override
-            public void run() {
-                if (!allowDataTransfer()) {
-                    return;
-                }
-                Magister magister = GlobalAccount.MAGISTER;
-                if (magister != null && !magister.isExpired()) {
-                    Date start = DateUtils.addDays(DateUtils.getToday(), -2);
-                    Date end = DateUtils.addDays(DateUtils.getToday(), 7);
-                    AppointmentHandler appointmentHandler = new AppointmentHandler(magister);
+    //Retrieving Data
+
+    private void manageSession(final User user, final School school) {
+        if (allowDataTransfer()) {
+            if (GlobalAccount.MAGISTER == null) {
+                if (configUtil.getInteger("failed_auth") >= 2) {
+                    Log.w(TAG, "run: Warning! 2 Failed authentications, aborting for user's safety!");
+                    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
+                    mBuilder.setSmallIcon(R.drawable.ic_error);
+
+                    Intent resultIntent = new Intent(context, DashboardActivity.class);
+                    TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+                    stackBuilder.addParentStack(DashboardActivity.class);
+                    stackBuilder.addNextIntent(resultIntent);
+                    PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,
+                            PendingIntent.FLAG_UPDATE_CURRENT);
+
+                    mBuilder.setContentIntent(resultPendingIntent);
+                    mBuilder.setContentTitle(context.getString(R.string.dialog_login_failed_title));
+                    mBuilder.setContentText(context.getString(R.string.msg_fix_login));
+                    mBuilder.setAutoCancel(true);
+                    mBuilder.setSound(null);
+                    mBuilder.setVisibility(NotificationCompat.VISIBILITY_PRIVATE);
+
+                    NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    mNotificationManager.notify(LOGIN_FAILED_ID, mBuilder.build());
+                } else {
                     try {
-                        Appointment[] appointments = appointmentHandler.getAppointments(start, end);
-                        calendarDB.removeAll();
-                        calendarDB.addItems(appointments);
-                        Log.d(TAG, "AppointmentData: New items added");
+                        Log.d(TAG, "SessionManager: initiating session");
+                        GlobalAccount.MAGISTER = Magister.login(school, user.username, user.password);
+                        configUtil.setInteger("failed_auth", 0);
                     } catch (IOException e) {
-                        Log.w(TAG, "AppointmentData: Failed to get appointments.");
                         e.printStackTrace();
-                    } catch (AssertionError e) {
+                    } catch (ParseException e) {
                         e.printStackTrace();
+                    } catch (InvalidParameterException e) {
+                        int fails = configUtil.getInteger("failed_auth");
+                        fails++;
+                        configUtil.setInteger("failed_auth", fails);
+                        Log.w(TAG, "SessionManager: Amount of failed Authentications: " + fails);
                     }
-                } else {
-                    Log.e(TAG, "run: Invalid Magister!");
                 }
+            } else if (GlobalAccount.MAGISTER.isExpired()) {
+                try {
+                    GlobalAccount.MAGISTER.login();
+                    Log.d(TAG, "SessionManager: refreshing session");
+                    configUtil.setInteger("failed_auth", 0);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InvalidParameterException e) {
+                    e.printStackTrace();
+                    int fails = configUtil.getInteger("failed_auth");
+                    fails++;
+                    configUtil.setInteger("failed_auth", fails);
+                    Log.w(TAG, "SessionManager: Amount of failed Authentications: " + fails);
+                }
+            } else {
+                Log.d(TAG, "manageSession: Session still valid");
             }
-        };
-        timer.schedule(notificationTask, 6000, 120 * 1000); //short refresh time, because of errors that happen sometimes and crash the refresh function.
+        }
     }
 
-    /*
-    Appointment notifications
-     */
-
-    private void notifyAppointmentTimer() {
-        Log.d(TAG, "notifyAppoinytmentTimer: Starting appointment timer");
-        TimerTask notificationTask = new TimerTask() {
-            @Override
-            public void run() {
-
-                    Gson gson = new Gson();
-                    Appointment[] appointments = calendarDB.getNotificationAppointments();
-                Log.d(TAG, "AppointmentNotifications: amount of appointments that should be shown: " + appointments.length);
-                    previousAppointment = configUtil.getString("previous_appointment");
-                    if (appointments.length >= 1) {
-                        Appointment appointment = appointments[0];
-                        if (!gson.toJson(appointment).equals(previousAppointment) && isCandidate(appointment)) {
-                            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
-                            mBuilder.setSmallIcon(R.drawable.ic_appointment);
-
-                            if (appointment.startDate != null) {
-                                String time = DateUtils.formatDate(appointment.startDate, "HH:mm");
-                                mBuilder.setContentTitle("Volgende afspraak (" + time + ")");
-                            } else {
-                                mBuilder.setContentTitle("Volgende afspraak:");
-                            }
-                            mBuilder.setContentText(appointment.description + " in " + appointment.location);
-                            mBuilder.setAutoCancel(true);
-                            mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-
-                            Intent resultIntent = new Intent(getApplicationContext(), AppointmentActivity.class);
-                            TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
-                            stackBuilder.addParentStack(AppointmentActivity.class);
-                            stackBuilder.addNextIntent(resultIntent);
-                            PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-                            mBuilder.setContentIntent(resultPendingIntent);
-
-                            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                            mNotificationManager.notify(9991, mBuilder.build());
-
-                            previousAppointment = gson.toJson(appointment);
-                            configUtil.setString("previous_appointment", previousAppointment);
-                        }
-                    } else {
-                        NotificationManager notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                        notifManager.cancel(9991);
-                    }
+    private void getAppointments() {
+        if (!allowDataTransfer()) {
+            return;
+        }
+        Magister magister = GlobalAccount.MAGISTER;
+        if (magister != null && !magister.isExpired()) {
+            Date start = DateUtils.addDays(DateUtils.getToday(), -2);
+            Date end = DateUtils.addDays(DateUtils.getToday(), 7);
+            AppointmentHandler appointmentHandler = new AppointmentHandler(magister);
+            try {
+                Appointment[] appointments = appointmentHandler.getAppointments(start, end);
+                calendarDB.removeAll();
+                calendarDB.addItems(appointments);
+                Log.d(TAG, "AppointmentData: New items added");
+            } catch (IOException e) {
+                Log.w(TAG, "AppointmentData: Failed to get appointments.");
+                e.printStackTrace();
+            } catch (AssertionError e) {
+                e.printStackTrace();
             }
-        };
-        timer.schedule(notificationTask, 20000, 30 * 1000);
+        } else {
+            Log.e(TAG, "run: Invalid Magister!");
+        }
+    }
+
+
+    //Appointment Notification
+
+    private void appointmentNotification() {
+        Appointment[] appointments = calendarDB.getNotificationAppointments();
+        Log.d(TAG, "AppointmentNotifications: amount of appointments that should be shown: " + appointments.length);
+        String previousAppointment = configUtil.getString("previous_appointment");
+        if (appointments.length >= 1) {
+            Appointment appointment = appointments[0];
+            if (!mGson.toJson(appointment).equals(previousAppointment) && isCandidate(appointment)) {
+                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
+                mBuilder.setSmallIcon(R.drawable.ic_appointment);
+
+                if (appointment.startDate != null) {
+                    String time = DateUtils.formatDate(appointment.startDate, "HH:mm");
+                    mBuilder.setContentTitle("Volgende afspraak (" + time + ")");
+                } else {
+                    mBuilder.setContentTitle("Volgende afspraak:");
+                }
+                mBuilder.setContentText(appointment.description + " in " + appointment.location);
+                mBuilder.setAutoCancel(true);
+                mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+
+                Intent resultIntent = new Intent(context, AppointmentActivity.class);
+                TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+                stackBuilder.addParentStack(AppointmentActivity.class);
+                stackBuilder.addNextIntent(resultIntent);
+                PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                mBuilder.setContentIntent(resultPendingIntent);
+
+                NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                mNotificationManager.notify(APPOINTMENT_NOTIFICATION_ID, mBuilder.build());
+
+                previousAppointment = mGson.toJson(appointment);
+                configUtil.setString("previous_appointment", previousAppointment);
+            }
+        } else {
+            NotificationManager notifManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            notifManager.cancel(APPOINTMENT_NOTIFICATION_ID);
+        }
     }
 
     private boolean isCandidate(Appointment appointment) {
-        if (configUtil.getBoolean("show_own_appointments")) {
-            return true;
-        } else {
-            return appointment.type != AppointmentType.PERSONAL;
-        }
+        return configUtil.getBoolean("show_own_appointments") || appointment.type != AppointmentType.PERSONAL;
     }
 
 
-    /*
-    Auto-silent
-     */
+    //Auto-silent
 
-    private void autoSilentTimer() {
-        Log.d(TAG, "autoSilentTimer: Starting autoSilent Timer");
-        TimerTask silentTask = new TimerTask() {
-            @Override
-            public void run() {
-                appointments = calendarDB.getSilentAppointments(getMargin());
-                if (doSilent(appointments)) {
-                    silenced(true);
-                    AudioManager audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                    configUtil.setInteger("previous_silent_state", audiomanager.getRingerMode());
-                    if (audiomanager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
-                        audiomanager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                    }
-                } else {
-                    if (isSilencedByApp()) {
-                        AudioManager audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                        if (configUtil.getBoolean("reverse_silent_state")) {
-                            audiomanager.setRingerMode(configUtil.getInteger("previous_silent_state"));
-                        } else {
-                            audiomanager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-                        }
-                        silenced(false);
-                    }
-                }
+    private void autoSilent() {
+        Appointment[] appointments = calendarDB.getSilentAppointments(getMargin());
+        if (doSilent(appointments)) {
+            setSilenced(true);
+            AudioManager audiomanager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            if (audiomanager == null) return;
+            if (!isSilencedByApp())
+                configUtil.setInteger("previous_silent_state", audiomanager.getRingerMode());
+            if (audiomanager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
+                audiomanager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
             }
-        };
-        timer.schedule(silentTask, 6000, 10 * 1000);
+        } else {
+            if (isSilencedByApp()) {
+                AudioManager audiomanager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                if (audiomanager == null) return;
+                if (configUtil.getBoolean("reverse_silent_state")) {
+                    audiomanager.setRingerMode(configUtil.getInteger("previous_silent_state"));
+                } else {
+                    audiomanager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                }
+                setSilenced(false);
+            }
+        }
     }
 
     private Boolean doSilent(Appointment[] appointments) {
@@ -348,7 +339,7 @@ public class BackgroundService extends Service {
         return false;
     }
 
-    private void silenced(Boolean silenced) {
+    private void setSilenced(Boolean silenced) {
         configUtil.setBoolean("silenced", silenced);
     }
 
@@ -373,34 +364,28 @@ public class BackgroundService extends Service {
         }
     }
 
-    /*
-    New Grade Notification
-     */
 
-    private void gradeTimer() {
-        Log.d(TAG, "gradeTimer: Starting grade timer");
-        TimerTask gradeStack = new TimerTask() {
-            @Override
-            public void run() {
-                if (!allowDataTransfer()) {
-                    return;
-                }
-                    Magister magister = GlobalAccount.MAGISTER;
-                    if (magister == null || magister.isExpired()) {
-                        Log.e(TAG, "New Grade Notification: Invalid magister");
-                        return;
-                    } else {
-                    NewGradesDB gradesdb = new NewGradesDB(getApplicationContext());
+    // New Grade Notification
 
-                    GradeHandler gradeHandler = new GradeHandler(magister);
-                    Grade[] gradeArray;
-                    List<Grade> gradeList = new ArrayList<Grade>();
-                    try {
-                        gradeArray = gradeHandler.getRecentGrades();
-                        gradesdb.addGrades(gradeArray);
-                        Collections.reverse(Arrays.asList(gradeArray));
+    private void newGradeNotification() {
+        if (!allowDataTransfer()) {
+            return;
+        }
+        Magister magister = GlobalAccount.MAGISTER;
+        if (magister == null || magister.isExpired()) {
+            Log.e(TAG, "New Grade Notification: Invalid magister");
+        } else {
 
-                        //For testing purposes:
+
+            GradeHandler gradeHandler = new GradeHandler(magister);
+            Grade[] gradeArray;
+            List<Grade> gradeList = new ArrayList<Grade>();
+            try {
+                gradeArray = gradeHandler.getRecentGrades();
+                gradesdb.addGrades(gradeArray);
+                Collections.reverse(Arrays.asList(gradeArray));
+
+                //For testing purposes:
                     /*Grade sampleGrade = new Grade();
                     sampleGrade.isSufficient = false;
                     sampleGrade.grade = "2.3";
@@ -416,211 +401,276 @@ public class BackgroundService extends Service {
                     gradeArray = new Grade[2];
                     gradeArray[0] = sampleGrade;
                     gradeArray[1] = sampleGrade2;*/
-
-                        for (Grade grade : gradeArray) {
-                            if (!gradesdb.hasBeenSeen(grade, false)
-                                    && (grade.isSufficient || !configUtil.getBoolean("pass_grades_only"))) {
-                                gradeList.add(grade);
-                            }
-                        }
-
-                    } catch (IOException | AssertionError | NullPointerException e) {
-                        e.printStackTrace();
-                        return;
-                    }
-                    String GradesNotification = new Gson().toJson(gradeList);
-                    if (gradeList != null && gradeList.size() > 0
-                            && !configUtil.getString("lastGradesNotification").equals(GradesNotification)) {
-
-                        Log.d(TAG, "New Grade Notification: Some grades to show: " + gradeList.size());
-
-                        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
-                        mBuilder.setSmallIcon(R.drawable.ic_grade_notification);
-
-                        if (gradeList.size() == 1) {
-                            Grade grade = gradeList.get(0);
-                            mBuilder.setContentTitle("Nieuw cijfer voor " + grade.subject.name);
-                            //mBuilder.setStyle(new NotificationCompat.BigTextStyle(mBuilder).bigText())
-                            mBuilder.setContentText("Een " + grade.grade);
-                        } else {
-                            String content = "";
-                            for (Grade grade : gradeList) {
-                                String string = grade.subject.name + ", een " + grade.grade;
-                                if (content.length() > 1) {
-                                    content = content + "\n" + string;
-                                } else {
-                                    content = string;
-                                }
-                            }
-                            mBuilder.setContentTitle("Nieuwe cijfers voor:");
-                            mBuilder.setStyle(new NotificationCompat.BigTextStyle(mBuilder).bigText(content));
-                            mBuilder.setContentText(content);
-                        }
-                        mBuilder.setAutoCancel(true);
-                        mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-                        mBuilder.setDefaults(Notification.DEFAULT_ALL);
-                        mBuilder.setLights(Color.LTGRAY, 300, 200);
-
-                        Intent resultIntent = new Intent(getApplicationContext(), NewGradeActivity.class);
-                        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
-                        stackBuilder.addParentStack(NewGradeActivity.class);
-                        stackBuilder.addNextIntent(resultIntent);
-                        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-                        mBuilder.setContentIntent(resultPendingIntent);
-
-
-                        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                        mNotificationManager.notify(9992, mBuilder.build());
-
-                        configUtil.setString("lastGradesNotification", GradesNotification);
-                    } else {
-                        Log.w(TAG, "New Grade Notification: No grades!");
+                for (Grade grade : gradeArray) {
+                    if (!gradesdb.hasBeenSeen(grade, false)
+                            && (grade.isSufficient || !configUtil.getBoolean("pass_grades_only"))) {
+                        gradeList.add(grade);
                     }
                 }
+
+            } catch (IOException | AssertionError | NullPointerException e) {
+                e.printStackTrace();
+                return;
             }
-        };
-        timer.schedule(gradeStack, 6000, 120 * 1000);
+            String GradesNotification = mGson.toJson(gradeList);
+            if (gradeList.size() > 0
+                    && !configUtil.getString("lastGradesNotification").equals(GradesNotification)) {
+
+                Log.d(TAG, "New Grade Notification: Some grades to show: " + gradeList.size());
+
+                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
+                mBuilder.setSmallIcon(R.drawable.ic_grade_notification);
+
+                if (gradeList.size() == 1) {
+                    Grade grade = gradeList.get(0);
+                    if (grade.description != null) {
+                        mBuilder.setContentTitle("Nieuw cijfer voor " + grade.subject.name + " - " + grade.description);
+                    } else {
+                        mBuilder.setContentTitle("Nieuw cijfer voor " + grade.subject.name);
+                    }
+                    //mBuilder.setStyle(new NotificationCompat.BigTextStyle(mBuilder).bigText())
+                    mBuilder.setContentText("Een " + grade.grade);
+                } else {
+                    CharSequence content = "";
+                    for (Grade grade : gradeList) {
+                        CharSequence string;
+                        if (grade.description != null) {
+                            string = grade.subject.name + " - " + grade.description + ": " + Html.fromHtml("<strong>" + grade.grade + "</strong>");
+                        } else {
+                            string = grade.subject.name + ", een " + grade.grade;
+                        }
+                        if (content.length() > 1) {
+                            content = content + "\n" + string;
+                        } else {
+                            content = string;
+                        }
+                    }
+                    mBuilder.setContentTitle("Nieuwe cijfers voor:");
+                    mBuilder.setStyle(new NotificationCompat.BigTextStyle(mBuilder).bigText(content));
+                    mBuilder.setContentText(content);
+                }
+                mBuilder.setAutoCancel(true);
+                mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+                mBuilder.setDefaults(Notification.DEFAULT_ALL);
+                mBuilder.setLights(Color.LTGRAY, 300, 200);
+
+                Intent resultIntent = new Intent(context, NewGradeActivity.class);
+                TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+                stackBuilder.addParentStack(NewGradeActivity.class);
+                stackBuilder.addNextIntent(resultIntent);
+                PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                mBuilder.setContentIntent(resultPendingIntent);
+
+
+                NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                mNotificationManager.notify(NEW_GRADE_NOTIFICATION_ID, mBuilder.build());
+
+                configUtil.setString("lastGradesNotification", GradesNotification);
+            } else {
+                Log.w(TAG, "New Grade Notification: No grades!");
+            }
+        }
     }
 
-    /*
-    Schedule change Notifications
-     */
 
-    private void scheduleChangeTimer(){
-        Log.d(TAG, "scheduleChangeTimer: Starting background service...");
-        TimerTask scheduleChangeTask = new TimerTask() {
-            @Override
-            public void run() {
-                if (!allowDataTransfer()) {
+    // Schedule Changes Notifications
+
+    private void newScheduleChangeNotification() {
+        if (allowDataTransfer()) {
+            Magister magister = GlobalAccount.MAGISTER;
+            if (magister == null || magister.isExpired()) {
+                Log.d(TAG, "ScheduleChangeNotification: No valid Magister");
+            } else {
+
+
+                AppointmentHandler appointmentHandler = new AppointmentHandler(magister);
+                Appointment[] appointments;
+                try {
+                    Log.d(TAG, "ScheduleChangeNotification: Requesting schedule changes....");
+                    appointments = appointmentHandler.getScheduleChanges(
+                            DateUtils.getToday(), DateUtils.addDays(DateUtils.getToday(), 3)
+                    );
+                } catch (IOException | AssertionError e) {
+                    Log.d(TAG, "ScheduleChangeNotification: Error while requesting schedule changes");
+                    e.printStackTrace();
+                    return;
+                }
+
+                Boolean newChanges = false;
+                if (appointments == null || appointments.length < 1) {
                     return;
                 } else {
-                    Magister magister = GlobalAccount.MAGISTER;
-                    if (magister == null || magister.isExpired()){
-                        Log.d(TAG, "ScheduleChangeNotification: No valid Magister");
-                    } else {
-
-                        ScheduleChangeDB scheduleChangeDB = new ScheduleChangeDB(getApplicationContext());
-                        AppointmentHandler appointmentHandler = new AppointmentHandler(magister);
-                        Appointment[] appointments;
-                        try {
-                            Log.d(TAG, "ScheduleChangeNotification: Requesting schedule changes....");
-                            appointments = appointmentHandler.getScheduleChanges(
-                                    DateUtils.getToday(), DateUtils.addDays(DateUtils.getToday(), 3)
-                            );
-                        } catch (IOException | AssertionError e) {
-                            Log.d(TAG, "ScheduleChangeNotification: Error while requesting schedule changes");
-                            e.printStackTrace();
-                            Bundle bundle = new Bundle();
-                            bundle.putString(FirebaseAnalytics.Param.ORIGIN, "scheduleChangeTimer");
-                            bundle.putString("error", e.getMessage());
-
-                            bundle.putString("stacktrace", e.getMessage());
-                            mFirebaseAnalytics.logEvent("error_in_background_schedule", bundle);
-                            return;
-                        }
-
-                        Boolean newChanges = false;
-                        if (appointments == null || appointments.length < 1) {
-                            return;
-                        } else {
-                            Log.d(TAG, "ScheduleChangeNotification: Checking for new changes....");
-                            newChanges = false;
-                            for (Appointment appointment :
-                                    appointments) {
-                                if (!scheduleChangeDB.isInDatabase(appointment)) {
-                                    newChanges = true;
-                                }
-                            }
-                            scheduleChangeDB.addItems(appointments);
-                        }
-
-                        if (newChanges) {
-                            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
-                            mBuilder.setSmallIcon(R.drawable.ic_schedule_change);
-
-                            mBuilder.setContentTitle("Nieuwe roosterijziging(en)!");
-                            mBuilder.setContentText("Tik om te bekijken");
-                            mBuilder.setAutoCancel(true);
-                            mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-                            mBuilder.setDefaults(Notification.DEFAULT_ALL);
-
-                            Intent resultIntent = new Intent(getApplicationContext(), ScheduleChangeActivity.class);
-                            TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
-                            stackBuilder.addParentStack(ScheduleChangeActivity.class);
-                            stackBuilder.addNextIntent(resultIntent);
-                            PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-                            mBuilder.setContentIntent(resultPendingIntent);
-
-
-                            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                            mNotificationManager.notify(9993, mBuilder.build());
+                    Log.d(TAG, "ScheduleChangeNotification: Checking for new changes....");
+                    for (Appointment appointment :
+                            appointments) {
+                        if (!scheduleChangeDB.isInDatabase(appointment)) {
+                            newChanges = true;
                         }
                     }
+                    scheduleChangeDB.addItems(appointments);
+                }
+
+                if (newChanges) {
+                    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
+                    mBuilder.setSmallIcon(R.drawable.ic_schedule_change);
+
+                    mBuilder.setContentTitle("Nieuwe roosterijziging(en)!");
+                    mBuilder.setContentText("Tik om te bekijken");
+                    mBuilder.setAutoCancel(true);
+                    mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+                    mBuilder.setDefaults(Notification.DEFAULT_ALL);
+
+                    Intent resultIntent = new Intent(context, ScheduleChangeActivity.class);
+                    TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+                    stackBuilder.addParentStack(ScheduleChangeActivity.class);
+                    stackBuilder.addNextIntent(resultIntent);
+                    PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                    mBuilder.setContentIntent(resultPendingIntent);
 
 
+                    NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    mNotificationManager.notify(NEW_SCHEDULE_CHANGE_NOTIFICATION_ID, mBuilder.build());
                 }
             }
-        };
-        timer.schedule(scheduleChangeTask, 6000, 120 * 1000);
+
+
+        }
     }
 
-    private void notifyAppointmentChangedTimer() {
-        Log.d(TAG, "notifyAppoinytmentTimer: Starting notify appointmentchange timer");
-        TimerTask notificationTask = new TimerTask() {
-            @Override
-            public void run() {
+    private void nextAppointmentChangedNotification() {
+        Appointment[] appointments = scheduleChangeDB.getNotificationAppointments();
+        String previousChangedAppointment = configUtil.getString("previous_changed_appointment");
+        if (appointments.length > 0) {
+            Appointment appointment = appointments[0];
+            if (!appointment.startDateString.equals(previousChangedAppointment)) {
+                String content;
+                if (appointment.description != null &&
+                        !appointment.description.equalsIgnoreCase("null")) {
+                    content = appointment.description;
+                } else {
+                    content = "De les is uitgevallen!";
+                }
 
-                    ScheduleChangeDB scheduleChangeDB = new ScheduleChangeDB(getApplicationContext());
+                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
+                mBuilder.setSmallIcon(R.drawable.ic_schedule_change);
 
-                    Appointment[] appointments = scheduleChangeDB.getNotificationAppointments();
-                    previousChangedAppointment = configUtil.getString("previous_changed_appointment");
-                if (appointments.length > 0) {
-                        Appointment appointment = appointments[0];
-                        if (!appointment.startDateString.equals(previousChangedAppointment)) {
-                            String content;
-                            if (appointment.description != null &&
-                                    !appointment.description.equalsIgnoreCase("null")) {
-                                content = appointment.description;
-                            } else {
-                                content = "De les is uitgevallen!";
-                            }
+                mBuilder.setContentTitle("Let op! De volgende les is gewijzigd!");
+                mBuilder.setContentText(content);
+                mBuilder.setAutoCancel(true);
+                mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+                mBuilder.setDefaults(Notification.DEFAULT_ALL);
 
-                            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
-                            mBuilder.setSmallIcon(R.drawable.ic_schedule_change);
+                Intent resultIntent = new Intent(context, ScheduleChangeActivity.class);
+                TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+                stackBuilder.addParentStack(ScheduleChangeActivity.class);
+                stackBuilder.addNextIntent(resultIntent);
+                PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                mBuilder.setContentIntent(resultPendingIntent);
 
-                            mBuilder.setContentTitle("Let op! De volgende les is gewijzigd!");
-                            mBuilder.setContentText(content);
-                            mBuilder.setAutoCancel(true);
-                            mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-                            mBuilder.setDefaults(Notification.DEFAULT_ALL);
+                NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                mNotificationManager.notify(NEXT_APPOINTMENT_CHANGED_NOTIFICATION_ID, mBuilder.build());
 
-                            Intent resultIntent = new Intent(getApplicationContext(), ScheduleChangeActivity.class);
-                            TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
-                            stackBuilder.addParentStack(ScheduleChangeActivity.class);
-                            stackBuilder.addNextIntent(resultIntent);
-                            PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-                            mBuilder.setContentIntent(resultPendingIntent);
-
-                            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                            mNotificationManager.notify(9994, mBuilder.build());
-
-                            previousChangedAppointment = appointment.startDateString;
-                            configUtil.setString("previous_changed_appointment", appointment.startDateString);
-                        }
-                    } else {
-                        NotificationManager notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                        notifManager.cancel(9994);
-                    }
+                configUtil.setString("previous_changed_appointment", appointment.startDateString);
             }
-        };
-        timer.schedule(notificationTask, 20000, 30 * 1000);
+        } else {
+            NotificationManager notifManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            notifManager.cancel(NEXT_APPOINTMENT_CHANGED_NOTIFICATION_ID);
+        }
+    }
+
+    //Homework Notifications
+
+    private void newHomeworkNotification() {
+        Appointment[] newhomework = calendarDB.getAppointmentsWithHomework();
+        Integer currentHomework = configUtil.getInteger("current_amount_of_homework", 999);
+        if (currentHomework != 999 && newhomework.length > currentHomework) {
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
+            mBuilder.setSmallIcon(R.drawable.ic_new_homework);
+
+            mBuilder.setContentTitle("Nieuw huiswerk");
+            mBuilder.setContentText("Tik om je huiswerk te bekijken");
+            mBuilder.setAutoCancel(true);
+            mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+            mBuilder.setDefaults(Notification.DEFAULT_ALL);
+
+            Intent resultIntent = new Intent(context, HomeworkActivity.class);
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+            stackBuilder.addParentStack(ScheduleChangeActivity.class);
+            stackBuilder.addNextIntent(resultIntent);
+            PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+            mBuilder.setContentIntent(resultPendingIntent);
+
+            NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(NEW_HOMEWORK_NOTIFICATION_ID, mBuilder.build());
+        }
+        if (newhomework != null) {
+            configUtil.setInteger("current_amount_of_homework", newhomework.length);
+        }
+    }
+
+    private void unFinishedHomeworkNotification() {
+        String lastCheck = configUtil.getString("last_unfinished_homework_check");
+        if (lastCheck.equals(""))
+            lastCheck = DateUtils.formatDate(DateUtils.addDays(new Date(), -1), "yyyyMMdd");
+
+        Date lastCheckDate = DateUtils.parseDate(lastCheck, "yyyyMMdd");
+        Date now = DateUtils.parseDate(DateUtils.formatDate(new Date(), "yyyyMMdd"), "yyyyMMdd");
+        Integer hours = configUtil.getInteger("unfinished_homework_hour");
+        Integer minutes = configUtil.getInteger("unfinished_homework_minute");
+        if (lastCheckDate.before(now)) {
+            lastCheckDate = DateUtils.addHours(lastCheckDate, 24 + hours);
+            lastCheckDate = DateUtils.addMinutes(lastCheckDate, minutes);
+            if (new Date().after(lastCheckDate)) {
+                Appointment[] appointments = calendarDB.getUnfinishedAppointments(DateUtils.addDays(now, 1));
+
+                if (appointments.length > 0) {
+
+                    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
+                    mBuilder.setSmallIcon(R.drawable.ic_unfinished_homework);
+                    mBuilder.setContentTitle("Huiswerk waarschuwing");
+
+                    if (appointments.length == 1) {
+                        mBuilder.setContentText(appointments[0].description);
+                    } else {
+                        String content = "Je hebt je huiswerk voor de volgende lessen van morgen nog niet afgerond:";
+                        for (Appointment appointment : appointments) {
+                            String string = appointment.description;
+                            if (content.length() > 1) {
+                                content = content + "\n" + string;
+                            } else {
+                                content = string;
+                            }
+                        }
+                        mBuilder.setStyle(new NotificationCompat.BigTextStyle(mBuilder).bigText(content));
+                        mBuilder.setContentText(content);
+                    }
+                    mBuilder.setAutoCancel(true);
+                    mBuilder.setVisibility(NotificationCompat.VISIBILITY_PRIVATE);
+                    mBuilder.setDefaults(Notification.DEFAULT_ALL);
+                    mBuilder.setLights(Color.RED, 300, 200);
+
+                    Intent resultIntent = new Intent(context, HomeworkActivity.class);
+                    TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+                    stackBuilder.addParentStack(NewGradeActivity.class);
+                    stackBuilder.addNextIntent(resultIntent);
+                    PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                    mBuilder.setContentIntent(resultPendingIntent);
+
+
+                    NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    mNotificationManager.notify(UNFINISHED_HOMEWORK_NOTIFICATION_ID, mBuilder.build());
+                }
+
+                configUtil.setString("last_unfinished_homework_check", DateUtils.formatDate(new Date(), "yyyyMMdd"));
+            }
+        }
     }
 
 
     private Boolean usingWifi() {
         final ConnectivityManager connMgr = (ConnectivityManager)
-                this.getSystemService(Context.CONNECTIVITY_SERVICE);
-
+                context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connMgr == null) return false;
         NetworkInfo activeNetwork = connMgr.getActiveNetworkInfo();
         return activeNetwork != null && activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
     }
@@ -631,22 +681,20 @@ public class BackgroundService extends Service {
         return isWifi || dataAllowed;
     }
 
-    private String getStackTrace(Exception ex) {
-        StringWriter errors = new StringWriter();
-        ex.printStackTrace(new PrintWriter(errors));
-        return errors.toString();
+    public void setAlarm(Context context) {
+        cancelAlarm(context);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, BackgroundService.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 60, pendingIntent);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.i(TAG, "onDestroy: The service is getting destroyed!");
-        getApplicationContext().startService(new Intent(getApplicationContext(), BackgroundService.class));
+    public void cancelAlarm(Context context) {
+        Intent intent = new Intent(context, BackgroundService.class);
+        PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, 0);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(sender);
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
+
 }

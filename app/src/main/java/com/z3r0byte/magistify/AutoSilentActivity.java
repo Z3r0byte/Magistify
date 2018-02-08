@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.z3r0byte.magistify.GUI.NavigationDrawer;
-import com.z3r0byte.magistify.Services.BackgroundService;
 import com.z3r0byte.magistify.Util.ConfigUtil;
 
 import net.ilexiconn.magister.container.Profile;
@@ -106,8 +105,8 @@ public class AutoSilentActivity extends AppCompatActivity implements AdapterView
                 new ConfigUtil(getApplicationContext()).setBoolean("silent_enabled", b);
                 if (b) {
                     enableAll();
-                    stopService(new Intent(getApplicationContext(), BackgroundService.class));
-                    startService(new Intent(getApplicationContext(), BackgroundService.class));
+                    //stopService(new Intent(getApplicationContext(), OldBackgroundService.class));
+                    //startService(new Intent(getApplicationContext(), OldBackgroundService.class));
                     /*
                     if (!ServiceUtil.isServiceRunning(AutoSilentService.class, getApplicationContext())) {
                         Log.d(TAG, "onCheckedChanged: Starting auto-silent service");
@@ -116,8 +115,8 @@ public class AutoSilentActivity extends AppCompatActivity implements AdapterView
                     */
                 } else {
                     disableAll();
-                    stopService(new Intent(getApplicationContext(), BackgroundService.class));
-                    startService(new Intent(getApplicationContext(), BackgroundService.class));
+                    //stopService(new Intent(getApplicationContext(), OldBackgroundService.class));
+                    //startService(new Intent(getApplicationContext(), OldBackgroundService.class));
                     /*
                     if (ServiceUtil.isServiceRunning(AutoSilentService.class, getApplicationContext())) {
                         Log.d(TAG, "onCheckedChanged: Stopping auto-silent service");
