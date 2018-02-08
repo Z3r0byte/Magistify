@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -132,20 +132,17 @@ public class AppointmentDetailsActivity extends AppCompatActivity {
         locationImageView = (ImageView) findViewById(R.id.card_details_imageview_location);
 
 
-        Log.d(TAG, "run: Setting desc...");
         IconicsDrawable drawable = new IconicsDrawable(this, GoogleMaterial.Icon.gmd_description);
         descriptionLayout.setVisibility(View.VISIBLE);
         descriptionImageView.setImageDrawable(drawable);
         descriptionTextInput.setText(appointment.description);
 
-        Log.d(TAG, "run: Setting period...");
         drawable = new IconicsDrawable(this, GoogleMaterial.Icon.gmd_info);
         periodLayout.setVisibility(View.VISIBLE);
         periodImageView.setImageDrawable(drawable);
         periodTextInput.setText(appointment.periodFrom + "");
 
 
-        Log.d(TAG, "run: Setting teacher...");
         try {
             String teacher = appointment.teachers[0].name;
             drawable = new IconicsDrawable(this, GoogleMaterial.Icon.gmd_person);
@@ -157,7 +154,6 @@ public class AppointmentDetailsActivity extends AppCompatActivity {
         }
 
 
-        Log.d(TAG, "run: Setting time...");
         String duration = DateUtils.formatDate(appointment.startDate, "HH:mm") + " - "
                 + DateUtils.formatDate(appointment.endDate, "HH:mm");
         drawable = new IconicsDrawable(this, GoogleMaterial.Icon.gmd_today);
@@ -165,7 +161,6 @@ public class AppointmentDetailsActivity extends AppCompatActivity {
         durationImageView.setImageDrawable(drawable);
         durationTextInput.setText(duration);
 
-        Log.d(TAG, "run: Setting location...");
         drawable = new IconicsDrawable(this, GoogleMaterial.Icon.gmd_location_on);
         locationLayout.setVisibility(View.VISIBLE);
         locationImageView.setImageDrawable(drawable);

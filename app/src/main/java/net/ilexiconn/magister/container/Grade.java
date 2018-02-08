@@ -79,5 +79,10 @@ public class Grade implements Serializable {
     @SerializedName("weegfactor")
     public Double wage;
 
+    @SerializedName("behaaldOp")
+    public String testDateString;
+
+    public Date testDate;
+
     public SingleGrade singleGrade;
 }

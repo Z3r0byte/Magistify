@@ -191,5 +191,15 @@
     <string name="symbol_click">{gmd-chevron-right}</string>
     <string name="title_magistify_2_0">Belangrijk: Magistify 2.0</string>
     <string name="desc_magistify_2_0">Welkom bij Magistify 2.0!\n\nHet lijkt misschien alsof er weinig veranderd is, en dat klopt ook wel voor de functies en layout. In de achtergrondservice (wat voor de meldingen, etc. zorgt) is echter veel veranderd. De service wordt nu beheerd door het systeem in plaats van de app zelf. Dit betekent dat de achtergrondservice stabieler en betrouwbaarder zou moeten zijn. Wel is er een nadeel: de auto-stil functie controleert nu nog maar elke minuut of de telefoon op stil moet gaan in plaats van elke tien seconden. Het kan dus zijn dat je de marge iets groter in moet stellen.\n\nSommige Android-versies van sommige fabrikanten (o.a. OnePlus) hebben de neiging de achtergrondservice af te sluiten, ik kan hier helaas weinig aan doen. Mocht je toch ideeën hebben voor een oplossing hiervoor, laat me dat dan gerust weten :)</string>
+    <string name="msg_test_name">Toets:</string>
+    <string name="msg_subject">Vak:</string>
+    <string name="msg_date_submitted">Ingevoerd op:</string>
+    <string name="msg_is_pass_grade">Voldoende:</string>
+    <string name="msg_weight">Weging:</string>
+    <string name="msg_grade">Cijfer:</string>
+    <string name="msg_test_date">Toetsdatum:</string>
+    <string name="msg_no_content">-</string>
+    <string name="msg_no">nee</string>
+    <string name="msg_yes">ja</string>
 
 </resources>

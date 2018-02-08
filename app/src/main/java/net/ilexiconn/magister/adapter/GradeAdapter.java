@@ -68,6 +68,13 @@ public class GradeAdapter extends TypeAdapter<Grade[]> {
                     LogUtil.printError("Unable to parse date", e);
                 }
             }
+            if (grade.testDateString != null) {
+                try {
+                    grade.testDate = DateUtil.stringToDate(grade.testDateString);
+                } catch (ParseException e) {
+                    LogUtil.printError("Unable to parse date", e);
+                }
+            }
             gradeList.add(grade);
         }
         return gradeList.toArray(new Grade[gradeList.size()]);
