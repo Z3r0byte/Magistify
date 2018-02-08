@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import net.ilexiconn.magister.adapter.ProfileAdapter;
@@ -110,7 +111,7 @@ public class Magister {
      * @throws ParseException            if parsing the date fails.
      * @throws InvalidParameterException if one of the arguments is null.
      */
-    public static Magister login(School school, String username, String password) throws IOException, ParseException, InvalidParameterException {
+    public static Magister login(School school, String username, String password) throws IOException, ParseException, InvalidParameterException, NullPointerException, JsonSyntaxException {
         if (school == null || username == null || username.isEmpty() || password == null || password.isEmpty()) {
             throw new InvalidParameterException("Parameters can't be null or empty, dumbass!");
         }
