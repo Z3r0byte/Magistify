@@ -582,13 +582,25 @@ public class BackgroundService extends BroadcastReceiver {
 
     private void newHomeworkNotification() {
         Appointment[] newhomework = calendarDB.getAppointmentsWithHomework();
-        Integer currentHomework = configUtil.getInteger("current_amount_of_homework", 999);
-        if (currentHomework != 999 && newhomework.length > currentHomework) {
+        ArrayList<Appointment> homeworkList = new ArrayList<>();
+        for (Appointment appointment :
+                newhomework) {
+            if (calendarDB.isModified(appointment, true)) homeworkList.add(appointment);
+        }
+        Log.d(TAG, "newHomeworkNotification: Amount of new homework: " + homeworkList.size());
+        if (homeworkList.size() > 0) {
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
             mBuilder.setSmallIcon(R.drawable.ic_new_homework);
 
+            String content = "Je hebt nieuw of aangepast huiswerk voor:";
+            for (Appointment appointment :
+                    homeworkList) {
+                content = content + "\n" + appointment.description + DateUtils.formatDate(appointment.startDate, "' ('dd MMM')'");
+            }
+
             mBuilder.setContentTitle("Nieuw huiswerk");
-            mBuilder.setContentText("Tik om je huiswerk te bekijken");
+            mBuilder.setStyle(new NotificationCompat.BigTextStyle(mBuilder).bigText(content));
+            mBuilder.setContentText(content);
             mBuilder.setAutoCancel(true);
             mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
             mBuilder.setDefaults(Notification.DEFAULT_ALL);
@@ -602,9 +614,6 @@ public class BackgroundService extends BroadcastReceiver {
 
             NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(NEW_HOMEWORK_NOTIFICATION_ID, mBuilder.build());
-        }
-        if (newhomework != null) {
-            configUtil.setInteger("current_amount_of_homework", newhomework.length);
         }
     }
 

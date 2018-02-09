@@ -50,7 +50,7 @@ public class CalendarDB extends SQLiteOpenHelper {
 
     private static final String TAG = "CalendarDB";
 
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 15;
 
     private static final String DATABASE_NAME = "calendarDB";
     private static final String TABLE_CALENDAR = "calendar";
@@ -77,8 +77,9 @@ public class CalendarDB extends SQLiteOpenHelper {
     private static final String KEY_TYPE = "type";
     private static final String KEY_INFO_TYPE = "infoType";
     private static final String KEY_SUBJECTS = "subjects";
+    private static final String KEY_PREV_CONTENT = "previousContent";
 
-    Context context;
+    private Context context;
 
     public CalendarDB(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -111,7 +112,8 @@ public class CalendarDB extends SQLiteOpenHelper {
                 + KEY_STATE + " TEXT,"
                 + KEY_TEACHER + " TEXT,"
                 + KEY_TAKES_ALL_DAY + " BOOLEAN,"
-                + KEY_TYPE + " TEXT"
+                + KEY_TYPE + " TEXT,"
+                + KEY_PREV_CONTENT + " TEXT"
                 + ")";
         db.execSQL(CREATE_CALENDAR_TABLE);
     }
@@ -119,6 +121,13 @@ public class CalendarDB extends SQLiteOpenHelper {
     // Upgrading database
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        Log.d(TAG, "onUpgrade: New Version!");
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CALENDAR);
+        onCreate(db);
+    }
+
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.d(TAG, "onUpgrade: New Version!");
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CALENDAR);
         onCreate(db);
@@ -201,7 +210,6 @@ public class CalendarDB extends SQLiteOpenHelper {
             db.insert(TABLE_CALENDAR, null, contentValues);
 
         }
-        db.close();
 
     }
 
@@ -320,7 +328,7 @@ public class CalendarDB extends SQLiteOpenHelper {
             }
         }
         cursor.close();
-        db.close();
+
 
         return results;
     }
@@ -366,6 +374,40 @@ public class CalendarDB extends SQLiteOpenHelper {
         cursor.close();
 
         return results;
+    }
+
+    public Boolean isModified(Appointment appointment, Boolean updateState) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String Query = "SELECT * FROM " + TABLE_CALENDAR + " WHERE " + KEY_CALENDAR_ID + "=" + appointment.id;
+        Cursor cursor = db.rawQuery(Query, null);
+        String prevContent = "";
+
+        if (cursor.getCount() == 1) {
+            if (cursor.moveToFirst()) {
+                Log.d(TAG, "getModifiedHomework: content: [" + cursor.getString(cursor.getColumnIndex(KEY_CONTENT)) + "]");
+                Log.d(TAG, "getModifiedHomework: prev_content: [" + cursor.getString(cursor.getColumnIndex(KEY_PREV_CONTENT)) + "]");
+                prevContent = cursor.getString(cursor.getColumnIndex(KEY_PREV_CONTENT));
+            }
+        } else {
+            return false;
+        }
+        cursor.close();
+        if (updateState) homeworkSeen(appointment, db);
+
+        if (appointment.content != null && prevContent == null) {
+            return true;
+        } else if (appointment.content == null && prevContent != null) {
+            return true;
+        } else if (appointment.content == null && prevContent == null) {
+            return false;
+        } else return !prevContent.equals(appointment.content);
+    }
+
+    public void homeworkSeen(Appointment appointment, SQLiteDatabase db) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(KEY_PREV_CONTENT, appointment.content);
+        db.update(TABLE_CALENDAR, contentValues, KEY_CALENDAR_ID + " = " + appointment.id, null);
+        Log.d(TAG, "homeworkSeen: Updating content for " + appointment.description);
     }
 
     public Appointment[] getUnfinishedAppointments(Date unfinishedBefore) {
@@ -414,7 +456,6 @@ public class CalendarDB extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_FINISHED, appointment.finished);
-
         db.update(TABLE_CALENDAR, contentValues, KEY_CALENDAR_ID + "=" + appointment.id, null);
 
     }
@@ -428,7 +469,6 @@ public class CalendarDB extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         String Query = "DELETE FROM " + TABLE_CALENDAR + " WHERE " + KEY_CALENDAR_ID + " = " + id + "";
         db.execSQL(Query);
-        db.close();
     }
 
     public void removeAll() {
