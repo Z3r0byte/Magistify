@@ -200,14 +200,15 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void showUpdateMessage() {
-        if (configUtil.getInteger("last_update_message") != 200 && configUtil.getInteger("login_version") < BuildConfig.VERSION_CODE) {
+        final int version = BuildConfig.VERSION_CODE;
+        if (configUtil.getInteger("last_update_message") != version && configUtil.getInteger("login_version") < BuildConfig.VERSION_CODE) {
             android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(this);
-            alertDialogBuilder.setTitle(R.string.title_magistify_2_0);
-            alertDialogBuilder.setMessage(R.string.desc_magistify_2_0);
+            alertDialogBuilder.setTitle(R.string.title_magistify_changelog);
+            alertDialogBuilder.setMessage(R.string.desc_magistify_changelog);
             alertDialogBuilder.setPositiveButton("Oké", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    configUtil.setInteger("last_update_message", 200);
+                    configUtil.setInteger("last_update_message", version);
                 }
             });
             android.app.AlertDialog alertDialog = alertDialogBuilder.create();
