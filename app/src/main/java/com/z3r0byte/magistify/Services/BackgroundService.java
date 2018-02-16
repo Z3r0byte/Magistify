@@ -37,6 +37,7 @@ import com.google.gson.Gson;
 import com.z3r0byte.magistify.AppointmentActivity;
 import com.z3r0byte.magistify.DashboardActivity;
 import com.z3r0byte.magistify.DatabaseHelpers.CalendarDB;
+import com.z3r0byte.magistify.DatabaseHelpers.HomeworkDB;
 import com.z3r0byte.magistify.DatabaseHelpers.NewGradesDB;
 import com.z3r0byte.magistify.DatabaseHelpers.ScheduleChangeDB;
 import com.z3r0byte.magistify.GlobalAccount;
@@ -71,11 +72,13 @@ public class BackgroundService extends BroadcastReceiver {
 
     ConfigUtil configUtil;
     Context context;
-    CalendarDB calendarDB;
     PowerManager.WakeLock wakeLock;
     Gson mGson;
+
+    CalendarDB calendarDB;
     ScheduleChangeDB scheduleChangeDB;
     NewGradesDB gradesdb;
+    HomeworkDB homeworkDB;
 
     private static final int LOGIN_FAILED_ID = 9990;
     private static final int APPOINTMENT_NOTIFICATION_ID = 9991;
@@ -99,6 +102,7 @@ public class BackgroundService extends BroadcastReceiver {
         calendarDB = new CalendarDB(context);
         scheduleChangeDB = new ScheduleChangeDB(context);
         gradesdb = new NewGradesDB(context);
+        homeworkDB = new HomeworkDB(context);
 
         this.context = context;
         configUtil = new ConfigUtil(context);
@@ -232,6 +236,7 @@ public class BackgroundService extends BroadcastReceiver {
                 Appointment[] appointments = appointmentHandler.getAppointments(start, end);
                 calendarDB.removeAll();
                 calendarDB.addItems(appointments);
+                homeworkDB.addItems(appointments);
                 Log.d(TAG, "AppointmentData: New items added");
             } catch (IOException e) {
                 Log.w(TAG, "AppointmentData: Failed to get appointments.");
@@ -581,11 +586,11 @@ public class BackgroundService extends BroadcastReceiver {
     //Homework Notifications
 
     private void newHomeworkNotification() {
-        Appointment[] newhomework = calendarDB.getAppointmentsWithHomework();
+        Appointment[] newhomework = homeworkDB.getAppointmentsWithHomework();
         ArrayList<Appointment> homeworkList = new ArrayList<>();
         for (Appointment appointment :
                 newhomework) {
-            if (calendarDB.isModified(appointment, true)) homeworkList.add(appointment);
+            if (homeworkDB.isModified(appointment, true)) homeworkList.add(appointment);
         }
         Log.d(TAG, "newHomeworkNotification: Amount of new homework: " + homeworkList.size());
         if (homeworkList.size() > 0) {
