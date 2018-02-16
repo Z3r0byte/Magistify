@@ -95,6 +95,7 @@ public class DashboardActivity extends AppCompatActivity {
     Bundle ownedItems;
     ArrayList<String> boughtSKU = new ArrayList<>();
     ArrayList<String> boughtToken = new ArrayList<>();
+    Grade[] Grades;
 
     ServiceConnection mServiceConn = new ServiceConnection() {
         @Override
@@ -199,14 +200,15 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void showUpdateMessage() {
-        if (configUtil.getInteger("last_update_message") != 200 && configUtil.getInteger("login_version") < BuildConfig.VERSION_CODE) {
+        final int version = BuildConfig.VERSION_CODE;
+        if (configUtil.getInteger("last_update_message") != version && configUtil.getInteger("login_version") < BuildConfig.VERSION_CODE) {
             android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(this);
-            alertDialogBuilder.setTitle(R.string.title_magistify_2_0);
-            alertDialogBuilder.setMessage(R.string.desc_magistify_2_0);
+            alertDialogBuilder.setTitle(R.string.title_magistify_changelog);
+            alertDialogBuilder.setMessage(R.string.desc_magistify_changelog);
             alertDialogBuilder.setPositiveButton("Oké", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    configUtil.setInteger("last_update_message", 200);
+                    configUtil.setInteger("last_update_message", version);
                 }
             });
             android.app.AlertDialog alertDialog = alertDialogBuilder.create();
@@ -364,8 +366,12 @@ public class DashboardActivity extends AppCompatActivity {
         TextView gradeTxt = (TextView) findViewById(R.id.grade);
         TextView subjectTxt = (TextView) findViewById(R.id.subject);
         if (grade != null) {
+            if (grade.description != null) {
+                subjectTxt.setText(grade.subject.name + " - " + grade.description);
+            } else {
+                subjectTxt.setText(grade.subject.name);
+            }
             gradeTxt.setText(grade.grade);
-            subjectTxt.setText(grade.subject.name);
         } else {
             gradeTxt.setText(R.string.msg_no_grade_short);
             subjectTxt.setText(R.string.msg_no_grade);
@@ -427,7 +433,7 @@ public class DashboardActivity extends AppCompatActivity {
                     }
                 }
                 GradeHandler gradeHandler = new GradeHandler(magister);
-                Grade[] Grades;
+                //Grade[] Grades;
                 try {
                     Grades = gradeHandler.getRecentGrades();
                 } catch (IOException e) {

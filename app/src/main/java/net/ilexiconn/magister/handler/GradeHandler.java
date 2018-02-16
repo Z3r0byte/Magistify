@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ public class GradeHandler implements IHandler {
      * @throws IOException if there is no active internet connection.
      */
     public Grade[] getRecentGrades() throws IOException {
-        return gson.fromJson(HttpUtil.httpGet(magister.schoolUrl.getApiUrl() + "personen/" + magister.profile.id + "/aanmeldingen/" + magister.currentStudy.id + "/cijfers"), Grade[].class);
+        return gson.fromJson(HttpUtil.httpGet(magister.schoolUrl.getApiUrl() + "personen/" + magister.profile.id + "/cijfers/laatste?top=15&skip=0"), Grade[].class);
     }
 
     /**

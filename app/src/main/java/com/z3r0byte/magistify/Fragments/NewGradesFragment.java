@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.z3r0byte.magistify.Fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -23,12 +24,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.google.gson.Gson;
 import com.z3r0byte.magistify.Adapters.NewGradesAdapter;
 import com.z3r0byte.magistify.DatabaseHelpers.NewGradesDB;
 import com.z3r0byte.magistify.GlobalAccount;
+import com.z3r0byte.magistify.GradeDetailsActivity;
 import com.z3r0byte.magistify.R;
 import com.z3r0byte.magistify.Util.ConfigUtil;
 import com.z3r0byte.magistify.Util.ErrorViewConfigs;
@@ -157,6 +160,14 @@ public class NewGradesFragment extends Fragment {
                             mNewGradesAdapter = new NewGradesAdapter(getActivity(), Grades);
                             listView.setAdapter(mNewGradesAdapter);
                             listView.setVisibility(View.VISIBLE);
+                            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                    Intent intent = new Intent(getActivity(), GradeDetailsActivity.class);
+                                    intent.putExtra("Grade", new Gson().toJson(Grades[i]));
+                                    startActivity(intent);
+                                }
+                            });
                             errorView.setVisibility(View.GONE);
                             mSwipeRefreshLayout.setRefreshing(false);
                         }

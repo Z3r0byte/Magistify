@@ -55,7 +55,7 @@ public class WatchdogService extends Service {
                 if (Math.abs(new Date().getTime() - lastrun.getTime()) / 1000 > 120) {
                     Log.e(TAG, "Oh boi, something isn't right...");
                     Log.d(TAG, "Lemme fix this real quick");
-                    NewBackgroundService backgroundService = new NewBackgroundService();
+                    BackgroundService backgroundService = new BackgroundService();
                     backgroundService.setAlarm(getApplicationContext());
                     Log.d(TAG, "This should do the trick");
                 } else {
