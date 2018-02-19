@@ -115,7 +115,6 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-
         mToolbar = (Toolbar) findViewById(R.id.Toolbar);
         mToolbar.setTitle(R.string.title_dashboard);
         setSupportActionBar(mToolbar);
@@ -201,7 +200,7 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void showUpdateMessage() {
         final int version = BuildConfig.VERSION_CODE;
-        if (configUtil.getInteger("last_update_message") != version && configUtil.getInteger("login_version") < BuildConfig.VERSION_CODE) {
+        if (configUtil.getInteger("last_update_message") != version && configUtil.getInteger("login_version") != version) {
             android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(this);
             alertDialogBuilder.setTitle(R.string.title_magistify_changelog);
             alertDialogBuilder.setMessage(R.string.desc_magistify_changelog);
@@ -672,5 +671,13 @@ public class DashboardActivity extends AppCompatActivity {
         filteredArray = filtered.toArray(filteredArray);
 
         return filteredArray;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mService != null) {
+            unbindService(mServiceConn);
+        }
     }
 }

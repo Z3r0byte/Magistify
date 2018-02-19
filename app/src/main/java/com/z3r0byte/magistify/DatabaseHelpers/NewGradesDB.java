@@ -101,9 +101,11 @@ public class NewGradesDB extends SQLiteOpenHelper {
 
     public Boolean hasBeenSeen(Grade grade, Boolean setSeen) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String Query = "Select * from " + TABLE_GRADES + " where " + KEY_DATE_ADDED + " = '" + grade.filledInDateString + "' AND "
-                + KEY_GRADE + " = '" + grade.grade + "' AND " + KEY_DESCRIPTION + " = '" + grade.description + "'";
-        Cursor cursor = db.rawQuery(Query, null);
+        //String Query = "Select * from " + TABLE_GRADES + " where " + KEY_DATE_ADDED + " = '" + grade.filledInDateString + "' AND "
+        //        + KEY_GRADE + " = '" + grade.grade + "' AND " + KEY_DESCRIPTION + " = '" + grade.description + "'";
+        //Cursor cursor = db.rawQuery(Query, null);
+        Cursor cursor = db.query(TABLE_GRADES, new String[]{KEY_IS_SEEN, KEY_DATE_ADDED}, KEY_DATE_ADDED + "=? AND "
+                + KEY_GRADE + "=? AND " + KEY_DESCRIPTION + " = ?", new String[]{grade.filledInDateString, grade.grade, grade.description}, null, null, null);
         if (cursor.getCount() == 1) {
             if (cursor.moveToFirst()) {
                 if (cursor.getInt(cursor.getColumnIndex(KEY_IS_SEEN)) == 1) {
@@ -155,14 +157,16 @@ public class NewGradesDB extends SQLiteOpenHelper {
     private void isSeen(Grade grade, SQLiteDatabase db) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_IS_SEEN, true);
-        db.update(TABLE_GRADES, contentValues, KEY_DATE_ADDED + " = '" + grade.filledInDateString + "' AND "
-                + KEY_GRADE + " = '" + grade.grade + "' AND " + KEY_DESCRIPTION + " = '" + grade.description + "'", null);
+        db.update(TABLE_GRADES, contentValues, KEY_DATE_ADDED + " = ? AND "
+                + KEY_GRADE + " = ? AND " + KEY_DESCRIPTION + " = ?", new String[]{grade.filledInDateString, grade.grade, grade.description});
     }
 
     private Boolean isInDataBase(Grade grade, SQLiteDatabase db) {
-        String Query = "Select * from " + TABLE_GRADES + " where " + KEY_DATE_ADDED + " = '" + grade.filledInDateString + "' AND "
-                + KEY_GRADE + " = '" + grade.grade + "' AND " + KEY_DESCRIPTION + " = '" + grade.description + "'";
-        Cursor cursor = db.rawQuery(Query, null);
+        //String Query = "Select * from " + TABLE_GRADES + " where " + KEY_DATE_ADDED + " = '" + grade.filledInDateString + "' AND "
+        //        + KEY_GRADE + " = '" + grade.grade + "' AND " + KEY_DESCRIPTION + " = '" + grade.description + "'";
+        //Cursor cursor = db.rawQuery(Query, null);
+        Cursor cursor = db.query(TABLE_GRADES, new String[]{KEY_IS_SEEN, KEY_DATE_ADDED}, KEY_DATE_ADDED + "=? AND "
+                + KEY_GRADE + "=? AND " + KEY_DESCRIPTION + " = ?", new String[]{grade.filledInDateString, grade.grade, grade.description}, null, null, null);
         if (cursor.getCount() >= 1) {
             cursor.close();
             return true;
