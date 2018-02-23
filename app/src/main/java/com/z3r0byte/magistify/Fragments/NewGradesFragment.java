@@ -43,6 +43,7 @@ import net.ilexiconn.magister.container.User;
 import net.ilexiconn.magister.handler.GradeHandler;
 
 import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -126,7 +127,7 @@ public class NewGradesFragment extends Fragment {
                     try {
                         GlobalAccount.MAGISTER = Magister.login(school, user.username, user.password);
                         magister = GlobalAccount.MAGISTER;
-                    } catch (IOException | ParseException e) {
+                    } catch (IOException | ParseException | InvalidParameterException | NullPointerException e) {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {

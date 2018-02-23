@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ import net.ilexiconn.magister.handler.AppointmentHandler;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -190,7 +191,7 @@ public class HomeworkFragment extends Fragment {
                     try {
                         GlobalAccount.MAGISTER = Magister.login(school, user.username, user.password);
                         magister = GlobalAccount.MAGISTER;
-                    } catch (IOException | ParseException e) {
+                    } catch (IOException | ParseException | InvalidParameterException | NullPointerException e) {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
