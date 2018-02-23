@@ -55,6 +55,7 @@ import net.ilexiconn.magister.handler.AppointmentHandler;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -194,7 +195,7 @@ public class AppointmentFragment extends Fragment {
                     try {
                         GlobalAccount.MAGISTER = Magister.login(school, user.username, user.password);
                         magister = GlobalAccount.MAGISTER;
-                    } catch (IOException | ParseException e) {
+                    } catch (IOException | ParseException | InvalidParameterException | NullPointerException e) {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {

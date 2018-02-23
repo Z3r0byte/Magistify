@@ -46,6 +46,7 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.z3r0byte.magistify.Adapters.ScheduleChangeAdapter;
 import com.z3r0byte.magistify.DatabaseHelpers.CalendarDB;
 import com.z3r0byte.magistify.DatabaseHelpers.NewGradesDB;
@@ -237,7 +238,7 @@ public class DashboardActivity extends AppCompatActivity {
                         School school = new Gson().fromJson(configUtil.getString("School"), School.class);
                         try {
                             Magister magister = Magister.login(school, username, password);
-                        } catch (final IOException e) {
+                        } catch (final IOException | NullPointerException e) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -417,7 +418,7 @@ public class DashboardActivity extends AppCompatActivity {
                     try {
                         GlobalAccount.MAGISTER = Magister.login(school, user.username, user.password);
                         magister = GlobalAccount.MAGISTER;
-                    } catch (IOException | ParseException | IllegalArgumentException e) {
+                    } catch (IOException | ParseException | InvalidParameterException | NullPointerException | JsonSyntaxException e) {
                         e.printStackTrace();
                     }
                     runOnUiThread(new Runnable() {
