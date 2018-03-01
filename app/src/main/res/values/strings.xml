@@ -143,10 +143,12 @@
     <string name="setup_desc_3">Magistify is GEEN volledige Magister app. Het biedt slechts handige tooltjes aan die andere apps
      niet hebben. Plaats dus aub geen reviews in de richting van "Ik kan niet al mijn cijfers zien!". Wie weet wordt Magistify
     ooit nog een volledige app, maar nu is hij dat nog niet.</string>
+    <string name="setup_desc_4">Op sommige Android-versies van sommige fabrikanten (o.a. OnePlus) werken de meldingen niet goed. Dit komt omdat zij achtergrondapps afsluiten
+        als er te veel zijn. Ik kan hier helaas weinig aan doen, dus geef alsjeblieft geen slechte review als de meldingen niet werken.</string>
     <string name="setup_title_1">Welkom bij Magistify</string>
     <string name="setup_title_2">Permissies</string>
     <string name="setup_title_3">Even om onduidelijkheid te voorkomen:</string>
-    <string name="setup_title_4"></string>
+    <string name="setup_title_4">Belangrijk:</string>
     <string name="setup_title_5"></string>
 
     <string name="snackbar_fix">Fix</string>
@@ -189,8 +191,8 @@
     <string name="err_failed_login_dashboard">Kon niet inloggen, gebruikersnaam/wachtwoord mogelijk verkeerd.</string>
     <string name="title_activity_homework">Huiswerk</string>
     <string name="symbol_click">{gmd-chevron-right}</string>
-    <string name="title_magistify_changelog">Magistify 2.1.1</string>
-    <string name="desc_magistify_changelog">Bug-fixes:\n- Crash als een nieuw cijfer een \' bevatte in de omschrijving. (#70)\n- De in-app aankopen service wordt ontbonden als de app wordt afgesloten</string>
+    <string name="title_magistify_changelog">Magistify 2.1.3</string>
+    <string name="desc_magistify_changelog">Bug-fixes:\n- Crash wanneer je een eigen afspraak opende.</string>
     <string name="msg_test_name">Toets:</string>
     <string name="msg_subject">Vak:</string>
     <string name="msg_date_submitted">Ingevoerd op:</string>

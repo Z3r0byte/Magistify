@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -65,6 +65,13 @@ public class SetupActivity extends IntroActivity {
                 .backgroundDark(R.color.setup_color_1)
                 .build());
 
+        addSlide(new SimpleSlide.Builder()
+                .title(R.string.setup_title_4)
+                .description(R.string.setup_desc_4)
+                .background(R.color.setup_color_1)
+                .backgroundDark(R.color.setup_color_1)
+                .build());
+
         final FragmentSlide searchSlide = new FragmentSlide.Builder()
                 .background(R.color.setup_color_3)
                 .backgroundDark(R.color.setup_color_3)
@@ -98,7 +105,7 @@ public class SetupActivity extends IntroActivity {
         addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                if (positionOffset == 0 && position == 5) {
+                if (positionOffset == 0 && position == 6) {
                     Intent intent = new Intent(getApplicationContext(), StartActivity.class);
                     startActivity(intent);
                     finish();
