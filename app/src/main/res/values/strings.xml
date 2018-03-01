@@ -191,8 +191,8 @@
     <string name="err_failed_login_dashboard">Kon niet inloggen, gebruikersnaam/wachtwoord mogelijk verkeerd.</string>
     <string name="title_activity_homework">Huiswerk</string>
     <string name="symbol_click">{gmd-chevron-right}</string>
-    <string name="title_magistify_changelog">Magistify 2.1.1</string>
-    <string name="desc_magistify_changelog">Bug-fixes:\n- Crash als een nieuw cijfer een \' bevatte in de omschrijving. (#70)\n- De in-app aankopen service wordt ontbonden als de app wordt afgesloten</string>
+    <string name="title_magistify_changelog">Magistify 2.1.3</string>
+    <string name="desc_magistify_changelog">Bug-fixes:\n- Crash wanneer je een eigen afspraak opende.</string>
     <string name="msg_test_name">Toets:</string>
     <string name="msg_subject">Vak:</string>
     <string name="msg_date_submitted">Ingevoerd op:</string>
