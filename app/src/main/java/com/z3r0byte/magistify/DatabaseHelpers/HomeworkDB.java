@@ -37,7 +37,7 @@ import static com.z3r0byte.magistify.Util.DateUtils.formatDate;
 public class HomeworkDB extends SQLiteOpenHelper {
     private static final String TAG = "HomeworkDB";
 
-    private final static int DATABASE_VERSION = 1;
+    private final static int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "homeworkDB";
     private static final String TABLE_CALENDAR = "homework";
 
@@ -62,9 +62,9 @@ public class HomeworkDB extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String CREATE_CALENDAR_TABLE = "CREATE TABLE IF NOT EXISTS "
                 + TABLE_CALENDAR + "("
-                + KEY_ID + " INTEGER PRIMARY KEY,"
+                //+ KEY_ID + " INTEGER PRIMARY KEY,"
                 + KEY_DESC + " TEXT,"
-                + KEY_CALENDAR_ID + " INTEGER,"
+                + KEY_CALENDAR_ID + " INTEGER PRIMARY KEY,"
                 + KEY_CONTENT + " TEXT,"
                 + KEY_FINISHED + " BOOLEAN,"
                 + KEY_FORMATTED_END + " INTEGER,"
@@ -122,6 +122,8 @@ public class HomeworkDB extends SQLiteOpenHelper {
 
             day = startDateString.replaceAll("-", "").substring(0, 8);
 
+            String content = getContent(id);
+            if (content != null) contentValues.put(KEY_PREV_CONTENT, content);
             contentValues.put(KEY_CALENDAR_ID, id);
             contentValues.put(KEY_DESC, item.description);
             contentValues.put(KEY_CONTENT, item.content);
@@ -183,8 +185,6 @@ public class HomeworkDB extends SQLiteOpenHelper {
 
         if (cursor.getCount() == 1) {
             if (cursor.moveToFirst()) {
-                Log.d(TAG, "getModifiedHomework: content: [" + cursor.getString(cursor.getColumnIndex(KEY_CONTENT)) + "]");
-                Log.d(TAG, "getModifiedHomework: prev_content: [" + cursor.getString(cursor.getColumnIndex(KEY_PREV_CONTENT)) + "]");
                 prevContent = cursor.getString(cursor.getColumnIndex(KEY_PREV_CONTENT));
             }
         } else {
@@ -207,5 +207,20 @@ public class HomeworkDB extends SQLiteOpenHelper {
         contentValues.put(KEY_PREV_CONTENT, appointment.content);
         db.update(TABLE_CALENDAR, contentValues, KEY_CALENDAR_ID + " = " + appointment.id, null);
         Log.d(TAG, "homeworkSeen: Updating content for " + appointment.description);
+    }
+
+    private String getContent(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String Query = "SELECT * FROM " + TABLE_CALENDAR + " WHERE " + KEY_CALENDAR_ID + "=" + id;
+        Cursor cursor = db.rawQuery(Query, null);
+
+        if (cursor.getCount() == 1) {
+            if (cursor.moveToFirst()) {
+                return cursor.getString(cursor.getColumnIndex(KEY_PREV_CONTENT));
+            }
+            return null;
+        } else {
+            return null;
+        }
     }
 }
