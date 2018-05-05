@@ -18,6 +18,7 @@ package com.z3r0byte.magistify.Services;
 
 import android.app.AlarmManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -27,6 +28,7 @@ import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -87,6 +89,14 @@ public class BackgroundService extends BroadcastReceiver {
     private static final int NEXT_APPOINTMENT_CHANGED_NOTIFICATION_ID = 9994;
     private static final int NEW_HOMEWORK_NOTIFICATION_ID = 9995;
     private static final int UNFINISHED_HOMEWORK_NOTIFICATION_ID = 9996;
+
+    private static final String LOGIN_FAILED_CHANNEL_ID = "9990";
+    private static final String APPOINTMENT_NOTIFICATIONCHANNEL_ID = "9991";
+    private static final String NEW_GRADE_NOTIFICATIONCHANNEL_ID = "9992";
+    private static final String NEW_SCHEDULE_CHANGE_NOTIFICATIONCHANNEL_ID = "9993";
+    private static final String NEXT_APPOINTMENT_CHANGED_NOTIFICATIONCHANNEL_ID = "9994";
+    private static final String NEW_HOMEWORK_NOTIFICATIONCHANNEL_ID = "9995";
+    private static final String UNFINISHED_HOMEWORK_NOTIFICATIONCHANNEL_ID = "9996";
 
 
 
@@ -186,6 +196,19 @@ public class BackgroundService extends BroadcastReceiver {
                     mBuilder.setVisibility(NotificationCompat.VISIBILITY_PRIVATE);
 
                     NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        String channelId = LOGIN_FAILED_CHANNEL_ID;
+                        CharSequence channelName = LOGIN_FAILED_CHANNEL_ID;
+                        int importance = NotificationManager.IMPORTANCE_LOW;
+                        NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, importance);
+                        notificationChannel.enableLights(true);
+                        notificationChannel.setLightColor(Color.RED);
+                        notificationChannel.enableVibration(true);
+                        notificationChannel.setImportance(NotificationManager.IMPORTANCE_DEFAULT);
+                        notificationChannel.setVibrationPattern(new long[]{100, 200, 150});
+                        mNotificationManager.createNotificationChannel(notificationChannel);
+                        mBuilder.setChannelId(LOGIN_FAILED_CHANNEL_ID);
+                    }
                     mNotificationManager.notify(LOGIN_FAILED_ID, mBuilder.build());
                 } else {
                     try {
@@ -280,6 +303,18 @@ public class BackgroundService extends BroadcastReceiver {
                 mBuilder.setContentIntent(resultPendingIntent);
 
                 NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+                if (Build.VERSION.SDK_INT >= 26) {
+                    String channelId = APPOINTMENT_NOTIFICATIONCHANNEL_ID;
+                    CharSequence channelName = APPOINTMENT_NOTIFICATIONCHANNEL_ID;
+                    int importance = NotificationManager.IMPORTANCE_LOW;
+                    NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, importance);
+                    notificationChannel.enableLights(false);
+                    notificationChannel.enableVibration(false);
+                    notificationChannel.setImportance(NotificationManager.IMPORTANCE_LOW);
+                    mNotificationManager.createNotificationChannel(notificationChannel);
+                    mBuilder.setChannelId(APPOINTMENT_NOTIFICATIONCHANNEL_ID);
+                }
                 mNotificationManager.notify(APPOINTMENT_NOTIFICATION_ID, mBuilder.build());
 
                 previousAppointment = mGson.toJson(appointment);
@@ -468,6 +503,21 @@ public class BackgroundService extends BroadcastReceiver {
 
 
                 NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+                if (Build.VERSION.SDK_INT >= 26) {
+                    String channelId = NEW_GRADE_NOTIFICATIONCHANNEL_ID;
+                    CharSequence channelName = NEW_GRADE_NOTIFICATIONCHANNEL_ID;
+                    int importance = NotificationManager.IMPORTANCE_LOW;
+                    NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, importance);
+                    notificationChannel.enableLights(true);
+                    notificationChannel.setLightColor(Color.RED);
+                    notificationChannel.enableVibration(true);
+                    notificationChannel.setImportance(NotificationManager.IMPORTANCE_DEFAULT);
+                    notificationChannel.setVibrationPattern(new long[]{100, 200, 150});
+                    mNotificationManager.createNotificationChannel(notificationChannel);
+                    mBuilder.setChannelId(NEW_GRADE_NOTIFICATIONCHANNEL_ID);
+                }
+
                 mNotificationManager.notify(NEW_GRADE_NOTIFICATION_ID, mBuilder.build());
 
                 configUtil.setString("lastGradesNotification", GradesNotification);
@@ -534,6 +584,19 @@ public class BackgroundService extends BroadcastReceiver {
 
 
                     NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        String channelId = NEW_SCHEDULE_CHANGE_NOTIFICATIONCHANNEL_ID;
+                        CharSequence channelName = NEW_SCHEDULE_CHANGE_NOTIFICATIONCHANNEL_ID;
+                        int importance = NotificationManager.IMPORTANCE_LOW;
+                        NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, importance);
+                        notificationChannel.enableLights(true);
+                        notificationChannel.setLightColor(Color.RED);
+                        notificationChannel.enableVibration(true);
+                        notificationChannel.setImportance(NotificationManager.IMPORTANCE_DEFAULT);
+                        notificationChannel.setVibrationPattern(new long[]{100, 200, 150});
+                        mNotificationManager.createNotificationChannel(notificationChannel);
+                        mBuilder.setChannelId(NEW_SCHEDULE_CHANGE_NOTIFICATIONCHANNEL_ID);
+                    }
                     mNotificationManager.notify(NEW_SCHEDULE_CHANGE_NOTIFICATION_ID, mBuilder.build());
                 }
             }
@@ -573,6 +636,19 @@ public class BackgroundService extends BroadcastReceiver {
                 mBuilder.setContentIntent(resultPendingIntent);
 
                 NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                if (Build.VERSION.SDK_INT >= 26) {
+                    String channelId = NEXT_APPOINTMENT_CHANGED_NOTIFICATIONCHANNEL_ID;
+                    CharSequence channelName = NEXT_APPOINTMENT_CHANGED_NOTIFICATIONCHANNEL_ID;
+                    int importance = NotificationManager.IMPORTANCE_LOW;
+                    NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, importance);
+                    notificationChannel.enableLights(true);
+                    notificationChannel.setLightColor(Color.RED);
+                    notificationChannel.enableVibration(true);
+                    notificationChannel.setImportance(NotificationManager.IMPORTANCE_DEFAULT);
+                    notificationChannel.setVibrationPattern(new long[]{100, 200, 150});
+                    mNotificationManager.createNotificationChannel(notificationChannel);
+                    mBuilder.setChannelId(NEXT_APPOINTMENT_CHANGED_NOTIFICATIONCHANNEL_ID);
+                }
                 mNotificationManager.notify(NEXT_APPOINTMENT_CHANGED_NOTIFICATION_ID, mBuilder.build());
 
                 configUtil.setString("previous_changed_appointment", appointment.startDateString);
@@ -618,6 +694,19 @@ public class BackgroundService extends BroadcastReceiver {
             mBuilder.setContentIntent(resultPendingIntent);
 
             NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (Build.VERSION.SDK_INT >= 26) {
+                String channelId = NEW_HOMEWORK_NOTIFICATIONCHANNEL_ID;
+                CharSequence channelName = NEW_HOMEWORK_NOTIFICATIONCHANNEL_ID;
+                int importance = NotificationManager.IMPORTANCE_LOW;
+                NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, importance);
+                notificationChannel.enableLights(true);
+                notificationChannel.setLightColor(Color.RED);
+                notificationChannel.enableVibration(true);
+                notificationChannel.setImportance(NotificationManager.IMPORTANCE_DEFAULT);
+                notificationChannel.setVibrationPattern(new long[]{100, 200, 150});
+                mNotificationManager.createNotificationChannel(notificationChannel);
+                mBuilder.setChannelId(NEW_HOMEWORK_NOTIFICATIONCHANNEL_ID);
+            }
             mNotificationManager.notify(NEW_HOMEWORK_NOTIFICATION_ID, mBuilder.build());
         }
     }
@@ -672,6 +761,19 @@ public class BackgroundService extends BroadcastReceiver {
 
 
                     NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        String channelId = UNFINISHED_HOMEWORK_NOTIFICATIONCHANNEL_ID;
+                        CharSequence channelName = UNFINISHED_HOMEWORK_NOTIFICATIONCHANNEL_ID;
+                        int importance = NotificationManager.IMPORTANCE_LOW;
+                        NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, importance);
+                        notificationChannel.enableLights(true);
+                        notificationChannel.setLightColor(Color.RED);
+                        notificationChannel.enableVibration(true);
+                        notificationChannel.setImportance(NotificationManager.IMPORTANCE_DEFAULT);
+                        notificationChannel.setVibrationPattern(new long[]{100, 200, 150});
+                        mNotificationManager.createNotificationChannel(notificationChannel);
+                        mBuilder.setChannelId(UNFINISHED_HOMEWORK_NOTIFICATIONCHANNEL_ID);
+                    }
                     mNotificationManager.notify(UNFINISHED_HOMEWORK_NOTIFICATION_ID, mBuilder.build());
                 }
 
