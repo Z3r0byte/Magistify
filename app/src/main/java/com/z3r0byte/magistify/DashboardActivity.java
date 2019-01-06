@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2019 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -201,10 +201,10 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void showUpdateMessage() {
         final int version = BuildConfig.VERSION_CODE;
-        if (configUtil.getInteger("last_update_message") != version && configUtil.getInteger("login_version") != version) {
+        if (configUtil.getInteger("last_update_message") != version) {
             android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(this);
-            alertDialogBuilder.setTitle(R.string.title_magistify_changelog);
-            alertDialogBuilder.setMessage(R.string.desc_magistify_changelog);
+            alertDialogBuilder.setTitle("Een minder leuk bericht");
+            alertDialogBuilder.setMessage("Ik stop met het verder ontwikkelen van Magistify. Magistify gaat al een tijd constant achteruit met het aantal installaties en dit is begrijpelijk, want Magistify biedt nou eenmaal niet zoveel functies als sommige andere Magister apps. Daarnaast heeft Magister afgelopen jaar een nieuwe manier van inloggen ingevoerd en het is maar de vraag hoe lang de oude manier nog zal blijven werken. Ik heb er simpelweg de tijd niet voor om naast school en werk (apps maken maakt je helaas niet rijk \uD83D\uDE09) nog mijn apps te onderhouden en te updaten met nieuwe functies, zeker niet nu ik in mijn examenjaar zit. Daarom heb ik besloten te stoppen met het verder ontwikkelen van Magistify. Ik hoop dat je dit begrijpt en ik wil je hartelijk bedanken voor het downloaden en gebruiken van Magistify.");
             alertDialogBuilder.setPositiveButton("Oké", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
