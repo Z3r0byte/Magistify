@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018 Bas van den Boom 'Z3r0byte'
+ * Copyright (c) 2016-2019 Bas van den Boom 'Z3r0byte'
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.z3r0byte.magistify.Services;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -99,7 +100,7 @@ public class BackgroundService extends BroadcastReceiver {
     private static final String UNFINISHED_HOMEWORK_NOTIFICATIONCHANNEL_ID = "9996";
 
 
-
+    @SuppressLint("InvalidWakeLockTag")
     @Override
     public void onReceive(final Context context, Intent intent) {
         PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
@@ -178,6 +179,8 @@ public class BackgroundService extends BroadcastReceiver {
             if (GlobalAccount.MAGISTER == null) {
                 if (configUtil.getInteger("failed_auth") >= 2) {
                     Log.w(TAG, "run: Warning! 2 Failed authentications, aborting for user's safety!");
+                    if (configUtil.getBoolean("shown_failed_login_notification")) return;
+                    configUtil.setBoolean("shown_failed_login_notification", true);
                     NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
                     mBuilder.setSmallIcon(R.drawable.ic_error);
 
@@ -211,6 +214,7 @@ public class BackgroundService extends BroadcastReceiver {
                     }
                     mNotificationManager.notify(LOGIN_FAILED_ID, mBuilder.build());
                 } else {
+                    configUtil.setBoolean("shown_failed_login_notification", false);
                     try {
                         Log.d(TAG, "SessionManager: initiating session");
                         GlobalAccount.MAGISTER = Magister.login(school, user.username, user.password);
@@ -227,6 +231,7 @@ public class BackgroundService extends BroadcastReceiver {
                     }
                 }
             } else if (GlobalAccount.MAGISTER.isExpired()) {
+                configUtil.setBoolean("shown_failed_login_notification", false);
                 try {
                     GlobalAccount.MAGISTER.login();
                     Log.d(TAG, "SessionManager: refreshing session");
