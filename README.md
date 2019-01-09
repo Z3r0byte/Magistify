@@ -1,4 +1,4 @@
-# Magistify
+# Magistify [NO LONGER MAINTAINED]
 All your favorite Magister tools in one app
 
 ###### [Website](https://magistify.nl)
