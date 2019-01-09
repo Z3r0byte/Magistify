@@ -5,7 +5,7 @@ All your favorite Magister tools in one app
 
 ### License
 ```
-Copyright 2017 Bas van den Boom 'Z3r0byte'
+Copyright 2017p-2019 Bas van den Boom 'Z3r0byte'
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
